@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>oso.framework.plugin.base &#8212; IBM Offline Signing Orchestrator Framework  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for oso.framework.plugin.base</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># (c) Copyright IBM Corp. 2025</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1"># http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="sd">&quot;&quot;&quot;PluginProtocol class for defining plugins.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">runtime_checkable</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">flask.views</span><span class="w"> </span><span class="kn">import</span> <span class="n">View</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oso.framework.data.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">V1_3</span>
+
+
+<div class="viewcode-block" id="PluginProtocol">
+<a class="viewcode-back" href="../../../../generated/oso.framework.plugin.html#oso.framework.plugin.base.PluginProtocol">[docs]</a>
+<span class="nd">@runtime_checkable</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PluginProtocol</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    PluginProtocol Constructor.</span>
+
+<span class="sd">    Config:</span>
+<span class="sd">        Any BaseModel extended class can be utilized to add environment variables after</span>
+<span class="sd">        registering with the config_manager.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">        internalViews:</span>
+<span class="sd">            Any internal API endpoints that the ISV wishes to expose to any</span>
+<span class="sd">            peer containers. These endpoints are prepended with ``/internal/``.</span>
+
+<span class="sd">        externalViews</span>
+<span class="sd">            Any external API endpoints that the ISV wishes to expose to users</span>
+<span class="sd">            outside the container. These endpoints are prepended with ``/api/isv/``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">internalViews</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">View</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">externalViews</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">View</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="PluginProtocol.to_oso">
+<a class="viewcode-back" href="../../../../generated/oso.framework.plugin.html#oso.framework.plugin.base.PluginProtocol.to_oso">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_oso</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isv</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">V1_3</span><span class="o">.</span><span class="n">DocumentList</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert ISV data to OSO formatted document list.</span>
+
+<span class="sd">        Return</span>
+<span class="sd">        -------</span>
+
+<span class="sd">            `oso.framework.data.types.DocumentList`:</span>
+
+<span class="sd">                OSO formatted document list.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">            `werkzeug.exceptions.HTTPException`:</span>
+
+<span class="sd">                Any HTTP response other than 200 should return a subclass.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="o">...</span></div>
+
+
+<div class="viewcode-block" id="PluginProtocol.to_isv">
+<a class="viewcode-back" href="../../../../generated/oso.framework.plugin.html#oso.framework.plugin.base.PluginProtocol.to_isv">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_isv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oso</span><span class="p">:</span> <span class="n">V1_3</span><span class="o">.</span><span class="n">DocumentList</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert OSO formatted document list to ISV data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            oso (`oso.framework.data.types.DocumentList`):</span>
+
+<span class="sd">                OSO formatted document list.</span>
+
+<span class="sd">        Return</span>
+<span class="sd">        -------</span>
+
+<span class="sd">            `Any`:</span>
+
+<span class="sd">                ISV formatted document list.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">            `werkzeug.exceptions.HTTPException`:</span>
+
+<span class="sd">                Any HTTP response other than 200 should return a subclass.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="o">...</span></div>
+
+
+<div class="viewcode-block" id="PluginProtocol.status">
+<a class="viewcode-back" href="../../../../generated/oso.framework.plugin.html#oso.framework.plugin.base.PluginProtocol.status">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">V1_3</span><span class="o">.</span><span class="n">ComponentStatus</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the status of the component.</span>
+
+<span class="sd">        Return</span>
+<span class="sd">        -------</span>
+
+<span class="sd">            `oso.framework.data.types.ComponentStatus`:</span>
+
+<span class="sd">                Mode dependent component&#39;s</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">            `werkzeug.exceptions.HTTPException`:</span>
+
+<span class="sd">                Any HTTP response other than 200 should return a subclass.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="o">...</span></div>
+</div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">IBM Offline Signing Orchestrator Framework</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../config.html">Configuration</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  <li><a href="../plugin.html">oso.framework.plugin</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, IBM.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

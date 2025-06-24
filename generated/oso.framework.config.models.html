@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>oso.framework.config.models namespace &#8212; IBM Offline Signing Orchestrator Framework  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="oso.framework.core package" href="oso.framework.core.html" />
+    <link rel="prev" title="oso.framework.config package" href="oso.framework.config.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-oso.framework.config.models">
+<span id="oso-framework-config-models-namespace"></span><h1>oso.framework.config.models namespace<a class="headerlink" href="#module-oso.framework.config.models" title="Link to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
+</section>
+<section id="module-oso.framework.config.models.app">
+<span id="oso-framework-config-models-app-module"></span><h2>oso.framework.config.models.app module<a class="headerlink" href="#module-oso.framework.config.models.app" title="Link to this heading">¶</a></h2>
+<p>Common Application Config.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="oso.framework.config.models.app.BaseAppConfig">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">oso.framework.config.models.app.</span></span><span class="sig-name descname"><span class="pre">BaseAppConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.13)"><span class="pre">Path</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">PosixPath('/app-root')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/oso/framework/config/models/app.html#BaseAppConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#oso.framework.config.models.app.BaseAppConfig" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="oso.framework.config.html#oso.framework.config.AutoLoadConfig" title="oso.framework.config._manager.AutoLoadConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">AutoLoadConfig</span></code></a></p>
+<p>Application’s basic configuration.</p>
+<p>Picked from the environment variables prefixed with <code class="docutils literal notranslate"><span class="pre">APP__</span></code>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="oso.framework.config.models.app.BaseAppConfig.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#oso.framework.config.models.app.BaseAppConfig.name" title="Link to this definition">¶</a></dt>
+<dd><p>The application’s name.</p>
+<dl class="std confval">
+<dt class="sig sig-object std" id="confval-APP__NAME">
+<span class="sig-name descname"><span class="pre">APP__NAME</span></span><a class="headerlink" href="#confval-APP__NAME" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a>, default: A</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="oso.framework.config.models.app.BaseAppConfig.debug">
+<span class="sig-name descname"><span class="pre">debug</span></span><a class="headerlink" href="#oso.framework.config.models.app.BaseAppConfig.debug" title="Link to this definition">¶</a></dt>
+<dd><p>Start the application in debug mode if set to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+<dl class="std envvar">
+<dt class="sig sig-object std" id="envvar-APP__DEBUG">
+<span class="sig-name descname"><span class="pre">APP__DEBUG</span></span><a class="headerlink" href="#envvar-APP__DEBUG" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="oso.framework.config.models.app.BaseAppConfig.root">
+<span class="sig-name descname"><span class="pre">root</span></span><a class="headerlink" href="#oso.framework.config.models.app.BaseAppConfig.root" title="Link to this definition">¶</a></dt>
+<dd><p>The application’s root directory.</p>
+<dl class="std envvar">
+<dt class="sig sig-object std" id="envvar-APP__ROOT">
+<span class="sig-name descname"><span class="pre">APP__ROOT</span></span><a class="headerlink" href="#envvar-APP__ROOT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><cite>pathlib.Path</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-oso.framework.config.models.certs">
+<span id="oso-framework-config-models-certs-module"></span><h2>oso.framework.config.models.certs module<a class="headerlink" href="#module-oso.framework.config.models.certs" title="Link to this heading">¶</a></h2>
+<p>Certificate Configuration.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="oso.framework.config.models.certs.CertificateConfig">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">oso.framework.config.models.certs.</span></span><span class="sig-name descname"><span class="pre">CertificateConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">ca</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_crt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/oso/framework/config/models/certs.html#CertificateConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#oso.framework.config.models.certs.CertificateConfig" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="oso.framework.config.html#oso.framework.config.AutoLoadConfig" title="oso.framework.config._manager.AutoLoadConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">AutoLoadConfig</span></code></a></p>
+<p>Certificate Configuration Set.</p>
+<p>An application that requires loading of certificates can import this model to
+notify the <cite>..ConfigManager</cite> that these fields are required. Picked from the
+environment variables prefixed with <code class="docutils literal notranslate"><span class="pre">CERTS__</span></code>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="oso.framework.config.models.certs.CertificateConfig.ca">
+<span class="sig-name descname"><span class="pre">ca</span></span><a class="headerlink" href="#oso.framework.config.models.certs.CertificateConfig.ca" title="Link to this definition">¶</a></dt>
+<dd><p>The Certificate Authority for all of the components.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>, envvar=CERTS__CA</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="oso.framework.config.models.certs.CertificateConfig.app_crt">
+<span class="sig-name descname"><span class="pre">app_crt</span></span><a class="headerlink" href="#oso.framework.config.models.certs.CertificateConfig.app_crt" title="Link to this definition">¶</a></dt>
+<dd><p>The certificate for this application.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>, envvar=CERTS__APP_CRT</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="oso.framework.config.models.certs.CertificateConfig.app_key">
+<span class="sig-name descname"><span class="pre">app_key</span></span><a class="headerlink" href="#oso.framework.config.models.certs.CertificateConfig.app_key" title="Link to this definition">¶</a></dt>
+<dd><p>The private key for this application.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>, envvar=CERTS__APP_KEY</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">app_key</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></em><a class="headerlink" href="#id0" title="Link to this definition">¶</a></dt>
+<dd><p>The private key for this application.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Required<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p>
+</dd>
+<dt class="field-even">Envvar<span class="colon">:</span></dt>
+<dd class="field-even"><p>CERTS__APP_KEY</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="oso.framework.config.models.certs.CertificateConfig.ca_filename">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ca_filename</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.13)"><span class="pre">Path</span></a></em><a class="headerlink" href="#oso.framework.config.models.certs.CertificateConfig.ca_filename" title="Link to this definition">¶</a></dt>
+<dd><p>CA filename.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="oso.framework.config.models.certs.CertificateConfig.crt_filename">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">crt_filename</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.13)"><span class="pre">Path</span></a></em><a class="headerlink" href="#oso.framework.config.models.certs.CertificateConfig.crt_filename" title="Link to this definition">¶</a></dt>
+<dd><p>Cert filename.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="oso.framework.config.models.certs.CertificateConfig.export">
+<span class="sig-name descname"><span class="pre">export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.13)"><span class="pre">Path</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/oso/framework/config/models/certs.html#CertificateConfig.export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#oso.framework.config.models.certs.CertificateConfig.export" title="Link to this definition">¶</a></dt>
+<dd><p>Export certificates to filesystem.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="oso.framework.config.models.certs.CertificateConfig.key_filename">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">key_filename</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.13)"><span class="pre">Path</span></a></em><a class="headerlink" href="#oso.framework.config.models.certs.CertificateConfig.key_filename" title="Link to this definition">¶</a></dt>
+<dd><p>Key filename.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="oso.framework.config.models.certs.CertificateConfig.model_post_init">
+<span class="sig-name descname"><span class="pre">model_post_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#oso.framework.config.models.certs.CertificateConfig.model_post_init" title="Link to this definition">¶</a></dt>
+<dd><p>This function is meant to behave like a BaseModel method to initialise private attributes.</p>
+<p>It takes context as an argument since that’s what pydantic-core passes when calling it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self</strong> – The BaseModel instance.</p></li>
+<li><p><strong>context</strong> – The context.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-oso.framework.config.models.logging">
+<span id="oso-framework-config-models-logging-module"></span><h2>oso.framework.config.models.logging module<a class="headerlink" href="#module-oso.framework.config.models.logging" title="Link to this heading">¶</a></h2>
+<p>Common Logging Configuration.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="oso.framework.config.models.logging.LoggingConfig">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">oso.framework.config.models.logging.</span></span><span class="sig-name descname"><span class="pre">LoggingConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Annotated" title="(in Python v3.13)"><span class="pre">Annotated</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">_PydanticGeneralMetadata</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">pattern</span></span><span class="o"><span class="pre">=</span></span><span class="pre">re.compile</span><span class="p"><span class="pre">(</span></span><span class="s"><span class="pre">'^(?:-?\\d+|CRITICAL|FATAL|ERROR|WARN|WARNING|INFO|DEBUG|NOTSET)$'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">re.IGNORECASE</span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#oso.framework.config.models.logging.LoggingConfig" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="oso.framework.config.html#oso.framework.config.AutoLoadConfig" title="oso.framework.config._manager.AutoLoadConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">AutoLoadConfig</span></code></a></p>
+<p>Logging configuration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="oso.framework.config.models.logging.LoggingConfig.level">
+<span class="sig-name descname"><span class="pre">level</span></span><a class="headerlink" href="#oso.framework.config.models.logging.LoggingConfig.level" title="Link to this definition">¶</a></dt>
+<dd><p>Logging level.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>, default=INFO, envvar=LOGGING__LEVEL</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="oso.framework.config.models.logging.LoggingConfig.level_as_int">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">level_as_int</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></em><a class="headerlink" href="#oso.framework.config.models.logging.LoggingConfig.level_as_int" title="Link to this definition">¶</a></dt>
+<dd><p>Logging level as integer.</p>
+<p>Return a valid logging level [0, inf]. Value is validated by regex during init.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The logging level to use in integer form.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">IBM Offline Signing Orchestrator Framework</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../config.html">Configuration</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../api.html">API</a><ul>
+  <li><a href="oso.framework.html">oso.framework namespace</a><ul>
+  <li><a href="oso.framework.config.html">oso.framework.config package</a><ul>
+      <li>Previous: <a href="oso.framework.config.html" title="previous chapter">oso.framework.config package</a></li>
+      <li>Next: <a href="oso.framework.core.html" title="next chapter">oso.framework.core package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, IBM.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="../_sources/generated/oso.framework.config.models.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>oso.framework.plugin.test namespace &#8212; IBM Offline Signing Orchestrator Framework  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="oso namespace" href="oso.html" />
+    <link rel="prev" title="oso.framework.plugin.api.v1alpha1 namespace" href="oso.framework.plugin.api.v1alpha1.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-oso.framework.plugin.test">
+<span id="oso-framework-plugin-test-namespace"></span><h1>oso.framework.plugin.test namespace<a class="headerlink" href="#module-oso.framework.plugin.test" title="Link to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
+</section>
+<section id="module-oso.framework.plugin.test.isv_cls">
+<span id="oso-framework-plugin-test-isv-cls-module"></span><h2>oso.framework.plugin.test.isv_cls module<a class="headerlink" href="#module-oso.framework.plugin.test.isv_cls" title="Link to this heading">¶</a></h2>
+<p>Example plugin implemented as a class.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="oso.framework.plugin.test.isv_cls.TestISVApp">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">oso.framework.plugin.test.isv_cls.</span></span><span class="sig-name descname"><span class="pre">TestISVApp</span></span><a class="reference internal" href="../_modules/oso/framework/plugin/test/isv_cls.html#TestISVApp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#oso.framework.plugin.test.isv_cls.TestISVApp" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="oso.framework.plugin.html#oso.framework.plugin.base.PluginProtocol" title="oso.framework.plugin.base.PluginProtocol"><code class="xref py py-class docutils literal notranslate"><span class="pre">PluginProtocol</span></code></a></p>
+<p>Example plugin implemented as a class.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="oso.framework.plugin.test.isv_cls.TestISVApp.internalViews">
+<span class="sig-name descname"><span class="pre">internalViews</span></span><a class="headerlink" href="#oso.framework.plugin.test.isv_cls.TestISVApp.internalViews" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[str, <cite>flask.views.View</cite>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="oso.framework.plugin.test.isv_cls.TestISVApp.externalViews">
+<span class="sig-name descname"><span class="pre">externalViews</span></span><a class="headerlink" href="#oso.framework.plugin.test.isv_cls.TestISVApp.externalViews" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[str, <cite>flask.views.View</cite>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="oso.framework.plugin.test.isv_cls.TestISVApp.status">
+<span class="sig-name descname"><span class="pre">status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="oso.framework.data.html#oso.framework.data.types.V1_3.ComponentStatus" title="oso.framework.data.types.V1_3.ComponentStatus"><span class="pre">ComponentStatus</span></a></span></span><a class="reference internal" href="../_modules/oso/framework/plugin/test/isv_cls.html#TestISVApp.status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#oso.framework.plugin.test.isv_cls.TestISVApp.status" title="Link to this definition">¶</a></dt>
+<dd><p>Return a downstream component’s status.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The downstream’s component status.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><cite>oso.framework.data.types.ComponentStatus</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="oso.framework.plugin.test.isv_cls.TestISVApp.to_isv">
+<span class="sig-name descname"><span class="pre">to_isv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">oso</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="oso.framework.data.html#oso.framework.data.types.V1_3.DocumentList" title="oso.framework.data.types.V1_3.DocumentList"><span class="pre">DocumentList</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/oso/framework/plugin/test/isv_cls.html#TestISVApp.to_isv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#oso.framework.plugin.test.isv_cls.TestISVApp.to_isv" title="Link to this definition">¶</a></dt>
+<dd><p>Convert from OSO to ISV.</p>
+<p>Convert an OSO’s format into an ISV’s format, say a list of <code class="docutils literal notranslate"><span class="pre">ID:Content</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>oso</strong> (<cite>oso.framework.data.types.DocumentList</cite>) – An OSO formatted input data stream.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An ISV formatted output data stream.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="oso.framework.plugin.test.isv_cls.TestISVApp.to_oso">
+<span class="sig-name descname"><span class="pre">to_oso</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="oso.framework.data.html#oso.framework.data.types.V1_3.DocumentList" title="oso.framework.data.types.V1_3.DocumentList"><span class="pre">DocumentList</span></a></span></span><a class="reference internal" href="../_modules/oso/framework/plugin/test/isv_cls.html#TestISVApp.to_oso"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#oso.framework.plugin.test.isv_cls.TestISVApp.to_oso" title="Link to this definition">¶</a></dt>
+<dd><p>Convert from ISV to OSO.</p>
+<p>Say an ISV’s format is a list of <code class="docutils literal notranslate"><span class="pre">ID:Content</span></code>, convert to OSO’s format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>isv</strong> (<cite>typing.Any</cite>, default=None) – An ISV formatted input data stream.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An OSO formatted output data stream.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><cite>oso.framework.data.types.DocumentList</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-oso.framework.plugin.test.isv_mod">
+<span id="oso-framework-plugin-test-isv-mod-module"></span><h2>oso.framework.plugin.test.isv_mod module<a class="headerlink" href="#module-oso.framework.plugin.test.isv_mod" title="Link to this heading">¶</a></h2>
+<p>Example plugin implemented as a module.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="oso.framework.plugin.test.isv_mod.status">
+<span class="sig-prename descclassname"><span class="pre">oso.framework.plugin.test.isv_mod.</span></span><span class="sig-name descname"><span class="pre">status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="oso.framework.data.html#oso.framework.data.types.V1_3.ComponentStatus" title="oso.framework.data.types.V1_3.ComponentStatus"><span class="pre">ComponentStatus</span></a></span></span><a class="reference internal" href="../_modules/oso/framework/plugin/test/isv_mod.html#status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#oso.framework.plugin.test.isv_mod.status" title="Link to this definition">¶</a></dt>
+<dd><p>Return a downstream component’s status.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The downstream’s component status.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><cite>oso.framework.data.types.ComponentStatus</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="oso.framework.plugin.test.isv_mod.to_isv">
+<span class="sig-prename descclassname"><span class="pre">oso.framework.plugin.test.isv_mod.</span></span><span class="sig-name descname"><span class="pre">to_isv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">oso</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="oso.framework.data.html#oso.framework.data.types.V1_3.DocumentList" title="oso.framework.data.types.V1_3.DocumentList"><span class="pre">DocumentList</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/oso/framework/plugin/test/isv_mod.html#to_isv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#oso.framework.plugin.test.isv_mod.to_isv" title="Link to this definition">¶</a></dt>
+<dd><p>Convert from OSO to ISV.</p>
+<p>Convert an OSO’s format into an ISV’s format, say a list of <code class="docutils literal notranslate"><span class="pre">ID:Content</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>oso</strong> (<cite>oso.framework.data.types.DocumentList</cite>) – An OSO formatted input data stream.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An ISV formatted output data stream.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="oso.framework.plugin.test.isv_mod.to_oso">
+<span class="sig-prename descclassname"><span class="pre">oso.framework.plugin.test.isv_mod.</span></span><span class="sig-name descname"><span class="pre">to_oso</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="oso.framework.data.html#oso.framework.data.types.V1_3.DocumentList" title="oso.framework.data.types.V1_3.DocumentList"><span class="pre">DocumentList</span></a></span></span><a class="reference internal" href="../_modules/oso/framework/plugin/test/isv_mod.html#to_oso"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#oso.framework.plugin.test.isv_mod.to_oso" title="Link to this definition">¶</a></dt>
+<dd><p>Convert from ISV to OSO.</p>
+<p>Say an ISV’s format is a list of <code class="docutils literal notranslate"><span class="pre">ID:Content</span></code>, convert to OSO’s format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>isv</strong> (<cite>typing.Any</cite>, default=None) – An ISV formatted input data stream.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An OSO formatted output data stream.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><cite>oso.framework.data.types.DocumentList</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-oso.framework.plugin.test.isv_view">
+<span id="oso-framework-plugin-test-isv-view-module"></span><h2>oso.framework.plugin.test.isv_view module<a class="headerlink" href="#module-oso.framework.plugin.test.isv_view" title="Link to this heading">¶</a></h2>
+<p>Example extra endpoints for plugins.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="oso.framework.plugin.test.isv_view.InView">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">oso.framework.plugin.test.isv_view.</span></span><span class="sig-name descname"><span class="pre">InView</span></span><a class="reference internal" href="../_modules/oso/framework/plugin/test/isv_view.html#InView"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#oso.framework.plugin.test.isv_view.InView" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://flask.palletsprojects.com/en/latest/api/#flask.views.MethodView" title="(in Flask v3.2.x)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MethodView</span></code></a></p>
+<p>Example View.</p>
+<p>A view that implements a GET endpoint that returns a JSON message.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="oso.framework.plugin.test.isv_view.InView.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/oso/framework/plugin/test/isv_view.html#InView.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#oso.framework.plugin.test.isv_view.InView.get" title="Link to this definition">¶</a></dt>
+<dd><p>GET Endpoint.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="oso.framework.plugin.test.isv_view.InView.methods">
+<span class="sig-name descname"><span class="pre">methods</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">t.ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">t.Collection</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'GET'}</span></em><a class="headerlink" href="#oso.framework.plugin.test.isv_view.InView.methods" title="Link to this definition">¶</a></dt>
+<dd><p>The methods this view is registered for. Uses the same default
+(<code class="docutils literal notranslate"><span class="pre">[&quot;GET&quot;,</span> <span class="pre">&quot;HEAD&quot;,</span> <span class="pre">&quot;OPTIONS&quot;]</span></code>) as <code class="docutils literal notranslate"><span class="pre">route</span></code> and
+<code class="docutils literal notranslate"><span class="pre">add_url_rule</span></code> by default.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">IBM Offline Signing Orchestrator Framework</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../config.html">Configuration</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../api.html">API</a><ul>
+  <li><a href="oso.framework.html">oso.framework namespace</a><ul>
+  <li><a href="oso.framework.plugin.html">oso.framework.plugin package</a><ul>
+      <li>Previous: <a href="oso.framework.plugin.api.v1alpha1.html" title="previous chapter">oso.framework.plugin.api.v1alpha1 namespace</a></li>
+      <li>Next: <a href="oso.html" title="next chapter">oso namespace</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, IBM.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="../_sources/generated/oso.framework.plugin.test.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

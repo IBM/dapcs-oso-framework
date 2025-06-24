@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>oso.framework.config._manager &#8212; IBM Offline Signing Orchestrator Framework  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for oso.framework.config._manager</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># (c) Copyright IBM Corp. 2025</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1"># http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">contextlib</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">inspect</span><span class="w"> </span><span class="kn">import</span> <span class="n">isabstract</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">MutableMapping</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Annotated</span><span class="p">,</span>
+    <span class="n">Any</span><span class="p">,</span>
+    <span class="n">ClassVar</span><span class="p">,</span>
+    <span class="n">Literal</span><span class="p">,</span>
+    <span class="n">Union</span><span class="p">,</span>
+    <span class="n">get_args</span><span class="p">,</span>
+    <span class="n">get_origin</span><span class="p">,</span>
+    <span class="n">override</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BaseModel</span><span class="p">,</span>
+    <span class="n">Discriminator</span><span class="p">,</span>
+    <span class="n">Field</span><span class="p">,</span>
+    <span class="n">ImportString</span><span class="p">,</span>
+    <span class="n">Tag</span><span class="p">,</span>
+    <span class="n">ValidationError</span><span class="p">,</span>
+    <span class="n">create_model</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic.fields</span><span class="w"> </span><span class="kn">import</span> <span class="n">FieldInfo</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_settings</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BaseSettings</span><span class="p">,</span>
+    <span class="n">EnvSettingsSource</span><span class="p">,</span>
+    <span class="n">PydanticBaseSettingsSource</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_EnvSourceListSupport</span><span class="p">(</span><span class="n">EnvSettingsSource</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add support for array indexed keys.</span>
+
+<span class="sd">    Adds support for :py:class:~`typing.Sequence` like types in environment variables.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_field_value</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">field</span><span class="p">:</span> <span class="n">FieldInfo</span><span class="p">,</span>
+        <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+        <span class="n">value_is_complex</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="n">prepared</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">prepare_field_value</span><span class="p">(</span>
+            <span class="n">field_name</span><span class="p">,</span>
+            <span class="n">field</span><span class="p">,</span>
+            <span class="n">value</span><span class="p">,</span>
+            <span class="n">value_is_complex</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">prepared</span><span class="p">:</span>
+            <span class="n">anno</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">annotation</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">anno</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">anno</span><span class="p">,</span> <span class="n">BaseModel</span><span class="p">):</span>
+                <span class="c1"># Nested BaseModel</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">anno</span><span class="o">.</span><span class="n">model_fields</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">o</span> <span class="o">=</span> <span class="n">get_origin</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">annotation</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">):</span>
+                        <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">suppress</span><span class="p">(</span><span class="ne">KeyError</span><span class="p">):</span>
+                            <span class="n">prepared</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">prepared</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+                <span class="k">return</span> <span class="n">prepared</span>
+            <span class="n">o</span> <span class="o">=</span> <span class="n">get_origin</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">annotation</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">):</span>
+                <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">prepared</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="c1"># Return the original prepared value</span>
+        <span class="k">return</span> <span class="n">prepared</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_Config</span><span class="p">(</span><span class="n">BaseSettings</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper class that utilizes the `._EnvSourceListSupport` source.&quot;&quot;&quot;</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">settings_customise_sources</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">settings_cls</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">BaseSettings</span><span class="p">],</span>
+        <span class="n">init_settings</span><span class="p">,</span>
+        <span class="n">env_settings</span><span class="p">,</span>
+        <span class="n">dotenv_settings</span><span class="p">,</span>
+        <span class="n">file_secret_settings</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">PydanticBaseSettingsSource</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="n">init_settings</span> <span class="ow">and</span> <span class="n">env_settings</span> <span class="ow">and</span> <span class="n">dotenv_settings</span> <span class="ow">and</span> <span class="n">file_secret_settings</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">_EnvSourceListSupport</span><span class="p">(</span><span class="n">settings_cls</span><span class="p">,</span> <span class="n">env_nested_delimiter</span><span class="o">=</span><span class="s2">&quot;__&quot;</span><span class="p">),)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_isimportable</span><span class="p">(</span><span class="n">kls</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Is class importable.</span>
+
+<span class="sd">    Check if ``kls`` is of type ~`pyandic.ImportString` or `.ImportableConfig`, or a</span>
+<span class="sd">    ~`typing.Sequence` of either.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    kls : ~`typing.Any`</span>
+<span class="sd">        Class to be checked.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        If `kls` is importable.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Some :py:mod:`pydantic.typing` are just `typing.Annotated` types, as is</span>
+<span class="sd">    `pydanticImportString`; so `inspect.issubclass` raises type hint errors, which</span>
+<span class="sd">    is why the check is using ``is`` instead.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">kls</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">kls</span> <span class="ow">is</span> <span class="n">ImportString</span> <span class="ow">or</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">kls</span><span class="p">,</span> <span class="n">ImportableConfig</span><span class="p">)</span>
+    <span class="n">origin</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="n">get_origin</span><span class="p">(</span><span class="n">kls</span><span class="p">),</span> <span class="n">get_args</span><span class="p">(</span><span class="n">kls</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="nb">isinstance</span><span class="p">(</span><span class="n">origin</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">origin</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="ow">and</span> <span class="n">_isimportable</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_construct_intermediary</span><span class="p">(</span>
+    <span class="n">field_or_model</span><span class="p">:</span> <span class="n">FieldInfo</span> <span class="o">|</span> <span class="nb">type</span><span class="p">[</span><span class="n">BaseModel</span><span class="p">],</span>
+    <span class="o">*</span><span class="n">keys</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">BaseModel</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a new intermediary type chain.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    field_or_model : ~`pydantic.FieldInfo` | type[~`pydantic.BaseModel`]</span>
+<span class="sd">        The model that needs to be embeded in a nested models.</span>
+<span class="sd">    *keys : str</span>
+<span class="sd">        The chain of field names the final model is nested under.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span>
+    <span class="n">_key</span> <span class="o">=</span> <span class="n">_keys</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field_or_model</span><span class="p">,</span> <span class="n">FieldInfo</span><span class="p">):</span>
+        <span class="n">_type</span> <span class="o">=</span> <span class="n">field_or_model</span><span class="o">.</span><span class="n">annotation</span>
+        <span class="n">_field</span> <span class="o">=</span> <span class="n">field_or_model</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_type</span> <span class="o">=</span> <span class="n">field_or_model</span>
+        <span class="n">_field</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">_type</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">o</span> <span class="o">:=</span> <span class="n">get_origin</span><span class="p">(</span><span class="n">_type</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">get_args</span><span class="p">(</span><span class="n">_type</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ImportableConfig</span><span class="p">):</span>
+                <span class="n">_type</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">ImportableConfig</span><span class="p">]</span>
+    <span class="n">_model</span> <span class="o">=</span> <span class="n">create_model</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;_intermediate_</span><span class="si">{</span><span class="n">_key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="o">**</span><span class="p">{</span><span class="n">_key</span><span class="p">:</span> <span class="p">(</span><span class="n">_type</span><span class="p">,</span> <span class="n">_field</span><span class="p">)},</span>  <span class="c1"># type: ignore</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">_keys</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_construct_intermediary</span><span class="p">(</span><span class="n">_model</span><span class="p">,</span> <span class="o">*</span><span class="n">_keys</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_model</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_discriminate</span><span class="p">(</span><span class="n">to_import</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Discriminate against `.ImportableConfig` types.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    to_import : ~`typing.Any`</span>
+<span class="sd">        The model that needs it&#39;s type to be determined.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        The model&#39;s type.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">to_import</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">to_import</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">to_import</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="s2">&quot;None&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="AutoLoadConfig">
+<a class="viewcode-back" href="../../../../generated/oso.framework.config.html#oso.framework.config.AutoLoadConfig">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AutoLoadConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Config that is registered on import.</span>
+
+<span class="sd">    A configuration model that will be automatically registered with `.ConfigManager`</span>
+<span class="sd">    when imported.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    __config_prefix__ : ~`typing.ClassVar`[str]</span>
+<span class="sd">        If set to an empty string, the configuration model&#39;s fields will be added to</span>
+<span class="sd">        the root model. Otherwise, the configuration model will be added to the root</span>
+<span class="sd">        model under this value, merged with other configuration models with the same</span>
+<span class="sd">        value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">__config_prefix__</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">_config_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__pydantic_init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">_config_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">isabstract</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;__config_prefix__&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">_config_prefix</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">__config_prefix__</span> <span class="o">=</span> <span class="n">_config_prefix</span>
+        <span class="n">ConfigManager</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__pydantic_init_subclass__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ImportableConfig">
+<a class="viewcode-back" href="../../../../generated/oso.framework.config.html#oso.framework.config.ImportableConfig">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ImportableConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Config object that defines an type import.</span>
+
+<span class="sd">    Defines an configuration model that is importable with additional configuration</span>
+<span class="sd">    fields. This is resolved to a fully discriminated type when configuration is</span>
+<span class="sd">    rendered.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    __importable_subclasses__: ClassVar[set[type[Any]]]</span>
+<span class="sd">        A set of classes that subclass this.</span>
+<span class="sd">    type : pydantic.ImportString</span>
+<span class="sd">        The module that is required.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">__importable_subclasses__</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="nb">type</span><span class="p">:</span> <span class="n">ImportString</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__pydantic_init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_register_config</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__pydantic_init_subclass__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_register_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Register this subclass as part of a parent.&quot;&quot;&quot;</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">__importable_subclasses__</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__mro__</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">cls</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ImportableConfig</span><span class="p">):</span>
+                <span class="n">c</span><span class="o">.</span><span class="n">__importable_subclasses__</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Annotated</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Concrete type union with discriminator tags.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ~`typing.Annotated`</span>
+<span class="sd">            An ~`typing.Annotated` type of ~`typing.Union` of all subclasses that is</span>
+<span class="sd">            registered to a parent class with all of the discriminating tags. If only</span>
+<span class="sd">            one exists, then the `~typing.Union` and ~`pydantic.Discriminator` is left</span>
+<span class="sd">            out.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_anno</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="n">Annotated</span><span class="p">[</span><span class="n">kls</span><span class="p">,</span> <span class="n">Tag</span><span class="p">(</span><span class="n">kls</span><span class="o">.</span><span class="vm">__module__</span><span class="p">)]</span> <span class="k">for</span> <span class="n">kls</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__importable_subclasses__</span>
+        <span class="p">)</span>
+        <span class="n">_anno</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Annotated</span><span class="p">[</span><span class="n">ImportableConfig</span><span class="p">,</span> <span class="n">Tag</span><span class="p">(</span><span class="s2">&quot;None&quot;</span><span class="p">)])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">_anno</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_anno</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="o">*</span><span class="n">_anno</span><span class="p">],</span> <span class="n">Discriminator</span><span class="p">(</span><span class="n">_discriminate</span><span class="p">)]</span></div>
+
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_ImportList</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper class for `.ImportableConfig`.</span>
+
+<span class="sd">    Helper class that remembers all `collections.abc.Sequence`[`.ImportableConfig`]</span>
+<span class="sd">    fields that need to be realized before configuration is rendered. This should not be</span>
+<span class="sd">    used by itself, rather with the `.ImportListMixin` function.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    __importable_fields_map__</span>
+<span class="sd">    : ~`typing.ClassVar`[~`collections.abc.Mapping`[str, type[`.ImportableConfig`]]]</span>
+<span class="sd">        A mapping of fields.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">__importable_fields_map__</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">[</span><span class="n">ImportableConfig</span><span class="p">]]]</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_realize</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__importable_fields_map__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">model_fields</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">annotation</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">_get_type</span><span class="p">()]</span>
+
+
+<div class="viewcode-block" id="ImportListMixin">
+<a class="viewcode-back" href="../../../../generated/oso.framework.config.html#oso.framework.config.ImportListMixin">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ImportListMixin</span><span class="p">(</span><span class="n">fields</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">[</span><span class="n">ImportableConfig</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">_ImportList</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Define a mixin that adds ``fields`` into the config model.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fields: collections.abc.Mapping[str, type[ImportableConfig]]</span>
+<span class="sd">        A mapping of field names to subclass of `ImportableConfig` to be included in</span>
+<span class="sd">        the concrete class.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    type[&#39;_ImportList&#39;]</span>
+<span class="sd">        A concrete type.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    The following: ::</span>
+
+<span class="sd">        class A(ImportableConfig): pass</span>
+
+<span class="sd">        class B(ImportListMixin({&quot;a&quot;: A})): pass</span>
+
+<span class="sd">    Equates to: ::</span>
+
+<span class="sd">        class A:</span>
+<span class="sd">            type: ImportString</span>
+
+<span class="sd">        class B:</span>
+<span class="sd">            __importable_fields_map__ = { &quot;a&quot;: A }</span>
+<span class="sd">            a: A</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">create_model</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fields</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">__base__</span><span class="o">=</span><span class="p">(</span><span class="n">_ImportList</span><span class="p">,),</span>
+        <span class="vm">__doc__</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">__config__</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="vm">__module__</span><span class="o">=</span><span class="vm">__name__</span><span class="p">,</span>
+        <span class="n">__validators__</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">__cls_kwargs__</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="p">{</span>
+            <span class="n">k</span><span class="p">:</span> <span class="p">(</span>
+                <span class="n">Sequence</span><span class="p">[</span><span class="n">v</span><span class="p">],</span>
+                <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">fields</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">__importable_fields_map__</span> <span class="o">=</span> <span class="n">fields</span>
+    <span class="k">return</span> <span class="n">model</span></div>
+
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ConfigManager</span><span class="p">:</span>
+    <span class="n">RENDERED_CONFIG_KEY</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;__RenderedConfig__&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">&quot;__RenderedConfig__&quot;</span>
+
+    <span class="n">_models</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">MutableMapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">AutoLoadConfig</span><span class="p">]]]]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">kls</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">AutoLoadConfig</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Register a configuration model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        key : str</span>
+<span class="sd">            Root key in the environment model.</span>
+
+<span class="sd">        kls : type[~`pydantic.BaseModel`]:</span>
+<span class="sd">            The configuration model.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">kls</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_models</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">kls</span><span class="o">.</span><span class="n">__config_prefix__</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">())</span>
+            <span class="ow">and</span> <span class="bp">cls</span><span class="o">.</span><span class="n">RENDERED_CONFIG_KEY</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kls</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="p">):</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_models</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="n">kls</span><span class="o">.</span><span class="n">__config_prefix__</span><span class="p">:</span> <span class="p">(</span>
+                        <span class="o">*</span><span class="bp">cls</span><span class="o">.</span><span class="n">_models</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">kls</span><span class="o">.</span><span class="n">__config_prefix__</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">()),</span>
+                        <span class="n">kls</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="n">_keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">kls</span><span class="o">.</span><span class="n">__config_prefix__</span><span class="p">]</span> <span class="k">if</span> <span class="n">kls</span><span class="o">.</span><span class="n">__config_prefix__</span> <span class="k">else</span> <span class="p">[]</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_eval_nested_imports</span><span class="p">(</span><span class="n">kls</span><span class="p">,</span> <span class="o">*</span><span class="n">_keys</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_eval_nested_imports</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">kls</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">BaseModel</span><span class="p">],</span> <span class="o">*</span><span class="n">keys</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Collect all importable types.</span>
+
+<span class="sd">        Crawl through current model for all additional imports via</span>
+<span class="sd">        ``pydantic.typing.ImportString`` model fields. This is called recursively, so</span>
+<span class="sd">        circular import issues may exist, and worked around via the deferred list.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        kls : type[`pydantic.BaseModel`]</span>
+<span class="sd">            A type to crawl through and check if it requires any imports and/or nested</span>
+<span class="sd">            imports.</span>
+<span class="sd">        *keys : str</span>
+<span class="sd">            A list of keys.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">filtered_imports</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">kls</span><span class="o">.</span><span class="n">model_fields</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">_isimportable</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">annotation</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">filtered_imports</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">create_model</span><span class="p">(</span>
+                    <span class="s2">&quot;_temp&quot;</span><span class="p">,</span>
+                    <span class="n">__base__</span><span class="o">=</span><span class="p">(</span>
+                        <span class="n">_Config</span><span class="p">,</span>
+                        <span class="n">_construct_intermediary</span><span class="p">(</span>
+                            <span class="n">field</span><span class="p">,</span>
+                            <span class="o">*</span><span class="n">keys</span><span class="p">,</span>
+                            <span class="n">key</span><span class="p">,</span>
+                        <span class="p">),</span>
+                    <span class="p">),</span>
+                    <span class="vm">__doc__</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">__config__</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="vm">__module__</span><span class="o">=</span><span class="n">kls</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+                    <span class="n">__validators__</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">__cls_kwargs__</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="p">)()</span>
+            <span class="k">except</span> <span class="n">ValidationError</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+        <span class="n">filtered_nested</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">field</span><span class="o">.</span><span class="n">annotation</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">kls</span><span class="o">.</span><span class="n">model_fields</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">annotation</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">annotation</span><span class="p">,</span> <span class="n">BaseModel</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">filtered_nested</span><span class="p">:</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_eval_nested_imports</span><span class="p">(</span>
+                <span class="n">field</span><span class="p">,</span>
+                <span class="o">*</span><span class="n">keys</span><span class="p">,</span>
+                <span class="n">key</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reload</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Render and cache the final config.</span>
+
+<span class="sd">        Reload the configuration from environment variables. Must be called at least</span>
+<span class="sd">        once to load the variables into `.ConfigManager.config`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ~`typing.Any`</span>
+<span class="sd">            A instantiated configuration object. Cached to `/ConfigManager.config`.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ~`pydantic.ValidationError`</span>
+<span class="sd">            If the configuration set was not loaded and/or verified.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">props</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">bases</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">BaseModel</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">([</span><span class="n">_Config</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">models</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_models</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">_ImportList</span><span class="p">):</span>
+                    <span class="c1"># Fully create the discriminated list</span>
+                    <span class="n">model</span><span class="o">.</span><span class="n">_realize</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+                <span class="c1"># Should be in root model</span>
+                <span class="n">bases</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">models</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Has it&#39;s own root key</span>
+                <span class="n">props</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="n">key</span><span class="p">:</span> <span class="n">create_model</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">RENDERED_CONFIG_KEY</span><span class="si">}{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                            <span class="n">__base__</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">models</span><span class="p">),</span>
+                        <span class="p">)</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+
+        <span class="bp">cls</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">create_model</span><span class="p">(</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">RENDERED_CONFIG_KEY</span><span class="p">,</span>
+            <span class="n">__base__</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">bases</span><span class="p">),</span>
+            <span class="vm">__doc__</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">__config__</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="vm">__module__</span><span class="o">=</span><span class="vm">__name__</span><span class="p">,</span>
+            <span class="n">__validators__</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">__cls_kwargs__</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="p">{</span>
+                <span class="n">key</span><span class="p">:</span> <span class="p">(</span><span class="n">_type</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">_type</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">_type</span> <span class="ow">in</span> <span class="n">props</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">model</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">ValidationError</span><span class="p">:</span>
+            <span class="k">raise</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">config</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">IBM Offline Signing Orchestrator Framework</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../config.html">Configuration</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, IBM.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

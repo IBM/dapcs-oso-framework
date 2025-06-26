@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import base64
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -69,17 +68,17 @@ class KeyPair:
     PrivateKey: bytes
     PublicKey: bytes
 
-    def to_base64(self) -> dict[str, str]:
-        """Convert keys to base64 strings and return as a dictionary."""
+    def to_hex(self) -> dict[str, str]:
+        """Convert keys to hex strings and return as a dictionary."""
         return {
-            "PrivateKey": base64.b64encode(self.PrivateKey).decode("ascii"),
-            "PublicKey": base64.b64encode(self.PublicKey).decode("ascii"),
+            "PrivateKey": self.PrivateKey.hex(),
+            "PublicKey": self.PublicKey.hex(),
         }
 
     @classmethod
-    def from_base64(cls, private_key_b64: str, public_key_b64: str) -> "KeyPair":
-        """Create a KeyPair instance from base64-encoded key strings."""
+    def from_hex(cls, private_key_hex: str, public_key_hex: str) -> "KeyPair":
+        """Create a KeyPair instance from hex strings."""
         return cls(
-            PrivateKey=base64.b64decode(private_key_b64),
-            PublicKey=base64.b64decode(public_key_b64),
+            PrivateKey=bytes.fromhex(private_key_hex),
+            PublicKey=bytes.fromhex(public_key_hex),
         )

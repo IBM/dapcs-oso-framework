@@ -105,7 +105,7 @@ class SigningServerAddon(AddonProtocol):
         self._grep11_client = Grep11Client(self._config)
         self._grep11_client.health_check()
 
-    def generate_key_pair(self, key_type: KeyType) -> tuple[str, bytes]:
+    def generate_key_pair(self, key_type: KeyType) -> tuple[str, str]:
         """Generate a new key pair.
 
         Parameters
@@ -118,7 +118,7 @@ class SigningServerAddon(AddonProtocol):
         tuple[str, bytes]
             - key_id : str
                 The unique identifier for the generated key.
-            - pub_key_pem : bytes
+            - pub_key_pem : str
                 The public key in PEM format.
         """
         logging.info(f"Generating new key pair of type {key_type.name}")
@@ -175,7 +175,7 @@ class SigningServerAddon(AddonProtocol):
 
         return key_id_list
 
-    def get_key_pem(self, key_id: str) -> bytes | None:
+    def get_key_pem(self, key_id: str) -> str | None:
         """Get the public key PEM for a given key ID.
 
         Parameters
@@ -185,8 +185,8 @@ class SigningServerAddon(AddonProtocol):
 
         Returns
         -------
-        bytes | None
-            The PEM-encoded public key as bytes if the key is found and conversion
+        str | None
+            The PEM-encoded public key str if the key is found and conversion
             succeeds, otherwise None.
         """
         keys = self._find_keys(key_id=key_id)

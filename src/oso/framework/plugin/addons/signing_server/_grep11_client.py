@@ -13,11 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from typing import cast
+
 import grpc
+import base64
+import textwrap
 
 from pkcs11 import Mechanism, Attribute
 from asn1crypto import core as asn1_core
+from cryptography.hazmat.primitives.asymmetric import ed25519
 from cryptography.hazmat.primitives import serialization
 
 from ._key import KeyPair, KeyType, SupportedMechanism
@@ -91,11 +94,28 @@ class Grep11Client:
         self.logger.info("Received GenerateKeyPair response")
 
         key_pair = KeyPair(
-            PrivateKey=response.PrivKey.SerializeToString(),
-            PublicKey=response.PubKey.SerializeToString(),
+            PrivateKey=response.PrivKeyBytes,
+            PublicKey=response.PubKeyBytes,
         )
 
-        self.logger.debug(f"Key Pair Generated: {key_pair.to_base64()=}")
+        if key_type == KeyType.ED25519:
+            pub_key_bytes = response.PubKey.Attributes[Attribute.EC_POINT]
+
+            pub_key_octet_string = asn1_core.OctetString.load(pub_key_bytes.AttributeB)
+            assert isinstance(pub_key_octet_string, asn1_core.OctetString)
+
+            pub_key_bytes = pub_key_octet_string.native
+
+            pub_key = ed25519.Ed25519PublicKey.from_public_bytes(pub_key_bytes)
+
+            pub_key_der_bytes = pub_key.public_bytes(
+                encoding=serialization.Encoding.DER,
+                format=serialization.PublicFormat.SubjectPublicKeyInfo,
+            )
+
+            key_pair.PublicKey = pub_key_der_bytes
+
+        self.logger.debug(f"Key Pair Generated: {key_pair.to_hex()=}")
 
         return key_pair
 
@@ -132,12 +152,16 @@ class Grep11Client:
 
     def sign(self, key_type: KeyType, priv_key_bytes: bytes, data: bytes) -> str:
         self.logger.info("Performing a signing")
-        self.logger.debug(f"Signing data: '{data}' with key type: '{key_type.name}'")
+        self.logger.debug(
+            f"Signing data: '{data.hex()}' with key type: '{key_type.name}'"
+        )
+
+        priv_key_blob = server_pb2.KeyBlob(KeyBlobs=[priv_key_bytes])
 
         sign_request = server_pb2.SignSingleRequest(
             Mech=server_pb2.Mechanism(Mechanism=key_type.value.Mechanism),
             Data=data,
-            PrivKey=server_pb2.KeyBlob.FromString(priv_key_bytes),
+            PrivKey=priv_key_blob,
         )
 
         sign_response = self.stub.SignSingle(sign_request)
@@ -152,28 +176,19 @@ class Grep11Client:
 
         return signature
 
-    def serialized_key_to_pem(self, key_type: KeyType, pub_key_bytes: bytes) -> bytes:
+    def serialized_key_to_pem(self, key_type: KeyType, pub_key_bytes: bytes) -> str:
         self.logger.info("Converting Public Key Blob to PEM")
         self.logger.debug(f"KeyType: '{key_type.name}'")
 
-        pub_key_blob = server_pb2.KeyBlob.FromString(pub_key_bytes)
+        b64_encoded = base64.b64encode(pub_key_bytes).decode("ascii")
+        wrapped = "\n".join(textwrap.wrap(b64_encoded, 64))
 
-        ec_point_attr = pub_key_blob.Attributes[Attribute.EC_POINT]
-
-        ec_point_octet_string = asn1_core.OctetString.load(ec_point_attr.AttributeB)
-        assert isinstance(ec_point_octet_string, asn1_core.OctetString)
-
-        ec_point_bytes = ec_point_octet_string.native
-
-        public_key = key_type.value.LoadPubKeyFn(cast(bytes, ec_point_bytes))
-
-        pem_encoded_pub_key = public_key.public_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PublicFormat.SubjectPublicKeyInfo,
+        pem_encoded_pub_key = (
+            f"-----BEGIN PUBLIC KEY-----\n{wrapped}\n-----END PUBLIC KEY-----\n"
         )
 
         self.logger.debug(
-            f"key type: '{key_type.name}', PUBLIC KEY: {pem_encoded_pub_key.decode()}"
+            f"key type: '{key_type.name}', PUBLIC KEY: {pem_encoded_pub_key}"
         )
 
         return pem_encoded_pub_key

@@ -12,7 +12,7 @@ click==8.2.1
 colorama==0.4.6 ; sys_platform == 'win32'
 cryptography==45.0.4
 flask==3.1.1
-grpcio==1.73.0
+grpcio==1.73.1
 gunicorn==23.0.0
 idna==3.10
 itsdangerous==2.2.0

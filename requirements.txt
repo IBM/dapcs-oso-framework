@@ -10,7 +10,7 @@ cffi==1.17.1 ; platform_python_implementation != 'PyPy'
 charset-normalizer==3.4.2
 click==8.2.1
 colorama==0.4.6 ; sys_platform == 'win32'
-cryptography==45.0.4
+cryptography==45.0.5
 flask==3.1.1
 grpcio==1.73.0
 gunicorn==23.0.0

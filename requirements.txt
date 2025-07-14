@@ -5,7 +5,7 @@ asn1crypto==1.5.1
 attrs==25.3.0
 blinker==1.9.0
 cached-property==2.0.1
-certifi==2025.6.15
+certifi==2025.7.14
 cffi==1.17.1 ; platform_python_implementation != 'PyPy'
 charset-normalizer==3.4.2
 click==8.2.1

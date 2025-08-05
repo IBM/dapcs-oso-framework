@@ -48,6 +48,7 @@ ARG UV_PYTHON=3.12
 ARG UV_PROJECT_ENVIRONMENT=/opt/oso/venv
 ARG UV_PYTHON_INSTALL_DIR=/opt/oso/python
 ARG UV_REQUIRE_HASHES=true
+RUN uv python install
 COPY pyproject.toml uv.lock ./
 ENV GRPC_PYTHON_BUILD_SYSTEM_OPENSSL=1
 RUN uv sync --no-install-project --frozen --compile-bytecode --extra mock

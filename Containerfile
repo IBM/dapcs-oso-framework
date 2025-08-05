@@ -22,7 +22,6 @@ RUN rpm -i https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rp
     && microdnf install --assumeyes --setopt=install_weak_deps=0 \
         libsodium openssl \
         nginx \
-        python3.12 \
     && microdnf clean all \
     && install --owner=1001 --group=0 --directory \
         $HOME \

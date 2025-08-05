@@ -31,6 +31,9 @@ start-proxy = "oso.framework.entrypoint.nginx:main"
 start-component = "oso.framework.entrypoint.component:main"
 start-mock = "oso.framework.entrypoint.mock:main"
 
+[tool.setuptools_scm]
+fallback_version = "1.0.0"
+
 [tool.commitizen]
 name = "cz_conventional_commits"
 version_provider = "scm"

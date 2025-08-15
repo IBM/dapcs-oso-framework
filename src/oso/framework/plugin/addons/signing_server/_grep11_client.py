@@ -23,6 +23,7 @@ from asn1crypto import core as asn1_core
 from cryptography.hazmat.primitives.asymmetric import ed25519
 from cryptography.hazmat.primitives import serialization
 
+from . import SigningServerConfig
 from ._key import KeyPair, KeyType, SupportedMechanism
 from .generated import server_pb2, server_pb2_grpc
 
@@ -31,7 +32,7 @@ from oso.framework.core.logging import get_logger
 
 
 class Grep11Client:
-    def __init__(self, signing_server_config) -> None:
+    def __init__(self, signing_server_config: SigningServerConfig) -> None:
         super().__init__()
 
         self.logger = get_logger("grep11-client")
@@ -127,7 +128,7 @@ class Grep11Client:
             response = self.stub.GetMechanismList(request)
             assert isinstance(response, server_pb2.GetMechanismListResponse)
 
-            errors = []
+            errors: list[V1_3.Error] = []
 
             for mechanism in SupportedMechanism:
                 if mechanism not in response.Mechs:
@@ -175,6 +176,56 @@ class Grep11Client:
         self.logger.debug(f"Created signature: {signature=}")
 
         return signature
+
+    def verify(
+        self, key_type: KeyType, pub_key_bytes: bytes, data: bytes, signature: str
+    ) -> bool:
+        """
+        Verify a signature using the GREP11 server.
+
+        Parameters
+        ----------
+        key_type : KeyType
+            The type of key (should match the key used for signing).
+        pub_key_bytes : bytes
+            The public key in raw bytes.
+        data : bytes
+            The original data that was signed.
+        signature : str
+            Hex-encoded signature to verify.
+
+        Returns
+        -------
+        bool
+            True if the signature is valid, False otherwise.
+        """
+
+        self.logger.info("Performing signature verification")
+        self.logger.debug(
+            f"Verifying signature: '{signature}' for data: '{data.hex()}' with key type: '{key_type.name}'"
+        )
+
+        try:
+            pub_key_blob = server_pb2.KeyBlob(KeyBlobs=[pub_key_bytes])
+
+            verify_request = server_pb2.VerifySingleRequest(
+                Mech=server_pb2.Mechanism(Mechanism=key_type.value.Mechanism),
+                Data=data,
+                PubKey=pub_key_blob,
+                Signature=bytes.fromhex(signature),
+            )
+
+            verify_response = self.stub.VerifySingle(verify_request)
+            assert isinstance(verify_response, server_pb2.VerifyResponse)
+
+            self.logger.info("Completed verification")
+            self.logger.debug(f"Received VerifySingleResponse: {verify_response=}")
+
+            return True
+
+        except Exception as e:
+            self.logger.debug(f"Signature verification failed: {e}")
+            return False
 
     def serialized_key_to_pem(self, key_type: KeyType, pub_key_bytes: bytes) -> str:
         self.logger.info("Converting Public Key Blob to PEM")

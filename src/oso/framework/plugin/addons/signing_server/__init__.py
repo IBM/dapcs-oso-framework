@@ -204,7 +204,7 @@ class SigningServerAddon(AddonProtocol):
         if deleted:
             self._logger.info(f"Deleted {deleted} legacy key pair(s)")
 
-    def generate_key_pair(self, key_type: KeyType) -> tuple[str, bytes]:
+    def generate_key_pair(self, key_type: KeyType) -> tuple[str, str]:
         """Generate a new key pair.
 
         Parameters
@@ -214,10 +214,10 @@ class SigningServerAddon(AddonProtocol):
 
         Returns
         -------
-        tuple[str, bytes]
+        tuple[str, str]
             - key_id : str
                 The unique identifier for the generated key.
-            - pub_key_pem : bytes
+            - pub_key_pem : str
                 The public key in PEM format.
         """
 
@@ -256,7 +256,7 @@ class SigningServerAddon(AddonProtocol):
 
         return [row[0] for row in cur.fetchall()]
 
-    def get_key_pem(self, key_id: str) -> bytes | None:
+    def get_key_pem(self, key_id: str) -> str | None:
         """Get the public key PEM for a given key ID.
 
         Parameters
@@ -266,8 +266,8 @@ class SigningServerAddon(AddonProtocol):
 
         Returns
         -------
-        bytes | None
-            The PEM-encoded public key as bytes if the key is found and conversion
+        str | None
+            The PEM-encoded public key str if the key is found and conversion
             succeeds, otherwise None.
         """
 
@@ -366,7 +366,7 @@ class SigningServerAddon(AddonProtocol):
         Returns
         -------
         str
-            Signature as a string.
+            Signature as a hex string.
         """
 
         keys = self._find_keys(key_id)
@@ -429,7 +429,7 @@ class SigningServerAddon(AddonProtocol):
         data : bytes
             The original data that was signed.
         signature : str
-            The signature to verify.
+            The signature to verify as a hex string.
 
         Returns
         -------

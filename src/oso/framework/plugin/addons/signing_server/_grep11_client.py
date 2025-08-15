@@ -176,6 +176,51 @@ class Grep11Client:
 
         return signature
 
+    def verify(
+        self, key_type: KeyType, pub_key_bytes: bytes, data: bytes, signature: str
+    ) -> bool:
+        """
+        Verify a signature using the GREP11 server.
+
+        Parameters
+        ----------
+        key_type : KeyType
+            The type of key (should match the key used for signing).
+        pub_key_bytes : bytes
+            The public key in raw bytes.
+        data : bytes
+            The original data that was signed.
+        signature : str
+            Hex-encoded signature to verify.
+
+        Returns
+        -------
+        bool
+            True if the signature is valid, False otherwise.
+        """
+        self.logger.info("Performing signature verification")
+        self.logger.debug(
+            f"Verifying signature: '{signature}' for data: '{data.hex()}' with key type: '{key_type.name}'"
+        )
+
+        try:
+            pub_key_blob = server_pb2.KeyBlob(KeyBlobs=[pub_key_bytes])
+            verify_request = server_pb2.VerifySingleRequest(
+                Mech=server_pb2.Mechanism(Mechanism=key_type.value.Mechanism),
+                Data=data,
+                PubKey=pub_key_blob,
+                Signature=bytes.fromhex(signature),
+            )
+            verify_response = self.stub.VerifySingle(verify_request)
+
+            self.logger.info("Completed verification")
+            self.logger.debug(f"Received VerifySingleResponse: {verify_response=}")
+
+            return True
+        except Exception as e:
+            self.logger.error(f"Signature verification failed: {e}")
+            return False
+
     def serialized_key_to_pem(self, key_type: KeyType, pub_key_bytes: bytes) -> str:
         self.logger.info("Converting Public Key Blob to PEM")
         self.logger.debug(f"KeyType: '{key_type.name}'")

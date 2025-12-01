@@ -11,7 +11,8 @@ dynamic = [ "version" ]
 name = "ibm-oso-framework"
 requires-python = ">= 3.11"
 dependencies = [
-    "cryptography",
+    "cryptography==45.0.5",
+    "cffi==1.17.1",
     "flask",
     "jsonschema",
     "structlog",

@@ -57,7 +57,7 @@ pydantic==2.11.7
     # via
     #   ibm-oso-framework
     #   pydantic-settings
-pydantic-core==2.33.2
+pydantic-core==2.41.5
     # via pydantic
 pydantic-settings==2.10.1
     # via ibm-oso-framework

@@ -20,7 +20,6 @@ resource "local_file" "backend_podman_play" {
     "${path.module}/backend.yml.tftpl",
     { tpl = {
       plugin_image = var.BACKEND_PLUGIN_IMAGE,
-      signing_server_image = var.SIGNING_SERVER_IMAGE,
       grep11_endpoint = local.grep11_endpoint,
       grep11_port = var.GREP11_PORT,
       grep11_client_cert = var.GREP11_CLIENT_CERT,
@@ -41,7 +40,7 @@ resource "hpcr_tgz" "backend_workload" {
 }
 
 locals {
-  grep11_endpoint = format("%s-cs-backend-grep11.control23.dap.local", var.PREFIX)
+  grep11_endpoint = "${var.GREP11_HOST}:${var.GREP11_PORT}"
   backend_play = {
     "play" : {
       "archive" : hpcr_tgz.backend_workload.rendered

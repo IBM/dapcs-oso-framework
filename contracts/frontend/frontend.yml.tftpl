@@ -30,12 +30,18 @@ spec:
             name: contract.config.map
             optional: false
       env:
-        - name: app_name
+        - name: app__name
           value: "frontend_plugin_app"
-        - name: app_entry
+        - name: app__entry
           value: "oso.framework.plugin:create_app"
+        - name: app__root
+          value: "/app-root"
         - name: plugin__application
-          value: "fb.fb_plugin:FBPlugin"
+          value: "helloworld:HelloWorld"
+        - name: plugin__mode
+          value: "frontend"
+        - name: hw__api_url
+          value: "http://192.168.0.1:8000/custody"
     - name: frontend_plugin_proxy
       image: ${tpl.plugin_image}
       command:
@@ -45,7 +51,7 @@ spec:
             name: contract.config.map
             optional: false
       env:
-        - name: app_name
+        - name: app__name
           value: "frontend_plugin_proxy"
       ports:
         - containerPort: 4000

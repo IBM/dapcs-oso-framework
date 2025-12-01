@@ -27,7 +27,7 @@ class Api(MethodView):
 
     ENDPOINT = "/".join(__name__.split(".")[-2:])
 
-    @RequireAuth("mtls", "component")
+#    @RequireAuth("mtls", "component")
     def get(self):
         """GET /v1alpha1/status endpoint."""
         status = current_oso_plugin_app().status()

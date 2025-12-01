@@ -15,9 +15,6 @@
 #
 
 
-variable "PREFIX" {
-  type        = string
-}
 
 variable "DEBUG" {
   type        = bool
@@ -30,17 +27,18 @@ variable "BACKEND_PLUGIN_IMAGE" {
   description = "Backend plugin image containing registry"
 }
 
-variable "SIGNING_SERVER_IMAGE" {
-  type = string
-  description = "Signing server image containing registry"
-}
-
 variable "HPCR_CERT" {
   type        = string
   description = "Public HPCR certificate for contract encryption"
   nullable    = true
   default     = null
 }
+
+variable "GREP11_HOST" {
+  type = string
+  description = "GREP11 backend endpoint"
+  default = "192.168.96.21"
+} 
 
 variable "GREP11_PORT" {
   type = string

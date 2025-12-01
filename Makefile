@@ -27,24 +27,24 @@ PYPI_OPTIONS += --secret id=netrc,src=$(PRIVATE_PYPI_NETRC)
 endif
 
 $(LOCAL_PLAY)/runtime: Containerfile
-	docker build -f $< -t oso-runtime --target runtime --iidfile $@ .
+	podman build -f $< -t oso-runtime --target runtime --iidfile $@ .
 
 $(LOCAL_PLAY)/builder: Containerfile $(SRCS)
-	docker build $(PYPI_OPTIONS) -f $< -t oso-builder --target builder --iidfile $@ .
+	podman build $(PYPI_OPTIONS) -f $< -t oso-builder --target builder --iidfile $@ .
 
 $(LOCAL_PLAY)/plugin: Containerfile $(LOCAL_PLAY)/builder
-	docker build -f $< -t oso-plugin --target plugin --iidfile $@ .
+	podman build -f $< -t oso-plugin --target plugin --iidfile $@ .
 
 containerize: $(addprefix $(LOCAL_PLAY)/,runtime builder plugin)
 
 $(LOCAL_PLAY)/oso-runtime.tar: $(LOCAL_PLAY)/runtime
-	docker save --output $@ oso-runtime
+	podman save --output $@ oso-runtime
 
 $(LOCAL_PLAY)/oso-builder.tar: $(LOCAL_PLAY)/builder
-	docker save --output $@ oso-builder
+	podman save --output $@ oso-builder
 
 $(LOCAL_PLAY)/oso-plugin.tar: $(LOCAL_PLAY)/plugin
-	docker save --output $@ oso-plugin
+	podman save --output $@ oso-plugin
 
 $(addsuffix .key,$(addprefix $(LOCAL_PLAY)/,oso-ca app user)): $(LOCAL_PLAY)/%.key:
 	openssl genrsa -out $@ 4096
@@ -59,15 +59,26 @@ $(LOCAL_PLAY)/%.crt: $(LOCAL_PLAY)/%.csr $(LOCAL_PLAY)/ext
 		-CAcreateserial -out $@ -days 365 \
 		-extensions v3_$(if $(findstring oso-ca,$*),ca,crt) -extfile $(word 2,$^)
 
-APP_NAME ?= test
+APP_NAME ?= helloworld
 APP_ENTRY ?= oso.framework.plugin:create_app
-PLUGIN_APP ?= oso.framework.plugin.test.isv_cls:TestISVApp
+PLUGIN_APP ?= helloworld:HelloWorld
 PLUGIN_MODE ?= frontend
 
 REGEN_CM ?= n
-ifneq ($(REGEN_CM),n)
+ifeq ($(REGEN_CM),y)
 .PHONY: $(LOCAL_PLAY)/cm.yaml
 endif
+
+PLUGIN_ADDON_LINES := \
+'  plugin__addons__0__type: "oso.framework.plugin.addons.signing_server"' \
+'  plugin__addons__0__ca_cert : $(PLUGIN__ADDONS__0__CA_CERT)' \
+'  plugin__addons__0__client_key: $(PLUGIN__ADDONS__0__CLIENT_KEY)' \
+'  plugin__addons__0__client_cert: $(PLUGIN__ADDONS__0__CLIENT_CERT)' \
+'  plugin__addons__0__grep11_endpoint: $(PLUGIN__ADDONS__0__GREP11_ENDPOINT)' \
+'  plugin__addons__0__keystore_path : $(PLUGIN__ADDONS__0__KEYSTORE_PATH)'
+
+FRONTEND_LINES := \
+'  hw__api_url: $(HW__API_URL)' 
 
 $(LOCAL_PLAY)/cm.yaml: SHELL := /bin/bash
 $(LOCAL_PLAY)/cm.yaml: $(addprefix $(LOCAL_PLAY)/,oso-ca.crt app.key app.crt user.key)
@@ -86,8 +97,10 @@ $(LOCAL_PLAY)/cm.yaml: $(addprefix $(LOCAL_PLAY)/,oso-ca.crt app.key app.crt use
 		'      "'"$$(awk '{ print $$2 }' <(ssh-keygen -lf $(word 2,$^)))"'", ' \
 		'      "'"$$(awk '{ print $$2 }' <(ssh-keygen -lf $(word 4,$^)))"'"' \
 		'    ]}' \
-		'  plugin__application: $(PLUGIN_APP)' \
-		'  plugin__mode: $(PLUGIN_MODE)' \
+		'  plugin__application: $(PLUGIN__APPLICATION)' \
+		'  plugin__mode: $(PLUGIN__MODE)' \
+                $(if $(filter backend,$(PLUGIN__MODE)),$(PLUGIN_ADDON_LINES)) \
+                $(if $(filter frontend,$(PLUGIN__MODE)),$(FRONTEND_LINES)) \
 		'  logging__level: debug' \
 		'  certs__ca: |' \
 		"$$(awk '{ print "    "$$0 }' $<)" \

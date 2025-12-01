@@ -19,14 +19,11 @@ from dataclasses import dataclass
 from enum import Enum, IntEnum, StrEnum
 from typing import ClassVar
 
-from pkcs11 import Mechanism
-from cryptography.hazmat.primitives.asymmetric import ec, ed25519
-
+from .ep11constants import CKM_ECDSA, CKM_IBM_ED25519_SHA512
 
 class SupportedMechanism(IntEnum):
-    ECDSA = Mechanism.ECDSA
-    ED25519_SHA512 = Mechanism._VENDOR_DEFINED + 0x1001C
-
+    ECDSA = CKM_ECDSA
+    ED25519_SHA512 = CKM_IBM_ED25519_SHA512
 
 class SupportedOID(StrEnum):
     SECP256K1 = "06052b8104000a"

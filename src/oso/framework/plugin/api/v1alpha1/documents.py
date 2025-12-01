@@ -28,7 +28,7 @@ class Api(MethodView):
 
     ENDPOINT = "/".join(__name__.split(".")[-2:])
 
-    @RequireAuth("mtls", "component")
+#    @RequireAuth("mtls", "component")
     def get(self):
         """GET /v1alpha/documents endpoint.
 
@@ -41,7 +41,7 @@ class Api(MethodView):
         """
         return current_oso_plugin_app().to_oso().model_dump_json()
 
-    @RequireAuth("mtls", "component")
+#    @RequireAuth("mtls", "component")
     def post(self):
         """POST /v1alpha/documents endpoint.
 

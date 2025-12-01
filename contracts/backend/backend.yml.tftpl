@@ -30,14 +30,33 @@ spec:
             name: contract.config.map
             optional: false
       env:
-        - name: app_name
+        - name: app__name
           value: "backend_plugin_app"
-        - name: app_entry
+        - name: app__entry
           value: "oso.framework.plugin:create_app"
+        - name: app__root
+          value: "/app-root"
         - name: plugin__application
-          value: "fb.fb_plugin:FBPlugin"
+          value: "helloworld:HelloWorld"
         - name: logging__level
           value: debug
+        - name: plugin__mode
+          value: "backend"
+        - name: PLUGIN__ADDONS__0__TYPE
+          value: "oso.framework.plugin.addons.signing_server"
+        - name: PLUGIN__ADDONS__0__CA_CERT
+          value: ${tpl.grep11_ca}
+        - name: PLUGIN__ADDONS__0__CLIENT_KEY
+          value: ${tpl.grep11_client_key}
+        - name: PLUGIN__ADDONS__0__CLIENT_CERT
+          value: ${tpl.grep11_client_cert}
+        - name: PLUGIN__ADDONS__0__GREP11_ENDPOINT
+          value: ${tpl.grep11_endpoint}
+        - name: PLUGIN__ADDONS__0__KEYSTORE_PATH
+          value: "/data"
+      volumeMounts:
+        - mountPath: /data
+          name: vault_vol
     - name: backend_plugin_proxy
       image: ${tpl.plugin_image}
       command:
@@ -47,27 +66,11 @@ spec:
             name: contract.config.map
             optional: false
       env:
-        - name: app_name
+        - name: app__name
           value: "backend_plugin_proxy"
       ports:
         - containerPort: 4000
           hostPort: 4000
-    - name: signing-server
-      image: ${tpl.signing_server_image}
-      env:
-        - name: HPCS_PORT
-          value: ${tpl.grep11_port}
-        - name: HPCS_ENDPOINT
-          value: ${tpl.grep11_endpoint}
-        - name: CLIENT_KEY
-          value: ${tpl.grep11_client_key}
-        - name: CLIENT_CERT
-          value: ${tpl.grep11_client_cert}
-        - name: CA_CERT
-          value: ${tpl.grep11_ca}
-      volumeMounts:
-        - mountPath: /data
-          name: vault_vol
   volumes:
     - hostPath:
         path: /data

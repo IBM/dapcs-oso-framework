@@ -28,7 +28,7 @@ cryptography==45.0.5
     # via ibm-oso-framework
 flask==3.1.1
     # via ibm-oso-framework
-grpcio==1.73.1
+grpcio==1.76.0
     # via ibm-oso-framework
 gunicorn==23.0.0
     # via ibm-oso-framework

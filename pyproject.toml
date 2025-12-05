@@ -12,7 +12,7 @@ name = "ibm-oso-framework"
 requires-python = ">= 3.11"
 dependencies = [
     "cryptography==45.0.5",
-    "cffi==1.17.1",
+    "cffi==2.0.0",
     "flask",
     "jsonschema",
     "structlog",

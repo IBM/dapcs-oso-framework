@@ -1,3 +1,19 @@
+[project]
+dynamic = [ "version" ]
+name = "ibm-oso-framework"
+requires-python = ">= 3.11"
+dependencies = [
+    # -------------------------------------------------------------------------
+    # ⚠️ IMPORTANT — DO NOT UPGRADE THESE 4 DEPENDENCIES
+    # Newer versions of these packages CAUSE KERNEL PANIC on s390x (Fireblocks)
+    # Verified: upgrading any of these leads to crash in _message.abi3.so
+    # -------------------------------------------------------------------------
+    "cryptography==45.0.5",   # DO NOT UPGRADE — kernel panic
+    "cffi==1.17.1",           # DO NOT UPGRADE — kernel panic
+    "grpcio==1.73.1",         # DO NOT UPGRADE — kernel panic
+    "protobuf==6.31.1",       # DO NOT UPGRADE — kernel panic
+    # -------------------------------------------------------------------------
+
 [build-system]
 requires = [
     "setuptools",

@@ -31,6 +31,8 @@ dependencies = [
     "pydantic-settings",
     "gunicorn>=23.0.0",
     "requests",
+    "grpcio==1.73.1",
+    "protobuf==6.31.1",
     "python-pkcs11>=0.7.0",
     "asn1crypto>=1.5.1",
 ]

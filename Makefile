@@ -176,3 +176,6 @@ generate-protobufs:
 		server.proto
 	sed -i -e "s/import server_pb2 as server__pb2/from . import server_pb2 as server__pb2/" \
 		src/oso/framework/plugin/addons/signing_server/generated/server_pb2_grpc.py
+
+clean:
+	rm -f $(LOCAL_PLAY)/runtime $(LOCAL_PLAY)/builder $(LOCAL_PLAY)/plugin

@@ -4,15 +4,25 @@ requires = [
     "setuptools_scm",
     "wheel",
 ]
-build-backend="setuptools.build_meta"
+build-backend = "setuptools.build_meta"
 
 [project]
 dynamic = [ "version" ]
 name = "ibm-oso-framework"
 requires-python = ">= 3.11"
+
 dependencies = [
-    "cryptography==45.0.5",
-    "cffi==1.17.1",
+    # -------------------------------------------------------------------------
+    # ⚠️ IMPORTANT — DO NOT UPGRADE THESE 4 DEPENDENCIES
+    # Newer versions of these packages CAUSE KERNEL PANIC on s390x (Fireblocks)
+    # Verified multiple times: crashes occur inside _message.abi3.so
+    # -------------------------------------------------------------------------
+    "cryptography==45.0.5",   # DO NOT UPGRADE — kernel panic
+    "cffi==1.17.1",           # DO NOT UPGRADE — kernel panic
+    "grpcio==1.73.1",         # DO NOT UPGRADE — kernel panic
+    "protobuf==6.31.1",       # DO NOT UPGRADE — kernel panic
+    # -------------------------------------------------------------------------
+    
     "flask",
     "jsonschema",
     "structlog",
@@ -21,8 +31,8 @@ dependencies = [
     "pydantic-settings",
     "gunicorn>=23.0.0",
     "requests",
-    "grpcio>=1.71.0",
-    "protobuf>=5.29.4",
+    "grpcio==1.73.1",
+    "protobuf==6.31.1",
     "python-pkcs11>=0.7.0",
     "asn1crypto>=1.5.1",
 ]

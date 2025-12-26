@@ -28,7 +28,7 @@ cryptography==45.0.5
     # via ibm-oso-framework
 flask==3.1.2
     # via ibm-oso-framework
-grpcio==1.76.0
+grpcio==1.73.1
     # via ibm-oso-framework
 gunicorn==23.0.0
     # via ibm-oso-framework
@@ -49,7 +49,7 @@ markupsafe==3.0.3
     #   werkzeug
 packaging==25.0
     # via gunicorn
-protobuf==6.33.1
+protobuf==6.31.1
     # via ibm-oso-framework
 pycparser==2.23
     # via cffi
@@ -63,7 +63,7 @@ pydantic-settings==2.12.0
     # via ibm-oso-framework
 python-dotenv==1.2.1
     # via pydantic-settings
-python-pkcs11==0.9.2
+python-pkcs11==0.9.3
     # via ibm-oso-framework
 referencing==0.37.0
     # via
@@ -79,7 +79,6 @@ structlog==25.5.0
     # via ibm-oso-framework
 typing-extensions==4.15.0
     # via
-    #   grpcio
     #   pydantic
     #   pydantic-core
     #   referencing
@@ -88,7 +87,7 @@ typing-inspection==0.4.2
     # via
     #   pydantic
     #   pydantic-settings
-urllib3==2.6.0
+urllib3==2.6.1
     # via requests
 werkzeug==3.1.4
     # via

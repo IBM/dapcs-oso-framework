@@ -20,7 +20,7 @@ dependencies = [
     "cryptography==45.0.5",   # DO NOT UPGRADE — kernel panic
     "cffi==1.17.1",           # DO NOT UPGRADE — kernel panic
     "grpcio==1.73.1",         # DO NOT UPGRADE — kernel panic
-    "protobuf==6.31.1",       # DO NOT UPGRADE — kernel panic
+    "protobuf==6.33.2",       # DO NOT UPGRADE — kernel panic
     # -------------------------------------------------------------------------
     
     "flask",
@@ -32,7 +32,7 @@ dependencies = [
     "gunicorn>=23.0.0",
     "requests",
     "grpcio==1.73.1",
-    "protobuf==6.31.1",
+    "protobuf==6.33.2",
     "python-pkcs11>=0.7.0",
     "asn1crypto>=1.5.1",
 ]

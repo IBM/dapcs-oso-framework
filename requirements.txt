@@ -24,7 +24,7 @@ click==8.3.1
     # via flask
 colorama==0.4.6 ; sys_platform == 'win32'
     # via click
-cryptography==45.0.5
+cryptography==46.0.3
     # via ibm-oso-framework
 flask==3.1.2
     # via ibm-oso-framework

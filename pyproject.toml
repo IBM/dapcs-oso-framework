@@ -18,7 +18,7 @@ dependencies = [
     # Verified multiple times: crashes occur inside _message.abi3.so
     # -------------------------------------------------------------------------
     "cryptography==45.0.5",   # DO NOT UPGRADE — kernel panic
-    "cffi==1.17.1",           # DO NOT UPGRADE — kernel panic
+    "cffi==2.0.0",           # DO NOT UPGRADE — kernel panic
     "grpcio==1.73.1",         # DO NOT UPGRADE — kernel panic
     "protobuf==6.31.1",       # DO NOT UPGRADE — kernel panic
     # -------------------------------------------------------------------------

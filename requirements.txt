@@ -12,7 +12,7 @@ attrs==25.4.0
     #   referencing
 blinker==1.9.0
     # via flask
-certifi==2025.11.12
+certifi==2026.1.4
     # via requests
 cffi==1.17.1
     # via

@@ -89,7 +89,7 @@ typing-inspection==0.4.2
     #   pydantic-settings
 urllib3==2.6.1
     # via requests
-werkzeug==3.1.4
+werkzeug==3.1.5
     # via
     #   flask
     #   ibm-oso-framework

@@ -49,7 +49,7 @@ markupsafe==3.0.3
     #   werkzeug
 packaging==26.0
     # via gunicorn
-protobuf==6.31.1
+protobuf==6.33.5
     # via ibm-oso-framework
 pycparser==3.0
     # via cffi

@@ -16,7 +16,11 @@
 """Certificate Configuration."""
 
 
+import base64
+
 from pathlib import Path
+
+from pydantic import field_validator
 
 from .. import AutoLoadConfig
 
@@ -38,6 +42,12 @@ class CertificateConfig(AutoLoadConfig, _config_prefix="certs"):
 
     app_key : str, envvar=CERTS__APP_KEY
         The private key for this application.
+
+    client_ca_extra : str, optional, envvar=CERTS__CLIENT_CA_EXTRA
+        Additional Certificate Authority appended to the exported client CA
+        bundle, so the TLS terminator can also verify clients that are not
+        OSO components (e.g. approver certificates calling ISV-supplied
+        endpoints). Accepts PEM or base64-encoded PEM.
     """
 
     ca: str
@@ -50,14 +60,27 @@ class CertificateConfig(AutoLoadConfig, _config_prefix="certs"):
     :envvar: CERTS__APP_KEY
     """
 
+    client_ca_extra: str = ""
+
     _loc: Path | None = None
+
+    @field_validator("client_ca_extra", mode="before")
+    def _decode_client_ca_extra(cls, v: str) -> str:
+        if v and not v.lstrip().startswith("-----BEGIN"):
+            return base64.b64decode(v).decode("utf-8")
+        return v
 
     def export(self, root: Path):
         """Export certificates to filesystem."""
         self._loc = root / "certificates"
         self._loc.mkdir(mode=0o700, exist_ok=True)
 
-        self.ca_filename.write_text(self.ca)
+        ca_bundle = (
+            self.ca
+            if not self.client_ca_extra
+            else self.ca.rstrip() + "\n" + self.client_ca_extra
+        )
+        self.ca_filename.write_text(ca_bundle)
         self.crt_filename.write_text(self.app_crt)
         self.key_filename.write_text(self.app_key)
 

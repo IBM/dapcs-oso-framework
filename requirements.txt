@@ -14,7 +14,7 @@ blinker==1.9.0
     # via flask
 certifi==2025.11.12
     # via requests
-cffi==1.17.1
+cffi==2.0.0
     # via
     #   cryptography
     #   ibm-oso-framework
@@ -24,7 +24,7 @@ click==8.3.1
     # via flask
 colorama==0.4.6 ; sys_platform == 'win32'
     # via click
-cryptography==45.0.5
+cryptography==46.0.7
     # via ibm-oso-framework
 flask==3.1.2
     # via ibm-oso-framework
@@ -49,9 +49,9 @@ markupsafe==3.0.3
     #   werkzeug
 packaging==25.0
     # via gunicorn
-protobuf==6.33.1
+protobuf==6.33.6
     # via ibm-oso-framework
-pycparser==2.23
+pycparser==2.23 ; implementation_name != 'PyPy'
     # via cffi
 pydantic==2.12.5
     # via

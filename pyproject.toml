@@ -11,8 +11,8 @@ dynamic = [ "version" ]
 name = "ibm-oso-framework"
 requires-python = ">= 3.11"
 dependencies = [
-    "cryptography==45.0.5",
-    "cffi==1.17.1",
+    "cryptography==46.0.7",
+    "cffi==2.0.0",
     "flask",
     "jsonschema",
     "structlog",
@@ -22,7 +22,7 @@ dependencies = [
     "gunicorn>=23.0.0",
     "requests",
     "grpcio>=1.71.0",
-    "protobuf>=5.29.4",
+    "protobuf>=6.33.5",
     "python-pkcs11>=0.7.0",
     "asn1crypto>=1.5.1",
 ]

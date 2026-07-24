@@ -111,7 +111,7 @@ class PluginExtension:
             raise StartupException("Plugin already initialized")
 
         # Initialize APIs
-        from .api import V1DocumentsApi, V1StatusApi
+        from .api import V1DocumentsApi, V1EventsApi, V1StatusApi
 
         self._add_endpoint(
             app=app,
@@ -122,6 +122,11 @@ class PluginExtension:
             app=app,
             rule=f"/api/{self.config.mode}/{V1StatusApi.ENDPOINT}",
             view_func=V1StatusApi.as_view(f"plugin-{V1StatusApi.ENDPOINT}"),
+        )
+        self._add_endpoint(
+            app=app,
+            rule=f"/api/{self.config.mode}/{V1EventsApi.ENDPOINT}",
+            view_func=V1EventsApi.as_view(f"plugin-{V1EventsApi.ENDPOINT}"),
         )
 
         # Add ISV supplied APIs

@@ -16,9 +16,11 @@
 """v1alpha1 endpoints."""
 
 from .v1alpha1.documents import Api as V1DocumentsApi
+from .v1alpha1.events import Api as V1EventsApi
 from .v1alpha1.status import Api as V1StatusApi
 
 __all__ = [
     "V1DocumentsApi",
+    "V1EventsApi",
     "V1StatusApi",
 ]

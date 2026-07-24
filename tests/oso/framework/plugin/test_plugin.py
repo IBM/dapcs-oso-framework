@@ -112,7 +112,7 @@ class TestApp(_BasePluginTests):
         return request.param
 
     @pytest.fixture()
-    def app(self, mode, monkeypatch, document_set, _setup_app, _enable_mtls):
+    def app(self, mode, monkeypatch, document_set, event_set, _setup_app, _enable_mtls):
         monkeypatch.setenv("PLUGIN__MODE", mode)
         monkeypatch.setenv(
             "PLUGIN__APPLICATION",
@@ -163,6 +163,21 @@ class TestApp(_BasePluginTests):
         assert oso2isv.status_code == 200
         assert oso2isv.get_json() == document_set["isv"]
 
+    def test_events(self, mode, client, event_set):
+        response = client.post(
+            f"/api/{mode}/v1alpha1/events",
+            data=event_set["oso"].model_dump_json(),
+            content_type="application/json",
+            headers={
+                "X-TEST-SSL-VERIFY": "True",
+                "X-TEST-SSL-FINGERPRINT": "VALID",
+            },
+        )
+        assert response.status_code == 200
+        # stub returns EventResponse() — no holds → empty object
+        assert V1_3.EventResponse.model_validate_json(response.data) == V1_3.EventResponse()  # noqa: E501
+        assert response.get_json() == {}
+
     def test_status(self, mode, client, document_set):
         current_oso_plugin_app()._set_status(200, "OK")  # type: ignore
         status = client.get(
@@ -186,7 +201,7 @@ class TestModule(_BasePluginTests):
         return request.param
 
     @pytest.fixture()
-    def app(self, mode, monkeypatch, document_set, _setup_app, _enable_mtls):
+    def app(self, mode, monkeypatch, document_set, event_set, _setup_app, _enable_mtls):
         monkeypatch.setenv("PLUGIN__MODE", mode)
         monkeypatch.setenv(
             "PLUGIN__APPLICATION",
@@ -253,6 +268,33 @@ class TestModule(_BasePluginTests):
             status.data
         ) == V1_3.ComponentStatus(status_code=200, status="OK")
 
+    def test_events(self, mode, client, event_set):
+        response = client.post(
+            f"/api/{mode}/v1alpha1/events",
+            data=event_set["oso"].model_dump_json(),
+            content_type="application/json",
+            headers={
+                "X-TEST-SSL-VERIFY": "True",
+                "X-TEST-SSL-FINGERPRINT": "VALID",
+            },
+        )
+        assert response.status_code == 200
+        # stub returns EventResponse() — no holds → empty object
+        assert V1_3.EventResponse.model_validate_json(response.data) == V1_3.EventResponse()  # noqa: E501
+        assert response.get_json() == {}
+
+    def test_events_with_hold(self, mode, client, event_set):
+        """EventResponse with hold list serialises as {"hold": [id1, id2]}."""
+        import json
+
+        event_ids = [e.eventId for e in event_set["oso"].events]
+        resp = V1_3.EventResponse(hold=event_ids)
+        serialised = resp.model_dump_json(exclude_defaults=True)
+        # must deserialise to exactly {"hold": [id1, id2, ...]}
+        assert json.loads(serialised) == {"hold": event_ids}
+        # round-trip must be lossless
+        assert V1_3.EventResponse.model_validate_json(serialised) == resp
+
     def test_404(self, mode, client, document_set):
         status = client.get(
             f"/api/{mode}/v1alpha1/test",
@@ -303,3 +345,36 @@ class TestModule(_BasePluginTests):
         assert status.status_code == 405
         data = status.get_json()
         assert "Method Not Allowed" in data["name"]
+
+        # /events only accepts POST — GET must return 405
+        status = client.get(
+            f"/api/{mode}/v1alpha1/events",
+            headers={
+                "X-TEST-SSL-VERIFY": "True",
+                "X-TEST-SSL-FINGERPRINT": "VALID",
+            },
+        )
+        assert status.status_code == 405
+        data = status.get_json()
+        assert "Method Not Allowed" in data["name"]
+
+    def test_events_403(self, mode, client, event_set):
+        # missing fingerprint → 403
+        response = client.post(
+            f"/api/{mode}/v1alpha1/events",
+            data=event_set["oso"].model_dump_json(),
+            content_type="application/json",
+            headers={"X-TEST-SSL-VERIFY": "True"},
+        )
+        assert response.status_code == 403
+        assert "Forbidden" in response.get_json()["name"]
+
+        # no headers at all → 403
+        response = client.post(
+            f"/api/{mode}/v1alpha1/events",
+            data=event_set["oso"].model_dump_json(),
+            content_type="application/json",
+            headers={},
+        )
+        assert response.status_code == 403
+        assert "Forbidden" in response.get_json()["name"]

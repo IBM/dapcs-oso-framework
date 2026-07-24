@@ -108,3 +108,29 @@ class PluginProtocol(Protocol):
                 Any HTTP response other than 200 should return a subclass.
         """
         ...
+
+    def on_events(self, events: V1_3.EventList) -> V1_3.EventResponse:
+        """
+        Handle an inbound batch of document events.
+
+        Parameters
+        ----------
+            events (`oso.framework.data.types.EventList`):
+
+                A validated list of `.DocumentEvent` objects sent by OSO.
+
+        Return
+        -------
+
+            `oso.framework.data.types.EventResponse`:
+
+                Either an empty response (``{}``) or a hold list
+                (``{"hold": [event_id, ...]}``) of event IDs to defer.
+
+        Raises
+        ------
+            `werkzeug.exceptions.HTTPException`:
+
+                Any HTTP response other than 200 should return a subclass.
+        """
+        ...

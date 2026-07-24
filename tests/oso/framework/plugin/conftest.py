@@ -18,6 +18,7 @@
 
 import random
 import string
+from datetime import datetime, timezone
 from uuid import uuid4
 
 import pytest
@@ -57,4 +58,41 @@ def document_set():
     return {
         "isv": isv,
         "oso": V1_3.DocumentList(documents=oso, count=len(oso)),
+    }
+
+
+@pytest.fixture(scope="session")
+def event_set():
+    """
+    EventList for testing.
+
+    Returns
+    -------
+    dict
+        Contains an `EventList` and the expected response count.
+    """
+    events = [
+        V1_3.DocumentEvent(
+            eventType="DocumentEvent",
+            eventId=str(uuid4()),
+            eventTimestamp=datetime(1970, 1, 1, 0, 29, 53, 179490, tzinfo=timezone.utc),
+            docId=str(uuid4()),
+            user="CN=user1,O=EXAMPLE,C=US",
+            operationType="approvedBy",
+            queueType="POST_CONFIRMATION",
+            metadata='{"description": "Valid transaction"}',
+        ),
+        V1_3.DocumentEvent(
+            eventType="DocumentEvent",
+            eventId=str(uuid4()),
+            eventTimestamp=datetime(1970, 1, 1, 0, 29, 56, 557329, tzinfo=timezone.utc),
+            docId=str(uuid4()),
+            user="System",
+            operationType="toApproved",
+            queueType="POST_CONFIRMATION",
+            metadata='{"description": "Valid transaction"}',
+        ),
+    ]
+    return {
+        "oso": V1_3.EventList(events=events, count=len(events)),
     }

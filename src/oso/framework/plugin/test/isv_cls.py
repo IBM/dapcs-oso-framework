@@ -100,3 +100,18 @@ class TestISVApp(PluginProtocol):
             status=self._status_msg,
             errors=[],
         )
+
+    def on_events(self, events: V1_3.EventList) -> V1_3.EventResponse:
+        """Handle an inbound batch of document events.
+
+        Parameters
+        ----------
+        events : `oso.framework.data.types.EventList`
+            Validated list of document events.
+
+        Returns
+        -------
+        `oso.framework.data.types.EventResponse`
+            Empty response (no holds).
+        """
+        return V1_3.EventResponse()

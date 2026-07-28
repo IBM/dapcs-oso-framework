@@ -106,6 +106,10 @@ class V1_3:
         errors: list["Error"] = Field(default_factory=list)
         model_config = ConfigDict(extra="allow")
 
+
+class V1_5:
+    """Version 1.5."""
+
     class DocumentEvent(BaseModel):
         """Document Event.
 
@@ -180,6 +184,6 @@ Document = V1_3.Document
 DocumentList = V1_3.DocumentList
 Error = V1_3.Error
 ComponentStatus = V1_3.ComponentStatus
-DocumentEvent = V1_3.DocumentEvent
-EventList = V1_3.EventList
-EventResponse = V1_3.EventResponse
+DocumentEvent = V1_5.DocumentEvent
+EventList = V1_5.EventList
+EventResponse = V1_5.EventResponse

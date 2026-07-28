@@ -18,7 +18,7 @@
 
 from typing import Any
 
-from oso.framework.data.types import V1_3
+from oso.framework.data.types import V1_3, V1_5
 
 from ..base import PluginProtocol
 from .isv_view import InView
@@ -101,7 +101,7 @@ class TestISVApp(PluginProtocol):
             errors=[],
         )
 
-    def on_events(self, events: V1_3.EventList) -> V1_3.EventResponse:
+    def on_events(self, events: V1_5.EventList) -> V1_5.EventResponse:
         """Handle an inbound batch of document events.
 
         Parameters
@@ -114,4 +114,4 @@ class TestISVApp(PluginProtocol):
         `oso.framework.data.types.EventResponse`
             Empty response (no holds).
         """
-        return V1_3.EventResponse()
+        return V1_5.EventResponse()

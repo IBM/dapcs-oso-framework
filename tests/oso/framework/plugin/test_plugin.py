@@ -20,7 +20,7 @@ import json
 
 import pytest
 
-from oso.framework.data.types import V1_3
+from oso.framework.data.types import V1_3, V1_5
 from oso.framework.plugin import PluginProtocol, create_app, current_oso_plugin_app
 
 
@@ -175,7 +175,7 @@ class TestApp(_BasePluginTests):
         )
         assert response.status_code == 200
         # stub returns EventResponse() — no holds → empty object
-        assert V1_3.EventResponse.model_validate_json(response.data) == V1_3.EventResponse()  # noqa: E501
+        assert V1_5.EventResponse.model_validate_json(response.data) == V1_5.EventResponse()  # noqa: E501
         assert response.get_json() == {}
 
     def test_status(self, mode, client, document_set):
@@ -280,7 +280,7 @@ class TestModule(_BasePluginTests):
         )
         assert response.status_code == 200
         # stub returns EventResponse() — no holds → empty object
-        assert V1_3.EventResponse.model_validate_json(response.data) == V1_3.EventResponse()  # noqa: E501
+        assert V1_5.EventResponse.model_validate_json(response.data) == V1_5.EventResponse()  # noqa: E501
         assert response.get_json() == {}
 
     def test_events_with_hold(self, mode, client, event_set):
@@ -288,12 +288,12 @@ class TestModule(_BasePluginTests):
         import json
 
         event_ids = [e.eventId for e in event_set["oso"].events]
-        resp = V1_3.EventResponse(hold=event_ids)
+        resp = V1_5.EventResponse(hold=event_ids)
         serialised = resp.model_dump_json(exclude_defaults=True)
         # must deserialise to exactly {"hold": [id1, id2, ...]}
         assert json.loads(serialised) == {"hold": event_ids}
         # round-trip must be lossless
-        assert V1_3.EventResponse.model_validate_json(serialised) == resp
+        assert V1_5.EventResponse.model_validate_json(serialised) == resp
 
     def test_404(self, mode, client, document_set):
         status = client.get(

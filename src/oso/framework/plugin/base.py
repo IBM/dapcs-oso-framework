@@ -20,7 +20,7 @@ from typing import Any, Protocol, runtime_checkable
 
 from flask.views import View
 
-from oso.framework.data.types import V1_3
+from oso.framework.data.types import V1_3, V1_5
 
 
 @runtime_checkable
@@ -109,7 +109,7 @@ class PluginProtocol(Protocol):
         """
         ...
 
-    def on_events(self, events: V1_3.EventList) -> V1_3.EventResponse:
+    def on_events(self, events: V1_5.EventList) -> V1_5.EventResponse:
         """
         Handle an inbound batch of document events.
 

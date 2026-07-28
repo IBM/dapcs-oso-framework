@@ -23,7 +23,7 @@ from uuid import uuid4
 
 import pytest
 
-from oso.framework.data.types import V1_3
+from oso.framework.data.types import V1_3, V1_5
 
 
 @pytest.fixture(scope="session")
@@ -72,7 +72,7 @@ def event_set():
         Contains an `EventList` and the expected response count.
     """
     events = [
-        V1_3.DocumentEvent(
+        V1_5.DocumentEvent(
             eventType="DocumentEvent",
             eventId=str(uuid4()),
             eventTimestamp=datetime(1970, 1, 1, 0, 29, 53, 179490, tzinfo=timezone.utc),
@@ -82,7 +82,7 @@ def event_set():
             queueType="POST_CONFIRMATION",
             metadata='{"description": "Valid transaction"}',
         ),
-        V1_3.DocumentEvent(
+        V1_5.DocumentEvent(
             eventType="DocumentEvent",
             eventId=str(uuid4()),
             eventTimestamp=datetime(1970, 1, 1, 0, 29, 56, 557329, tzinfo=timezone.utc),
@@ -94,5 +94,5 @@ def event_set():
         ),
     ]
     return {
-        "oso": V1_3.EventList(events=events, count=len(events)),
+        "oso": V1_5.EventList(events=events, count=len(events)),
     }

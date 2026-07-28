@@ -19,7 +19,7 @@ from flask import Response, request
 from flask.views import MethodView
 
 from oso.framework.auth.extension import RequireAuth
-from oso.framework.data.types import V1_3
+from oso.framework.data.types import V1_5
 from oso.framework.plugin import current_oso_plugin_app
 
 
@@ -41,7 +41,7 @@ class Api(MethodView):
             To return an error, ``on_events()`` should raise the appropriate
             HTTPError.
         """
-        events = V1_3.EventList.model_validate_json(request.get_data())
+        events = V1_5.EventList.model_validate_json(request.get_data())
         response = current_oso_plugin_app().on_events(events)
         return Response(
             response.model_dump_json(exclude_defaults=True),

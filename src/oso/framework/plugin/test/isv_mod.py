@@ -20,7 +20,7 @@
 from types import SimpleNamespace
 from typing import Any
 
-from oso.framework.data.types import V1_3
+from oso.framework.data.types import V1_3, V1_5
 
 mod_g = SimpleNamespace(
     _isv=[],
@@ -99,7 +99,7 @@ def status() -> V1_3.ComponentStatus:
     )
 
 
-def on_events(events: V1_3.EventList) -> V1_3.EventResponse:
+def on_events(events: V1_5.EventList) -> V1_5.EventResponse:
     """Handle an inbound batch of document events.
 
     Parameters
@@ -112,4 +112,4 @@ def on_events(events: V1_3.EventList) -> V1_3.EventResponse:
     `oso.framework.data.types.EventResponse`
         Empty response (no holds).
     """
-    return V1_3.EventResponse()
+    return V1_5.EventResponse()

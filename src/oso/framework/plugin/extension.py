@@ -1,5 +1,5 @@
 #
-# (c) Copyright IBM Corp. 2025
+# (c) Copyright IBM Corp. 2025, 2026
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -42,10 +42,14 @@ class PluginConfig(
     ----------
         mode (Literal["frontend", "backend"]): The mode of the plugin.
         application (ImportString): The application class or string.
+        schema (Literal["v1.3", "v1.5"]): The OSO schema version the plugin
+            implements.  Defaults to ``"v1.3"``.  Set to ``"v1.5"`` to enable
+            eventing support (``POST /events`` endpoint).
     """
 
     mode: Literal["frontend", "backend"]
     application: ImportString
+    schema: Literal["v1.3", "v1.5"] = "v1.3"
 
 
 class PluginExtension:
@@ -123,11 +127,12 @@ class PluginExtension:
             rule=f"/api/{self.config.mode}/{V1StatusApi.ENDPOINT}",
             view_func=V1StatusApi.as_view(f"plugin-{V1StatusApi.ENDPOINT}"),
         )
-        self._add_endpoint(
-            app=app,
-            rule=f"/api/{self.config.mode}/{V1EventsApi.ENDPOINT}",
-            view_func=V1EventsApi.as_view(f"plugin-{V1EventsApi.ENDPOINT}"),
-        )
+        if self.config.schema == "v1.5":
+            self._add_endpoint(
+                app=app,
+                rule=f"/api/{self.config.mode}/{V1EventsApi.ENDPOINT}",
+                view_func=V1EventsApi.as_view(f"plugin-{V1EventsApi.ENDPOINT}"),
+            )
 
         # Add ISV supplied APIs
         for rule, view in self.plugin.externalViews.items():

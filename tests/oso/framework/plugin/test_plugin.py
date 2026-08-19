@@ -1,5 +1,5 @@
 #
-# (c) Copyright IBM Corp. 2025
+# (c) Copyright IBM Corp. 2025, 2026
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -114,6 +114,7 @@ class TestApp(_BasePluginTests):
     @pytest.fixture()
     def app(self, mode, monkeypatch, document_set, event_set, _setup_app, _enable_mtls):
         monkeypatch.setenv("PLUGIN__MODE", mode)
+        monkeypatch.setenv("PLUGIN__SCHEMA", "v1.5")
         monkeypatch.setenv(
             "PLUGIN__APPLICATION",
             "oso.framework.plugin.test.isv_cls:TestISVApp",
@@ -203,6 +204,7 @@ class TestModule(_BasePluginTests):
     @pytest.fixture()
     def app(self, mode, monkeypatch, document_set, event_set, _setup_app, _enable_mtls):
         monkeypatch.setenv("PLUGIN__MODE", mode)
+        monkeypatch.setenv("PLUGIN__SCHEMA", "v1.5")
         monkeypatch.setenv(
             "PLUGIN__APPLICATION",
             "oso.framework.plugin.test.isv_mod",

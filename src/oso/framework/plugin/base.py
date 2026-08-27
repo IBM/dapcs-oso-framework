@@ -1,5 +1,5 @@
 #
-# (c) Copyright IBM Corp. 2025
+# (c) Copyright IBM Corp. 2025, 2026
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ from typing import Any, Protocol, runtime_checkable
 
 from flask.views import View
 
-from oso.framework.data.types import V1_3
+from oso.framework.data.types import V1_3, V1_5
 
 
 @runtime_checkable
@@ -100,6 +100,32 @@ class PluginProtocol(Protocol):
             `oso.framework.data.types.ComponentStatus`:
 
                 Mode dependent component's
+
+        Raises
+        ------
+            `werkzeug.exceptions.HTTPException`:
+
+                Any HTTP response other than 200 should return a subclass.
+        """
+        ...
+
+    def on_events(self, events: V1_5.EventList) -> V1_5.EventResponse:
+        """
+        Handle an inbound batch of document events.
+
+        Parameters
+        ----------
+            events (`oso.framework.data.types.EventList`):
+
+                A validated list of `.DocumentEvent` objects sent by OSO.
+
+        Return
+        -------
+
+            `oso.framework.data.types.EventResponse`:
+
+                Either an empty response (``{}``) or a hold list
+                (``{"hold": [event_id, ...]}``) of event IDs to defer.
 
         Raises
         ------

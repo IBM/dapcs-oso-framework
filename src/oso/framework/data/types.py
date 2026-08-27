@@ -1,5 +1,5 @@
 #
-# (c) Copyright IBM Corp. 2025
+# (c) Copyright IBM Corp. 2025, 2026
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 """OSO Datatypes."""
 
 import json
+from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -106,8 +107,83 @@ class V1_3:
         model_config = ConfigDict(extra="allow")
 
 
+class V1_5:
+    """Version 1.5."""
+
+    class DocumentEvent(BaseModel):
+        """Document Event.
+
+        Attributes
+        ----------
+        eventType : str
+            The type of event (e.g. ``DocumentEvent``).
+
+        eventId : str
+            A UUID uniquely identifying the event.
+
+        eventTimestamp : datetime
+            ISO-8601 timestamp at which the event occurred.
+
+        docId : str
+            UUID of the document this event relates to.
+
+        user : str
+            Distinguished name or identifier of the actor that triggered the
+            event (e.g. ``CN=user1,O=EXAMPLE,C=US`` or ``System``).
+
+        operationType : str
+            The operation that occurred (e.g. ``approvedBy``, ``toApproved``).
+
+        queueType : str
+            The queue in which the operation took place
+            (e.g. ``POST_CONFIRMATION``).
+
+        metadata : str | None, default=None
+            JSON-encoded string of additional event metadata.
+        """
+
+        eventType: str
+        eventId: str
+        eventTimestamp: datetime
+        docId: str
+        user: str
+        operationType: str
+        queueType: str
+        metadata: str | None = None
+
+    class EventList(BaseModel):
+        r"""Event List.
+
+        Attributes
+        ----------
+        events : list[`.DocumentEvent`], default=[]
+            A list of `.DocumentEvent`\\ s.
+
+        count : int
+            A count of events.
+        """
+
+        events: list["DocumentEvent"] = Field(default_factory=list)
+        count: int
+
+    class EventResponse(BaseModel):
+        """Response body returned by the POST /events endpoint.
+
+        Attributes
+        ----------
+        hold : list[str], default=[]
+            Event IDs that the plugin requests OSO to hold (defer).
+            When empty the response serialises as ``{}``.
+        """
+
+        hold: list[str] = Field(default_factory=list)
+
+
 # Define latest
 Document = V1_3.Document
 DocumentList = V1_3.DocumentList
 Error = V1_3.Error
 ComponentStatus = V1_3.ComponentStatus
+DocumentEvent = V1_5.DocumentEvent
+EventList = V1_5.EventList
+EventResponse = V1_5.EventResponse

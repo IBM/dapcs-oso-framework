@@ -1,5 +1,5 @@
 #
-# (c) Copyright IBM Corp. 2025
+# (c) Copyright IBM Corp. 2025, 2026
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 
 from typing import Any
 
-from oso.framework.data.types import V1_3
+from oso.framework.data.types import V1_3, V1_5
 
 from ..base import PluginProtocol
 from .isv_view import InView
@@ -100,3 +100,18 @@ class TestISVApp(PluginProtocol):
             status=self._status_msg,
             errors=[],
         )
+
+    def on_events(self, events: V1_5.EventList) -> V1_5.EventResponse:
+        """Handle an inbound batch of document events.
+
+        Parameters
+        ----------
+        events : `oso.framework.data.types.EventList`
+            Validated list of document events.
+
+        Returns
+        -------
+        `oso.framework.data.types.EventResponse`
+            Empty response (no holds).
+        """
+        return V1_5.EventResponse()

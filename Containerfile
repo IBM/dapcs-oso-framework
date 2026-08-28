@@ -23,6 +23,8 @@ RUN rpm -i https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rp
         libsodium openssl \
         nginx \
         python3.12 \
+        curl-minimal-7.76.1-40.el9_8.5 \
+        libcurl-minimal-7.76.1-40.el9_8.5 \
     && microdnf clean all \
     && install --owner=1001 --group=0 --directory \
         $HOME \

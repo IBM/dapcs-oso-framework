@@ -25,6 +25,7 @@ from pydantic.types import ImportString
 
 from oso.framework.config import AutoLoadConfig, ImportListMixin
 from oso.framework.core.logging import get_logger
+from oso.framework.data.types import V1_5
 from oso.framework.exceptions import StartupException
 
 from .base import PluginProtocol
@@ -73,7 +74,16 @@ class PluginExtension:
             config (PluginConfig): The configuration for the plugin.
         """
         self.config = config
-        self._init_addons(config.addons) # type: ignore [reportAttributeAccessError]
+        self._init_addons(config.addons)  # type: ignore [reportAttributeAccessError]
+
+        # Framework-level mk_rotation state.
+        # _pending_mk_rotation: set on the *frontend* when the orchestrator
+        #   requests a rotation; consumed by the next GET /documents call to
+        #   inject the mk_rotation sentinel doc.
+        # _pending_mk_rotation_done: set on the *backend* after rewrap
+        #   completes; consumed by the next GET /documents call.
+        self._pending_mk_rotation: V1_5.MkRotationMetadata | None = None
+        self._pending_mk_rotation_done: V1_5.MkRotationDoneMetadata | None = None
 
     def _init_addons(self, addons: list[BaseAddonConfig]):
         self.addons: dict[str, AddonProtocol] = {}
@@ -115,7 +125,7 @@ class PluginExtension:
             raise StartupException("Plugin already initialized")
 
         # Initialize APIs
-        from .api import V1DocumentsApi, V1EventsApi, V1StatusApi
+        from .api import V1DocumentsApi, V1EventsApi, V1StatusApi, V1RewrapApi
 
         self._add_endpoint(
             app=app,
@@ -133,6 +143,14 @@ class PluginExtension:
                 rule=f"/api/{self.config.mode}/{V1EventsApi.ENDPOINT}",
                 view_func=V1EventsApi.as_view(f"plugin-{V1EventsApi.ENDPOINT}"),
             )
+        # Rewrap endpoint is only useful in backend mode, but we register it
+        # in both modes so the orchestrator always has a stable URL; the view
+        # itself returns 405 when called in frontend mode.
+        self._add_endpoint(
+            app=app,
+            rule=f"/api/{self.config.mode}/{V1RewrapApi.ENDPOINT}",
+            view_func=V1RewrapApi.as_view(f"plugin-{V1RewrapApi.ENDPOINT}"),
+        )
 
         # Add ISV supplied APIs
         for rule, view in self.plugin.externalViews.items():
@@ -151,6 +169,50 @@ class PluginExtension:
         # Finish initialization
         app.extensions[self.KEY]["self"] = self
         app.extensions[self.KEY]["plugin_config"] = self.config  # also save config
+
+    # ------------------------------------------------------------------
+    # mk_rotation state helpers
+    # ------------------------------------------------------------------
+
+    def set_pending_mk_rotation(
+        self, meta: "V1_5.MkRotationMetadata"
+    ) -> None:
+        """Record a pending mk_rotation event on the *frontend* plugin.
+
+        The next ``GET /documents`` call will inject a ``V1_5.Document``
+        carrying this metadata before the plugin's own documents.
+
+        Parameters
+        ----------
+        meta : V1_5.MkRotationMetadata
+        """
+        self._pending_mk_rotation = meta
+
+    def pop_pending_mk_rotation(self) -> "V1_5.MkRotationMetadata | None":
+        """Consume and return the pending mk_rotation metadata (or None)."""
+        meta, self._pending_mk_rotation = self._pending_mk_rotation, None
+        return meta
+
+    def set_pending_mk_rotation_done(
+        self, meta: "V1_5.MkRotationDoneMetadata"
+    ) -> None:
+        """Record a completed rewrap on the *backend* plugin.
+
+        The next ``GET /documents`` call will inject a ``V1_5.Document``
+        carrying this metadata before the plugin's own documents.
+
+        Parameters
+        ----------
+        meta : V1_5.MkRotationDoneMetadata
+        """
+        self._pending_mk_rotation_done = meta
+
+    def pop_pending_mk_rotation_done(
+        self,
+    ) -> "V1_5.MkRotationDoneMetadata | None":
+        """Consume and return the pending mk_rotation_done metadata (or None)."""
+        meta, self._pending_mk_rotation_done = self._pending_mk_rotation_done, None
+        return meta
 
     def _add_endpoint(self, app: Flask, rule: str, view_func: View):
         """

@@ -150,6 +150,32 @@ class Grep11Client:
             self.logger.debug(f"Health check error: {e}")
             raise e
 
+    def rewrap_key(self, wrapped_key_bytes: bytes) -> bytes:
+        """Re-wrap a key blob against the HSM's current master key.
+
+        Parameters
+        ----------
+        wrapped_key_bytes : bytes
+            The existing GREP11 private-key blob (EP11 blob) to be rewrapped.
+
+        Returns
+        -------
+        bytes
+            The new GREP11 private-key blob wrapped under the current master key.
+        """
+        self.logger.info("Rewrapping key blob")
+
+        request = server_pb2.RewrapKeyBlobRequest(
+            WrappedKeyBytes=wrapped_key_bytes,
+        )
+
+        response = self.stub.RewrapKeyBlob(request)
+        assert isinstance(response, server_pb2.RewrapKeyBlobResponse)
+
+        self.logger.info("Rewrap completed successfully")
+
+        return response.RewrappedKeyBytes
+
     def sign(self, key_type: KeyType, priv_key_bytes: bytes, data: bytes) -> str:
         self.logger.info("Performing a signing")
         self.logger.debug(

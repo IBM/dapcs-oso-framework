@@ -111,3 +111,32 @@ def test_gen_key_pair(signing_server: SigningServerAddon):
     assert Counter(signing_server.list_keys(KeyType.SECP256K1)) == Counter(
         secp256k1_list
     )
+
+
+def test_rewrap_keys(signing_server: SigningServerAddon):
+    """rewrap_keys() re-wraps every stored key blob and returns all key IDs."""
+    # Generate a key pair of each type so we have blobs on disk to rewrap.
+    secp256k1_id, _ = signing_server.generate_key_pair(KeyType.SECP256K1)
+    ed25519_id, _ = signing_server.generate_key_pair(KeyType.ED25519)
+
+    # Record the original on-disk blobs.
+    import pathlib
+
+    keystore = pathlib.Path(signing_server._config.keystore_path)
+    secp_blob_before = (keystore / "SECP256K1" / f"{secp256k1_id}.key").read_bytes()
+    ed_blob_before = (keystore / "ED25519" / f"{ed25519_id}.key").read_bytes()
+
+    rewrapped_ids = signing_server.rewrap_keys()
+
+    # Both keys must appear in the returned list.
+    assert Counter(rewrapped_ids) == Counter([secp256k1_id, ed25519_id])
+
+    # The blobs on disk must have changed (mock appends a sentinel byte).
+    secp_blob_after = (keystore / "SECP256K1" / f"{secp256k1_id}.key").read_bytes()
+    ed_blob_after = (keystore / "ED25519" / f"{ed25519_id}.key").read_bytes()
+
+    assert secp_blob_after != secp_blob_before
+    assert ed_blob_after != ed_blob_before
+    # Verify the mock transformation: new blob == old blob + 0xff
+    assert secp_blob_after == secp_blob_before + b"\xff"
+    assert ed_blob_after == ed_blob_before + b"\xff"

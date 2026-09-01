@@ -13,13 +13,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""OSO Datatypes."""
+"""OSO Datatypes.
+
+Version history
+---------------
+V1_3
+    Original schema.  ``Document.metadata`` is an opaque ``str``.
+
+V1_5
+    Adds a *structured* ``Document`` where ``metadata`` is a typed
+    ``dict`` (serialised to/from JSON).  Introduces first-class
+    ``DocumentMetadata`` models, including ``MkRotationMetadata`` and
+    ``MkRotationDoneMetadata`` for the HSM master-key rotation flow.
+    All other types (``DocumentList``, ``Error``, ``ComponentStatus``)
+    are inherited unchanged from V1_3.
+"""
 
 import json
 from datetime import datetime
+from typing import Any, ClassVar, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+
+# ---------------------------------------------------------------------------
+# V1_3 — original schema
+# ---------------------------------------------------------------------------
 
 class V1_3:
     """Version 1.3."""
@@ -36,7 +55,7 @@ class V1_3:
             Document content.
 
         metadata : str | None, default=None
-            Document metadata.
+            Document metadata — opaque string in V1_3.
         """
 
         id: str
@@ -178,6 +197,190 @@ class V1_5:
 
         hold: list[str] = Field(default_factory=list)
 
+    class DocumentMetadata(BaseModel):
+        """Base class for all structured document metadata.
+
+        Every metadata object carries a ``doc_type`` discriminator so
+        consumers can deserialise the correct subclass without inspecting
+        ``content``.
+
+        Attributes
+        ----------
+        doc_type : str
+            Free-form type tag.  Framework-defined values are declared
+            as ``TYPE`` class variables on each concrete subclass.
+        """
+
+        model_config = ConfigDict(extra="allow")
+
+        doc_type: str
+
+    class MkRotationMetadata(BaseModel):
+        """Metadata attached to a document that signals an HSM master-key rotation.
+
+        The frontend plugin includes one ``V1_5.Document`` with this
+        metadata in the document list returned by ``to_oso()``.  The
+        framework backend detects it, drives
+        :meth:`~oso.framework.plugin.addons.signing_server.SigningServerAddon.rewrap_keys`
+        automatically, and returns a ``MkRotationDoneMetadata`` document
+        on the next ``to_oso()`` call.
+
+        Attributes
+        ----------
+        doc_type : Literal["mk_rotation"]
+            Discriminator tag (always ``"mk_rotation"``).
+
+        rotation_id : str
+            Opaque identifier for this rotation event, chosen by the
+            orchestrator.  Echoed back in ``MkRotationDoneMetadata``.
+        """
+
+        TYPE: ClassVar[str] = "mk_rotation"
+
+        doc_type: Literal["mk_rotation"] = "mk_rotation"
+        rotation_id: str
+
+    class MkRotationDoneMetadata(BaseModel):
+        """Backend metadata emitted after a successful master-key rotation rewrap.
+
+        Attributes
+        ----------
+        doc_type : Literal["mk_rotation_done"]
+            Discriminator tag (always ``"mk_rotation_done"``).
+
+        rotation_id : str
+            Must equal the ``rotation_id`` from ``MkRotationMetadata``.
+
+        rewrapped_key_ids : list[str]
+            Ordered list of key IDs whose blobs were rewrapped.
+        """
+
+        TYPE: ClassVar[str] = "mk_rotation_done"
+
+        doc_type: Literal["mk_rotation_done"] = "mk_rotation_done"
+        rotation_id: str
+        rewrapped_key_ids: list[str]
+
+    class Document(BaseModel):
+        """V1_5 Document — metadata is a structured dict.
+
+        Attributes
+        ----------
+        id : str
+            Document ID.
+
+        content : str
+            Document content (opaque, ISV-defined serialisation).
+
+        metadata : dict[str, Any], default={}
+            Structured metadata.  The ``doc_type`` key identifies the
+            shape; use the ``*Metadata`` inner classes of ``V1_5`` to
+            serialise / deserialise.
+        """
+
+        id: str
+        content: str
+        metadata: dict[str, Any] = Field(default_factory=dict)
+
+        @field_validator("metadata", mode="before")
+        @classmethod
+        def _coerce_metadata(cls, v: Any) -> dict[str, Any]:
+            """Accept a JSON string, a dict, or None."""
+            if v is None:
+                return {}
+            if isinstance(v, str):
+                if v == "":
+                    return {}
+                try:
+                    parsed = json.loads(v)
+                    if isinstance(parsed, dict):
+                        return parsed
+                    raise ValueError(
+                        f"metadata JSON must be an object, got {type(parsed).__name__}"
+                    )
+                except json.JSONDecodeError as exc:
+                    raise ValueError(f"metadata is not valid JSON: {exc}") from exc
+            if isinstance(v, dict):
+                return v
+            raise ValueError(
+                f"metadata must be a dict or a JSON string, got {type(v).__name__}"
+            )
+
+        # Convenience helpers
+
+        @classmethod
+        def with_metadata(
+            cls,
+            id: str,
+            content: str,
+            metadata: "V1_5.DocumentMetadata",
+        ) -> "V1_5.Document":
+            """Construct a ``V1_5.Document`` from a typed metadata object.
+
+            Parameters
+            ----------
+            id : str
+            content : str
+            metadata : V1_5.DocumentMetadata
+                Any ``DocumentMetadata`` subclass instance.
+
+            Returns
+            -------
+            V1_5.Document
+            """
+            return cls(
+                id=id,
+                content=content,
+                metadata=metadata.model_dump(),
+            )
+
+        def get_metadata_type(self) -> str | None:
+            """Return the ``doc_type`` tag from metadata, or ``None``."""
+            return self.metadata.get("doc_type")
+
+        def is_mk_rotation(self) -> bool:
+            """Return ``True`` if this document carries an mk_rotation signal."""
+            return self.get_metadata_type() == V1_5.MkRotationMetadata.TYPE
+
+        def is_mk_rotation_done(self) -> bool:
+            """Return ``True`` if this document carries an mk_rotation_done signal."""
+            return self.get_metadata_type() == V1_5.MkRotationDoneMetadata.TYPE
+
+        def parse_mk_rotation_metadata(self) -> "V1_5.MkRotationMetadata":
+            """Deserialise the metadata as ``MkRotationMetadata``.
+
+            Raises
+            ------
+            pydantic.ValidationError
+                If metadata does not conform to ``MkRotationMetadata``.
+            """
+            return V1_5.MkRotationMetadata.model_validate(self.metadata)
+
+        def parse_mk_rotation_done_metadata(self) -> "V1_5.MkRotationDoneMetadata":
+            """Deserialise the metadata as ``MkRotationDoneMetadata``.
+
+            Raises
+            ------
+            pydantic.ValidationError
+                If metadata does not conform to ``MkRotationDoneMetadata``.
+            """
+            return V1_5.MkRotationDoneMetadata.model_validate(self.metadata)
+
+    class GeneratedDocumentList(BaseModel):
+        """V1_5 Document List.
+
+        Defined outside V1_5 so Pydantic can resolve ``V1_5.Document`` at
+        class-body evaluation time.
+
+        Attributes
+        ----------
+        documents : list[V1_5.Document], default=[]
+        count : int
+        """
+
+        documents: list[V1_5.Document] = Field(default_factory=list)
+        count: int
+
 
 # Define latest
 Document = V1_3.Document
@@ -187,3 +390,9 @@ ComponentStatus = V1_3.ComponentStatus
 DocumentEvent = V1_5.DocumentEvent
 EventList = V1_5.EventList
 EventResponse = V1_5.EventResponse
+DocumentMetadata = V1_5.DocumentMetadata
+MkRotationMetadata = V1_5.MkRotationMetadata
+MkRotationDoneMetadata = V1_5.MkRotationDoneMetadata
+MkRotationDocument = V1_5.MkRotationMetadata          # type: ignore[assignment]
+MkRotationDoneDocument = V1_5.MkRotationDoneMetadata  # type: ignore[assignment]
+GeneratedDocumentList = V1_5.GeneratedDocumentList

@@ -171,6 +171,12 @@ def grpc_stub_mock(secp256k1_key_pair, ed25519_key_pair):
                 ]
             )
 
+        def RewrapKeyBlob(self, request: server_pb2.RewrapKeyBlobRequest):
+            # Echo back the same blob with a sentinel byte appended so tests
+            # can verify the new blob differs from the original.
+            rewrapped = request.WrappedKeyBytes + b"\xff"
+            return server_pb2.RewrapKeyBlobResponse(RewrappedKeyBytes=rewrapped)
+
     return MockCryptoStub
 
 

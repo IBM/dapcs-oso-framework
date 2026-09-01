@@ -322,6 +322,52 @@ class SigningServerAddon(AddonProtocol):
             key_type=key_type, priv_key_bytes=key_pair.PrivateKey, data=data
         )
 
+    def rewrap_keys(self) -> list[str]:
+        """Re-wrap all stored key blobs against the current master key.
+
+        Iterates every key file in the keystore, calls GREP11 ``RewrapKeyBlob``
+        for each private-key blob, and overwrites the stored file with the
+        returned new blob.  This must be called after an HSM master-key
+        rotation so that existing key blobs remain usable.
+
+        Returns
+        -------
+        list[str]
+            The key IDs that were successfully rewrapped.
+
+        Raises
+        ------
+        Exception
+            Re-raised from the GREP11 client if any single rewrap call fails.
+        """
+        rewrapped_ids: list[str] = []
+
+        for key_type in KeyType:
+            key_type_dir = self._keystore / key_type.name
+            if not key_type_dir.exists():
+                continue
+
+            for priv_key_file in key_type_dir.glob("*.key"):
+                key_id = priv_key_file.stem
+                self._logger.info(
+                    f"Rewrapping key '{key_id}' of type '{key_type.name}'"
+                )
+
+                old_blob = priv_key_file.read_bytes()
+
+                new_blob = self._grep11_client.rewrap_key(old_blob)
+
+                priv_key_file.write_bytes(new_blob)
+                rewrapped_ids.append(key_id)
+                self._logger.debug(
+                    f"Rewrapped key '{key_id}' successfully"
+                )
+
+        self._logger.info(
+            f"Rewrap completed: {len(rewrapped_ids)} key(s) rewrapped"
+        )
+        return rewrapped_ids
+
     def health_check(self) -> V1_3.ComponentStatus:
         """Check the GREP11 server health status.
 

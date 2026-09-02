@@ -32,7 +32,7 @@ grpcio==1.73.1
     # via ibm-oso-framework
 gunicorn==23.0.0
     # via ibm-oso-framework
-idna==3.11
+idna==3.15
     # via requests
 itsdangerous==2.2.0
     # via flask

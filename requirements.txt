@@ -26,7 +26,7 @@ colorama==0.4.6 ; sys_platform == 'win32'
     # via click
 cryptography==45.0.5
     # via ibm-oso-framework
-flask==3.1.2
+flask==3.1.3
     # via ibm-oso-framework
 grpcio==1.73.1
     # via ibm-oso-framework

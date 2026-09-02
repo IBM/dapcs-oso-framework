@@ -17,14 +17,13 @@
 
 FROM registry.access.redhat.com/ubi9/ubi-minimal as runtime
 ENV HOME=/app-root VIRTUAL_ENV=/opt/oso/venv
-RUN rpm -i https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm \
-    && microdnf module enable --assumeyes nginx:1.24 \
-    && microdnf install --assumeyes --setopt=install_weak_deps=0 \
-        libsodium openssl \
-        nginx \
-        python3.12 \
-        curl-minimal-7.76.1-40.el9_8.5 \
-        libcurl-minimal-7.76.1-40.el9_8.5 \
+RUN microdnf install --assumeyes --setopt=install_weak_deps=0 \
+        openssl \
+        sqlite-3.34.1-11.el9_8 \
+        nginx-2:1.20.1-28.el9_8.5 \
+        python3.12-3.12.14-1.el9_8 \
+        curl-minimal \
+        libcurl-minimal \
     && microdnf clean all \
     && install --owner=1001 --group=0 --directory \
         $HOME \

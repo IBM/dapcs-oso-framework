@@ -17,22 +17,21 @@ dependencies = [
     # Newer versions of these packages CAUSE KERNEL PANIC on s390x (Fireblocks)
     # Verified multiple times: crashes occur inside _message.abi3.so
     # -------------------------------------------------------------------------
-    "cryptography==45.0.5",   # DO NOT UPGRADE — kernel panic
-    "cffi==1.17.1",           # DO NOT UPGRADE — kernel panic
+    # TODO: cryptography + cffi + protobuf bumped for testing on s390x — revert if kernel panic confirmed
+    "cryptography==50.0.0",   # UNDER TEST — was 45.0.5, DO NOT UPGRADE further until s390x validated
+    "cffi==2.1.1",            # UNDER TEST — was 1.17.1, required by cryptography>=50.0.0
     "grpcio==1.73.1",         # DO NOT UPGRADE — kernel panic
-    "protobuf==6.31.1",       # DO NOT UPGRADE — kernel panic
+    "protobuf==6.33.5",       # UNDER TEST — was 6.31.1, DO NOT UPGRADE further until s390x validated
     # -------------------------------------------------------------------------
-    
-    "flask",
+
+    "flask==3.1.3",
     "jsonschema",
     "structlog",
-    "werkzeug",
+    "werkzeug==3.1.6",
     "pydantic",
-    "pydantic-settings",
+    "pydantic-settings==2.14.2",
     "gunicorn>=23.0.0",
-    "requests",
-    "grpcio==1.73.1",
-    "protobuf==6.31.1",
+    "requests==2.33.0",
     "python-pkcs11>=0.7.0",
     "asn1crypto>=1.5.1",
 ]

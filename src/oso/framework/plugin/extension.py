@@ -20,7 +20,7 @@ from typing import ClassVar, Literal, Type
 
 from flask import Flask, current_app
 from flask.views import View
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel
 from pydantic.types import ImportString
 
 from oso.framework.config import AutoLoadConfig, ImportListMixin
@@ -42,17 +42,14 @@ class PluginConfig(
     ----------
         mode (Literal["frontend", "backend"]): The mode of the plugin.
         application (ImportString): The application class or string.
-        oso_schema (Literal["v1.3", "v1.5"]): The OSO schema version the plugin
+        schema (Literal["v1.3", "v1.5"]): The OSO schema version the plugin
             implements.  Defaults to ``"v1.3"``.  Set to ``"v1.5"`` to enable
             eventing support (``POST /events`` endpoint).
-            Configured via the ``PLUGIN__SCHEMA`` environment variable.
     """
-
-    model_config = ConfigDict(populate_by_name=True)
 
     mode: Literal["frontend", "backend"]
     application: ImportString
-    oso_schema: Literal["v1.3", "v1.5"] = Field(default="v1.3", alias="schema")
+    schema: Literal["v1.3", "v1.5"] = "v1.3"
 
 
 class PluginExtension:
@@ -130,7 +127,7 @@ class PluginExtension:
             rule=f"/api/{self.config.mode}/{V1StatusApi.ENDPOINT}",
             view_func=V1StatusApi.as_view(f"plugin-{V1StatusApi.ENDPOINT}"),
         )
-        if self.config.oso_schema == "v1.5":
+        if self.config.schema == "v1.5":
             self._add_endpoint(
                 app=app,
                 rule=f"/api/{self.config.mode}/{V1EventsApi.ENDPOINT}",

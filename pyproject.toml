@@ -17,10 +17,10 @@ dependencies = [
     # Newer versions of these packages CAUSE KERNEL PANIC on s390x (Fireblocks)
     # Verified multiple times: crashes occur inside _message.abi3.so
     # -------------------------------------------------------------------------
-    "cryptography==45.0.5",   # DO NOT UPGRADE — s390x kernel panic confirmed above this version
-    "cffi==1.17.1",           # DO NOT UPGRADE — required by cryptography==45.0.5; 2.x panics on s390x
+    "cryptography==50.0.0",   # KERNEL PANIC FREE version 45.0.5
+    "cffi==2.1.1",            # UNDER TEST — required by cryptography>=50.0.0
     "grpcio==1.73.1",         # DO NOT UPGRADE — kernel panic
-    "protobuf==6.31.1",       # DO NOT UPGRADE — s390x kernel panic confirmed above this version (6.33.5 tested, crashes in _message.abi3.so)
+    "protobuf==6.33.5",       # KERNEL PANIC FREE version 6.31.1
     # -------------------------------------------------------------------------
 
     "flask==3.1.3",

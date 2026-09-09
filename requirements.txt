@@ -61,7 +61,7 @@ pydantic-core==2.41.5
     # via pydantic
 pydantic-settings==2.12.0
     # via ibm-oso-framework
-python-dotenv==1.2.1
+python-dotenv==1.2.2
     # via pydantic-settings
 python-pkcs11==0.9.3
     # via ibm-oso-framework

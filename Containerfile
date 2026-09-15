@@ -58,4 +58,4 @@ RUN uv sync --no-editable --frozen --compile-bytecode --extra mock
 
 # Example of plugin
 FROM runtime as plugin
-COPY --from=builder --chown=1001:0 /opt/oso /opt/oso
+COPY --from=builder --chown=1001:0 /opt/oso /opt/oso 

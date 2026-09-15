@@ -20,7 +20,7 @@ ENV HOME=/app-root VIRTUAL_ENV=/opt/oso/venv
 RUN microdnf install --assumeyes --setopt=install_weak_deps=0 \
         openssl \
         sqlite-3.34.1-11.el9_8 \
-        nginx-2:1.20.1-28.el9_8.5 \
+        nginx \
         python3.12-3.12.14-1.el9_8 \
         curl-minimal \
         libcurl-minimal \

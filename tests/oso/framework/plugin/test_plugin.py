@@ -380,3 +380,56 @@ class TestModule(_BasePluginTests):
         )
         assert response.status_code == 403
         assert "Forbidden" in response.get_json()["name"]
+
+    def test_rewrap(self, mode, client):
+        if mode == "frontend":
+            response = client.post(
+                "/api/frontend/v1alpha1/rewrap",
+                json={"rotation_id": "fe-rot-test"},
+                headers={
+                    "X-TEST-SSL-VERIFY": "True",
+                    "X-TEST-SSL-FINGERPRINT": "VALID",
+                },
+            )
+            assert response.status_code == 202
+            assert response.get_json() == {
+                "rotation_id": "fe-rot-test",
+                "status": "scheduled",
+            }
+
+            # Next GET /documents should include the injected mk_rotation doc
+            doc_resp = client.get(
+                "/api/frontend/v1alpha1/documents",
+                headers={
+                    "X-TEST-SSL-VERIFY": "True",
+                    "X-TEST-SSL-FINGERPRINT": "VALID",
+                },
+            )
+            assert doc_resp.status_code == 200
+            docs = V1_3.DocumentList.model_validate_json(doc_resp.data)
+            assert docs.documents[0].id == "mk_rotation_fe-rot-test"
+        else:
+            response = client.post(
+                "/api/backend/v1alpha1/rewrap",
+                json={"rotation_id": "be-rot-test"},
+                headers={
+                    "X-TEST-SSL-VERIFY": "True",
+                    "X-TEST-SSL-FINGERPRINT": "VALID",
+                },
+            )
+            assert response.status_code == 200
+            data = response.get_json()
+            assert data["doc_type"] == "mk_rotation_done"
+            assert data["rotation_id"] == "be-rot-test"
+
+            # Next GET /documents should include the injected mk_rotation_done doc
+            doc_resp = client.get(
+                "/api/backend/v1alpha1/documents",
+                headers={
+                    "X-TEST-SSL-VERIFY": "True",
+                    "X-TEST-SSL-FINGERPRINT": "VALID",
+                },
+            )
+            assert doc_resp.status_code == 200
+            docs = V1_3.DocumentList.model_validate_json(doc_resp.data)
+            assert docs.documents[0].id == "mk_rotation_done_be-rot-test"

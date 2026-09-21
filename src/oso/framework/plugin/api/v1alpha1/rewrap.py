@@ -18,7 +18,7 @@
 ``POST /api/frontend/v1alpha1/rewrap``
     Schedules an mk_rotation event on the *frontend* plugin.  The next
     ``GET /api/frontend/v1alpha1/documents`` call will include a
-    ``V1_5.Document`` with ``metadata.doc_type = "mk_rotation"`` so the
+    ``V1_5.GeneratedDocument`` with ``metadata.doc_type = "mk_rotation"`` so the
     OSO orchestrator can tunnel it to the backend.
 
 ``POST /api/backend/v1alpha1/rewrap``
@@ -42,7 +42,6 @@ from werkzeug.exceptions import BadRequest
 
 from oso.framework.auth.extension import RequireAuth
 from oso.framework.core.logging import get_logger
-from oso.framework.data.types import V1_5
 from oso.framework.plugin import current_oso_plugin_app
 from oso.framework.plugin.extension import current_oso_plugin
 
@@ -104,52 +103,17 @@ def _parse_rotation_id() -> str:
 
 def _handle_frontend_rewrap(rotation_id: str, plugin_ext) -> tuple:
     """Schedule the mk_rotation event; it will be injected on next GET /documents."""
-    meta = V1_5.MkRotationMetadata(rotation_id=rotation_id)
-    plugin_ext.set_pending_mk_rotation(meta)
-    _logger.info(
-        f"mk_rotation scheduled on frontend rotation_id={rotation_id}"
-    )
-    return jsonify({"rotation_id": rotation_id, "status": "scheduled"}), 202
+    res = plugin_ext.mk_rotation_addon.handle_frontend_rewrap(rotation_id)
+    return jsonify(res), 202
 
 
 def _handle_backend_rewrap(rotation_id: str, plugin_ext) -> tuple:
-    """Drive rewrap directly on the backend: addon first, then optional plugin hook."""
-    # 1. Framework drives rewrap via SigningServer addon (if present).
+    """Drive rewrap directly on the backend via the MkRotation addon."""
     signing_server = plugin_ext.addons.get("SigningServer")
-    rewrapped_ids: list[str] = []
-    if signing_server is not None:
-        rewrapped_ids = signing_server.rewrap_keys()
-        _logger.info(
-            f"Rewrap via SigningServer addon complete rotation_id={rotation_id} "
-            f"rewrapped={rewrapped_ids}"
-        )
-    else:
-        _logger.warning(
-            "POST /rewrap on backend: no SigningServer addon found. "
-            "Falling back to plugin.rewrap() only."
-        )
-
-    # 2. Optional plugin hook for ISV-specific post-rewrap actions.
     plugin = current_oso_plugin_app()
-    if callable(getattr(plugin, "rewrap", None)):
-        _logger.info(
-            f"Calling plugin.rewrap() for ISV post-rewrap actions "
-            f"rotation_id={rotation_id}"
-        )
-        plugin_result = plugin.rewrap(rotation_id=rotation_id)
-        # If the plugin returned additional rewrapped IDs, merge them.
-        if hasattr(plugin_result, "rewrapped_key_ids"):
-            extra = [
-                k for k in plugin_result.rewrapped_key_ids
-                if k not in rewrapped_ids
-            ]
-            rewrapped_ids.extend(extra)
-
-    done_meta = V1_5.MkRotationDoneMetadata(
+    done_meta = plugin_ext.mk_rotation_addon.handle_backend_rewrap(
         rotation_id=rotation_id,
-        rewrapped_key_ids=rewrapped_ids,
+        signing_server_addon=signing_server,
+        plugin_app=plugin,
     )
-    # Also schedule the done doc for next GET /documents on the backend.
-    plugin_ext.set_pending_mk_rotation_done(done_meta)
-
     return jsonify(done_meta.model_dump()), 200

@@ -13,21 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""OSO Datatypes.
-
-Version history
----------------
-V1_3
-    Original schema.  ``Document.metadata`` is an opaque ``str``.
-
-V1_5
-    Adds a *structured* ``Document`` where ``metadata`` is a typed
-    ``dict`` (serialised to/from JSON).  Introduces first-class
-    ``DocumentMetadata`` models, including ``MkRotationMetadata`` and
-    ``MkRotationDoneMetadata`` for the HSM master-key rotation flow.
-    All other types (``DocumentList``, ``Error``, ``ComponentStatus``)
-    are inherited unchanged from V1_3.
-"""
+"""OSO Datatypes."""
 
 import json
 from datetime import datetime
@@ -35,10 +21,6 @@ from typing import Any, ClassVar, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-
-# ---------------------------------------------------------------------------
-# V1_3 — original schema
-# ---------------------------------------------------------------------------
 
 class V1_3:
     """Version 1.3."""
@@ -55,7 +37,6 @@ class V1_3:
             Document content.
 
         metadata : str | None, default=None
-            Document metadata — opaque string in V1_3.
         """
 
         id: str
@@ -218,7 +199,7 @@ class V1_5:
     class MkRotationMetadata(BaseModel):
         """Metadata attached to a document that signals an HSM master-key rotation.
 
-        The frontend plugin includes one ``V1_5.Document`` with this
+        The frontend plugin includes one ``V1_5.GeneratedDocument`` with this
         metadata in the document list returned by ``to_oso()``.  The
         framework backend detects it, drives
         :meth:`~oso.framework.plugin.addons.signing_server.SigningServerAddon.rewrap_keys`
@@ -261,8 +242,8 @@ class V1_5:
         rotation_id: str
         rewrapped_key_ids: list[str]
 
-    class Document(BaseModel):
-        """V1_5 Document — metadata is a structured dict.
+    class GeneratedDocument(BaseModel):
+        """V1_5 GeneratedDocument — metadata is a structured dict.
 
         Attributes
         ----------
@@ -314,8 +295,8 @@ class V1_5:
             id: str,
             content: str,
             metadata: "V1_5.DocumentMetadata",
-        ) -> "V1_5.Document":
-            """Construct a ``V1_5.Document`` from a typed metadata object.
+        ) -> "V1_5.GeneratedDocument":
+            """Construct a ``V1_5.GeneratedDocument`` from a typed metadata object.
 
             Parameters
             ----------
@@ -326,7 +307,7 @@ class V1_5:
 
             Returns
             -------
-            V1_5.Document
+            V1_5.GeneratedDocument
             """
             return cls(
                 id=id,
@@ -369,16 +350,13 @@ class V1_5:
     class GeneratedDocumentList(BaseModel):
         """V1_5 Document List.
 
-        Defined outside V1_5 so Pydantic can resolve ``V1_5.Document`` at
-        class-body evaluation time.
-
         Attributes
         ----------
-        documents : list[V1_5.Document], default=[]
+        documents : list[V1_5.GeneratedDocument], default=[]
         count : int
         """
 
-        documents: list[V1_5.Document] = Field(default_factory=list)
+        documents: list["V1_5.GeneratedDocument"] = Field(default_factory=list)
         count: int
 
 

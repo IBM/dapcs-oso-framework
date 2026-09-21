@@ -30,6 +30,7 @@ from oso.framework.exceptions import StartupException
 
 from .base import PluginProtocol
 from .addons.main import AddonProtocol, BaseAddonConfig
+from .addons import mk_rotation
 
 class PluginConfig(
     AutoLoadConfig,
@@ -76,17 +77,10 @@ class PluginExtension:
         self.config = config
         self._init_addons(config.addons)  # type: ignore [reportAttributeAccessError]
 
-        # Framework-level mk_rotation state.
-        # _pending_mk_rotation: set on the *frontend* when the orchestrator
-        #   requests a rotation; consumed by the next GET /documents call to
-        #   inject the mk_rotation sentinel doc.
-        # _pending_mk_rotation_done: set on the *backend* after rewrap
-        #   completes; consumed by the next GET /documents call.
-        self._pending_mk_rotation: V1_5.MkRotationMetadata | None = None
-        self._pending_mk_rotation_done: V1_5.MkRotationDoneMetadata | None = None
-
     def _init_addons(self, addons: list[BaseAddonConfig]):
         self.addons: dict[str, AddonProtocol] = {}
+        # Default addons loaded automatically
+        self.addons[mk_rotation.NAME] = mk_rotation.configure(self.config)
         for addon in addons:
             self.addons[addon.type.NAME] = addon.type.configure(self.config, addon)
 
@@ -171,48 +165,35 @@ class PluginExtension:
         app.extensions[self.KEY]["plugin_config"] = self.config  # also save config
 
     # ------------------------------------------------------------------
-    # mk_rotation state helpers
+    # mk_rotation state helpers (delegated to MkRotation addon)
     # ------------------------------------------------------------------
+
+    @property
+    def mk_rotation_addon(self) -> mk_rotation.MkRotationAddon:
+        """Get the default loaded MkRotation addon."""
+        return self.addons[mk_rotation.NAME]  # type: ignore[return-value]
 
     def set_pending_mk_rotation(
         self, meta: "V1_5.MkRotationMetadata"
     ) -> None:
-        """Record a pending mk_rotation event on the *frontend* plugin.
-
-        The next ``GET /documents`` call will inject a ``V1_5.Document``
-        carrying this metadata before the plugin's own documents.
-
-        Parameters
-        ----------
-        meta : V1_5.MkRotationMetadata
-        """
-        self._pending_mk_rotation = meta
+        """Record a pending mk_rotation event on the *frontend* plugin."""
+        self.mk_rotation_addon.set_pending_mk_rotation(meta)
 
     def pop_pending_mk_rotation(self) -> "V1_5.MkRotationMetadata | None":
         """Consume and return the pending mk_rotation metadata (or None)."""
-        meta, self._pending_mk_rotation = self._pending_mk_rotation, None
-        return meta
+        return self.mk_rotation_addon.pop_pending_mk_rotation()
 
     def set_pending_mk_rotation_done(
         self, meta: "V1_5.MkRotationDoneMetadata"
     ) -> None:
-        """Record a completed rewrap on the *backend* plugin.
-
-        The next ``GET /documents`` call will inject a ``V1_5.Document``
-        carrying this metadata before the plugin's own documents.
-
-        Parameters
-        ----------
-        meta : V1_5.MkRotationDoneMetadata
-        """
-        self._pending_mk_rotation_done = meta
+        """Record a completed rewrap on the *backend* plugin."""
+        self.mk_rotation_addon.set_pending_mk_rotation_done(meta)
 
     def pop_pending_mk_rotation_done(
         self,
     ) -> "V1_5.MkRotationDoneMetadata | None":
         """Consume and return the pending mk_rotation_done metadata (or None)."""
-        meta, self._pending_mk_rotation_done = self._pending_mk_rotation_done, None
-        return meta
+        return self.mk_rotation_addon.pop_pending_mk_rotation_done()
 
     def _add_endpoint(self, app: Flask, rule: str, view_func: View):
         """

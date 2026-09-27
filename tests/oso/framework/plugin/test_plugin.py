@@ -176,7 +176,10 @@ class TestApp(_BasePluginTests):
         )
         assert response.status_code == 200
         # stub returns EventResponse() — no holds → empty object
-        assert V1_5.EventResponse.model_validate_json(response.data) == V1_5.EventResponse()  # noqa: E501
+        assert (
+            V1_5.EventResponse.model_validate_json(response.data)
+            == V1_5.EventResponse()
+        )  # noqa: E501
         assert response.get_json() == {}
 
     def test_status(self, mode, client, document_set):
@@ -282,7 +285,10 @@ class TestModule(_BasePluginTests):
         )
         assert response.status_code == 200
         # stub returns EventResponse() — no holds → empty object
-        assert V1_5.EventResponse.model_validate_json(response.data) == V1_5.EventResponse()  # noqa: E501
+        assert (
+            V1_5.EventResponse.model_validate_json(response.data)
+            == V1_5.EventResponse()
+        )  # noqa: E501
         assert response.get_json() == {}
 
     def test_events_with_hold(self, mode, client, event_set):
@@ -380,3 +386,59 @@ class TestModule(_BasePluginTests):
         )
         assert response.status_code == 403
         assert "Forbidden" in response.get_json()["name"]
+
+    def test_generate_documents(self, mode, client):
+        headers = {"X-TEST-SSL-VERIFY": "True", "X-TEST-SSL-FINGERPRINT": "VALID"}
+        url = f"/api/{mode}/v1alpha1/documents"
+        own, other = (
+            ("mk_rotation", "mk_rotation_done")
+            if mode == "frontend"
+            else ("mk_rotation_done", "mk_rotation")
+        )
+
+        response = client.put(url, json={"doc_type": own, "key": "r1"}, headers=headers)
+        assert response.status_code == 200
+        assert response.get_json()["id"] == f"{own}_r1"
+        assert response.get_json()["metadata"]["rotation_id"] == "r1"
+
+        docs = V1_3.DocumentList.model_validate_json(
+            client.get(url, headers=headers).data
+        )
+        assert docs.documents[0].id == f"{own}_r1"
+        docs = V1_3.DocumentList.model_validate_json(
+            client.get(url, headers=headers).data
+        )
+        # mk_rotation is re-sent until acknowledged; mk_rotation_done once
+        assert (f"{own}_r1" in [d.id for d in docs.documents]) == (mode == "frontend")
+
+        # A type this mode consumes, an unknown type, a bad key, a non-object → 400
+        for body in (
+            {"doc_type": other},
+            {"doc_type": "nope"},
+            {"doc_type": own, "key": "../x"},
+            ["x"],
+        ):
+            assert client.put(url, json=body, headers=headers).status_code == 400
+        assert client.put(url, json={"doc_type": own}, headers={}).status_code == 403
+
+        if mode == "frontend":
+            # Pending rotation blocks another until acknowledged or cleared
+            response = client.put(url, json={"doc_type": own}, headers=headers)
+            assert response.status_code == 409
+        client.delete(url, headers=headers)
+
+    def test_clear_documents(self, mode, client):
+        headers = {"X-TEST-SSL-VERIFY": "True", "X-TEST-SSL-FINGERPRINT": "VALID"}
+        url = f"/api/{mode}/v1alpha1/documents"
+        doc_type = "mk_rotation" if mode == "frontend" else "mk_rotation_done"
+        client.put(url, json={"doc_type": doc_type, "key": "c1"}, headers=headers)
+        doc_id = f"{doc_type}_c1"
+
+        response = client.delete(url, query_string={"id": "missing"}, headers=headers)
+        assert response.status_code == 404
+        response = client.delete(url, query_string={"id": doc_id}, headers=headers)
+        assert response.status_code == 200
+        assert response.get_json() == {"cleared": [doc_id]}
+        response = client.delete(url, headers=headers)
+        assert response.get_json() == {"cleared": []}
+        assert client.delete(url, headers={}).status_code == 403

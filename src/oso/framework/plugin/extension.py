@@ -29,11 +29,14 @@ from oso.framework.exceptions import StartupException
 
 from .base import PluginProtocol
 from .addons.main import AddonProtocol, BaseAddonConfig
+from .document import DocumentGenerator
+from .document.mk_rotation import MkRotation, MkRotationDone
+
 
 class PluginConfig(
     AutoLoadConfig,
     ImportListMixin({"addons": BaseAddonConfig}),
-    _config_prefix="plugin"
+    _config_prefix="plugin",
 ):
     """
     Configuration model for plugins.
@@ -73,10 +76,13 @@ class PluginExtension:
             config (PluginConfig): The configuration for the plugin.
         """
         self.config = config
-        self._init_addons(config.addons) # type: ignore [reportAttributeAccessError]
+        self._init_addons(config.addons)  # type: ignore [reportAttributeAccessError]
 
     def _init_addons(self, addons: list[BaseAddonConfig]):
         self.addons: dict[str, AddonProtocol] = {}
+        self.doc_generator = DocumentGenerator(
+            self.config.mode, [MkRotation(), MkRotationDone()]
+        )
         for addon in addons:
             self.addons[addon.type.NAME] = addon.type.configure(self.config, addon)
 

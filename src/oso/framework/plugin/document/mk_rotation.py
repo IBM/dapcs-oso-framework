@@ -15,13 +15,18 @@
 #
 """Master Key (MK) rotation document types.
 
-Frontend: ``PUT /documents`` (``doc_type=mk_rotation``, ``key=<rotation_id>``)
-generates an mk_rotation doc. It is re-sent on every GET and stays pending
-(blocking another rotation) until an mk_rotation_done doc for the same rotation
-arrives on POST, or it is cleared via ``DELETE /documents``. A done doc carrying
-an ``error`` also ends the rotation (logged); re-PUT the same id to retry.
+A rotation is identified by its document id, a UUID: the mk_rotation doc and
+its mk_rotation_done reply share it, and it is passed to ``rewrap()`` as
+``rotation_id``.
 
-Backend: an incoming mk_rotation doc (or ``PUT /documents`` with
+Frontend: ``POST /generate`` (``doc_type=mk_rotation``) generates an
+mk_rotation doc. It is re-sent on every GET and stays pending (blocking another
+rotation) until an mk_rotation_done doc with the same id arrives on
+``POST /documents``, or it is cleared via ``DELETE /documents``. A done doc
+carrying an ``error`` also ends the rotation (logged); generate a new one to
+retry.
+
+Backend: an incoming mk_rotation doc (or ``POST /generate`` with
 ``doc_type=mk_rotation_done``) generates an mk_rotation_done doc, calling the
 plugin's ``rewrap()`` hook until it succeeds once for the rotation; repeats
 re-send the stored result. A failing ``rewrap()`` yields a done doc with
@@ -36,8 +41,6 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import Field
-
 from oso.framework.core.logging import get_logger
 
 from . import DocType, DocumentGenerator, DocumentHandler, DocumentMetadata
@@ -46,21 +49,12 @@ _logger = get_logger("mk-rotation")
 
 #: Allowed rotation ids; they end up in keystore file names.
 ROTATION_ID_PATTERN = r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}"
-_RotationId = Field(pattern=f"^{ROTATION_ID_PATTERN}$")
 
 
 class MkRotationMetadata(DocumentMetadata):
-    """Signals an HSM master-key rotation (frontend -> backend).
-
-    Attributes
-    ----------
-    rotation_id : str
-        Opaque identifier for this rotation event, chosen by the
-        orchestrator.  Echoed back in ``MkRotationDoneMetadata``.
-    """
+    """Signals an HSM master-key rotation (frontend -> backend)."""
 
     doc_type: Literal[DocType.MK_ROTATION] = DocType.MK_ROTATION
-    rotation_id: str = _RotationId
 
 
 class MkRotationDoneMetadata(DocumentMetadata):
@@ -68,9 +62,6 @@ class MkRotationDoneMetadata(DocumentMetadata):
 
     Attributes
     ----------
-    rotation_id : str
-        Must equal the ``rotation_id`` from ``MkRotationMetadata``.
-
     rewrapped_key_ids : list[str]
         Ordered list of key IDs whose blobs were rewrapped.
 
@@ -79,7 +70,6 @@ class MkRotationDoneMetadata(DocumentMetadata):
     """
 
     doc_type: Literal[DocType.MK_ROTATION_DONE] = DocType.MK_ROTATION_DONE
-    rotation_id: str = _RotationId
     rewrapped_key_ids: list[str]
     error: str | None = None
 
@@ -98,16 +88,17 @@ class MkRotation(DocumentHandler):
         self, gen: DocumentGenerator, key: str, plugin_app: Any = None
     ) -> MkRotationMetadata:
         """Queue the rotation signal."""
-        return gen.add(key, MkRotationMetadata(rotation_id=key))  # type: ignore[return-value]
+        return gen.add(key, MkRotationMetadata())  # type: ignore[return-value]
 
     def on_incoming(
         self,
         gen: DocumentGenerator,
+        key: str,
         meta: DocumentMetadata,
         plugin_app: Any = None,
     ) -> None:
         """Backend: rewrap and queue the (possibly failed) confirmation."""
-        gen.generate(DocType.MK_ROTATION_DONE, meta.rotation_id, plugin_app)  # type: ignore[attr-defined]
+        gen.generate(DocType.MK_ROTATION_DONE, key, plugin_app)
 
 
 class MkRotationDone(DocumentHandler):
@@ -135,31 +126,29 @@ class MkRotationDone(DocumentHandler):
     def _rewrap(key: str, plugin_app: Any) -> MkRotationDoneMetadata:
         if not callable(getattr(plugin_app, "rewrap", None)):
             _logger.warning(f"plugin has no rewrap() hook rotation_id={key}")
-            return MkRotationDoneMetadata(rotation_id=key, rewrapped_key_ids=[])
+            return MkRotationDoneMetadata(rewrapped_key_ids=[])
         try:
             result = plugin_app.rewrap(rotation_id=key)
         except Exception as exc:
             _logger.exception(f"Rewrap failed rotation_id={key}")
             return MkRotationDoneMetadata(
-                rotation_id=key,
                 rewrapped_key_ids=[],
                 error=f"{type(exc).__name__}: {exc}",
             )
         return MkRotationDoneMetadata(
-            rotation_id=key,
             rewrapped_key_ids=list(getattr(result, "rewrapped_key_ids", [])),
         )
 
     def on_incoming(
         self,
         gen: DocumentGenerator,
+        key: str,
         meta: DocumentMetadata,
         plugin_app: Any = None,
     ) -> None:
         """Frontend: the rotation finished (or failed), so forget it."""
         if meta.error:  # type: ignore[attr-defined]
             _logger.error(
-                f"MK rotation failed on backend rotation_id={meta.rotation_id}: "  # type: ignore[attr-defined]
-                f"{meta.error}"  # type: ignore[attr-defined]
-            )
-        gen.remove(DocType.MK_ROTATION, meta.rotation_id)  # type: ignore[attr-defined]
+                f"MK rotation failed on backend rotation_id={key}: {meta.error}"
+            )  # type: ignore[attr-defined]
+        gen.remove(DocType.MK_ROTATION, key)

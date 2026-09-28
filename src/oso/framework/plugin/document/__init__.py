@@ -95,21 +95,21 @@ class DocumentHandler:
     def on_incoming(
         self,
         gen: DocumentGenerator,
+        key: str,
         meta: DocumentMetadata,
         plugin_app: Any = None,
     ) -> None:
-        """React to this type arriving on POST /documents in ``consumed_in`` mode."""
+        """React to this type arriving on POST /documents in ``consumed_in`` mode.
 
-
-def doc_id(doc_type: DocType, key: str) -> str:
-    """Document id of a framework document."""
-    return f"{doc_type}_{key}"
+        ``key`` is the incoming document's id.
+        """
 
 
 class DocumentGenerator:
     """Queue of framework documents, keyed by ``(DocType, key)``.
 
-    Each document is sent on one GET only, unless its handler sets ``resend``.
+    ``key`` is also the document id sent to OSO. Each document is sent on one
+    GET only, unless its handler sets ``resend``.
     """
 
     def __init__(self, mode: str, handlers: Iterable[DocumentHandler]):
@@ -165,15 +165,15 @@ class DocumentGenerator:
         return self._queued.pop((doc_type, key), None) is not None
 
     def clear(self, id_: str | None = None) -> list[str]:
-        """Forget all generated documents, or only the one with id ``id_``.
+        """Forget all generated documents, or only those with id ``id_``.
 
         Returns the ids of the cleared documents.
         """
-        keys = [k for k in self._history if id_ in (None, doc_id(*k))]
+        keys = [k for k in self._history if id_ in (None, k[1])]
         for doc_type, key in keys:
             self.remove(doc_type, key)
         _logger.info(f"Cleared {len(keys)} generated document(s)")
-        return [doc_id(*k) for k in keys]
+        return [key for _, key in keys]
 
     def generated(self, doc_type: DocType, key: str) -> DocumentMetadata | None:
         """Return a previously added document's metadata, even if already sent."""
@@ -185,7 +185,7 @@ class DocumentGenerator:
             doc_list.documents.insert(
                 0,
                 V1_3.Document(
-                    id=doc_id(doc_type, key),
+                    id=key,
                     content="",
                     metadata=meta.model_dump(mode="json"),
                 ),
@@ -210,7 +210,7 @@ class DocumentGenerator:
         Returns ``to_isv``'s result.
         """
         kept: list[V1_3.Document] = []
-        consumed: list[tuple[DocumentHandler, DocumentMetadata]] = []
+        consumed: list[tuple[DocumentHandler, str, DocumentMetadata]] = []
         for doc in doc_list.documents:
             try:
                 meta = self.parse(doc.metadata)
@@ -221,12 +221,12 @@ class DocumentGenerator:
                 meta = None
             handler = self._handlers.get(meta.doc_type) if meta else None
             if handler is not None and handler.consumed_in == self.mode:
-                consumed.append((handler, meta))  # type: ignore[arg-type]
+                consumed.append((handler, doc.id, meta))  # type: ignore[arg-type]
             else:
                 kept.append(doc)
         result = to_isv(V1_3.DocumentList(documents=kept, count=len(kept)))
-        for handler, meta in consumed:
-            handler.on_incoming(self, meta, plugin_app)
+        for handler, key, meta in consumed:
+            handler.on_incoming(self, key, meta, plugin_app)
         return result
 
     def parse(self, raw: str | None) -> DocumentMetadata | None:

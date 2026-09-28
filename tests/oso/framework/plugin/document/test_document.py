@@ -52,17 +52,13 @@ def _handle(
 
 
 def _rotation_doc(rid: str) -> V1_3.Document:
-    meta = MkRotationMetadata(rotation_id=rid)
-    return V1_3.Document(
-        id=f"mk_rotation_{rid}", content="", metadata=meta.model_dump(mode="json")
-    )
+    meta = MkRotationMetadata()
+    return V1_3.Document(id=rid, content="", metadata=meta.model_dump(mode="json"))
 
 
 def _done_doc(rid: str) -> V1_3.Document:
-    meta = MkRotationDoneMetadata(rotation_id=rid, rewrapped_key_ids=[])
-    return V1_3.Document(
-        id=f"mk_rotation_done_{rid}", content="", metadata=meta.model_dump(mode="json")
-    )
+    meta = MkRotationDoneMetadata(rewrapped_key_ids=[])
+    return V1_3.Document(id=rid, content="", metadata=meta.model_dump(mode="json"))
 
 
 def _plugin(key_ids: list[str]) -> MagicMock:
@@ -98,9 +94,8 @@ def test_metadata_parse(fe: DocumentGenerator):
     assert parse('{"doc_type": "isv_thing"}') is None
     meta = parse(_rotation_doc("r").metadata)
     assert isinstance(meta, MkRotationMetadata)
-    assert meta.rotation_id == "r"
     with pytest.raises(ValidationError):
-        parse('{"doc_type": "mk_rotation"}')
+        parse('{"doc_type": "mk_rotation_done"}')
 
 
 def test_base_handler_defaults(fe: DocumentGenerator):
@@ -131,12 +126,11 @@ def test_non_framework_docs_pass_through(be: DocumentGenerator):
 def test_frontend_resends_until_acknowledged(fe: DocumentGenerator):
     fe.generate(DocType.MK_ROTATION, "r1")
     injected = fe.inject(_docs(V1_3.Document(id="d", content="x")))
-    assert _ids(injected) == ["mk_rotation_r1", "d"]
+    assert _ids(injected) == ["r1", "d"]
     assert json.loads(injected.documents[0].metadata) == {
         "doc_type": "mk_rotation",
-        "rotation_id": "r1",
     }
-    assert _ids(fe.inject(_docs())) == ["mk_rotation_r1"]  # re-sent while pending
+    assert _ids(fe.inject(_docs())) == ["r1"]  # re-sent while pending
 
     passed = _handle(fe, _docs(_done_doc("r1"), V1_3.Document(id="d", content="x")))
     assert passed == ["d"]  # done doc stripped
@@ -147,12 +141,12 @@ def test_frontend_resends_until_acknowledged(fe: DocumentGenerator):
 def test_frontend_failed_done_ends_rotation(fe: DocumentGenerator):
     fe.generate(DocType.MK_ROTATION, "r1")
     failed = MkRotationDoneMetadata(
-        rotation_id="r1", rewrapped_key_ids=[], error="RuntimeError: hsm down"
+        rewrapped_key_ids=[], error="RuntimeError: hsm down"
     )
-    doc = V1_3.Document(id="x", content="", metadata=failed.model_dump(mode="json"))
+    doc = V1_3.Document(id="r1", content="", metadata=failed.model_dump(mode="json"))
     assert _handle(fe, _docs(doc)) == []
     assert fe.inject(_docs()).count == 0
-    fe.generate(DocType.MK_ROTATION, "r1")  # operator retries the same id
+    fe.generate(DocType.MK_ROTATION, "r2")  # operator retries
 
 
 def test_duplicate_rotation_blocked_until_acknowledged(fe: DocumentGenerator):
@@ -189,7 +183,6 @@ def test_backend_rewrap_once_per_rotation(be: DocumentGenerator):
     assert first.rewrapped_key_ids == ["k1", "k2"]
     assert json.loads(be.inject(_docs()).documents[0].metadata) == {
         "doc_type": "mk_rotation_done",
-        "rotation_id": "r1",
         "rewrapped_key_ids": ["k1", "k2"],
         "error": None,
     }
@@ -198,7 +191,7 @@ def test_backend_rewrap_once_per_rotation(be: DocumentGenerator):
     # Re-sent signal re-queues the done doc without rewrapping again.
     assert be.generate(DocType.MK_ROTATION_DONE, "r1", plugin) == first
     plugin.rewrap.assert_called_once_with(rotation_id="r1")
-    assert _ids(be.inject(_docs())) == ["mk_rotation_done_r1"]
+    assert _ids(be.inject(_docs())) == ["r1"]
 
 
 def test_backend_rewrap_without_hook_or_key_ids(be: DocumentGenerator):
@@ -216,8 +209,8 @@ def test_backend_strips_rotation_docs_and_rewraps(be: DocumentGenerator):
     assert _handle(be, docs, plugin) == ["d"]
     assert plugin.rewrap.call_count == 2
     assert sorted(_ids(be.inject(_docs()))) == [
-        "mk_rotation_done_r1",
-        "mk_rotation_done_r2",
+        "r1",
+        "r2",
     ]
 
 
@@ -247,13 +240,10 @@ def test_backend_rewrap_failure_reported_then_retried(be: DocumentGenerator):
     assert plugin.rewrap.call_count == 2
 
 
-def test_rotation_id_validated():
-    with pytest.raises(ValidationError):
-        MkRotationMetadata(rotation_id="../etc")
-
-
-def test_backend_drops_malformed_rotation_doc(be: DocumentGenerator):
-    bad = V1_3.Document(id="bad", content="", metadata='{"doc_type": "mk_rotation"}')
+def test_backend_drops_malformed_framework_doc(be: DocumentGenerator):
+    bad = V1_3.Document(
+        id="bad", content="", metadata='{"doc_type": "mk_rotation_done"}'
+    )
     docs = _docs(bad, V1_3.Document(id="d", content="x"))
     assert _handle(be, docs) == ["d"]
     assert be.inject(_docs()).count == 0
@@ -267,10 +257,10 @@ def test_backend_drops_malformed_rotation_doc(be: DocumentGenerator):
 def test_clear_one_and_all(be: DocumentGenerator):
     for rid in ("r1", "r2", "r3"):
         be.generate(DocType.MK_ROTATION_DONE, rid, _plugin([]))
-    assert be.clear("mk_rotation_done_r1") == ["mk_rotation_done_r1"]
+    assert be.clear("r1") == ["r1"]
     assert be.clear("nope") == []
-    assert _ids(be.inject(_docs())) == ["mk_rotation_done_r3", "mk_rotation_done_r2"]
-    assert sorted(be.clear()) == ["mk_rotation_done_r2", "mk_rotation_done_r3"]
+    assert _ids(be.inject(_docs())) == ["r3", "r2"]
+    assert sorted(be.clear()) == ["r2", "r3"]
     assert be.clear() == []
 
 
@@ -279,5 +269,5 @@ def test_clear_unblocks_stuck_rotation(fe: DocumentGenerator):
     fe.inject(_docs())
     with pytest.raises(Conflict):
         fe.generate(DocType.MK_ROTATION, "next")
-    assert fe.clear("mk_rotation_stuck") == ["mk_rotation_stuck"]
+    assert fe.clear("stuck") == ["stuck"]
     fe.generate(DocType.MK_ROTATION, "next")

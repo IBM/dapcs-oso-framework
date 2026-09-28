@@ -23,31 +23,20 @@ POST /api/{mode}/v1alpha1/documents
     Passes ISV documents to ``plugin.to_isv()``, then dispatches framework
     documents to their ``DocumentHandler.on_incoming``.
 
-PUT /api/{mode}/v1alpha1/documents
-    Generates a framework document. Body: ``{"doc_type": "<DocType>",
-    "key": "<optional, random UUID if omitted>"}`` (for MK rotation the key
-    is the rotation id). Returns ``{"id": ..., "metadata": {...}}``. 400 for
-    an unknown ``doc_type``, one this mode cannot generate, or an invalid key;
-    409 if the type disallows duplicates and one with another key is pending.
-
 DELETE /api/{mode}/v1alpha1/documents[?id=<document id>]
-    Clears framework-generated documents: all of them, or only the one with
-    the given id (e.g. ``mk_rotation_<rotation_id>``). 404 if ``id`` matches
-    nothing. ISV documents are not affected.
+    Clears framework-generated documents (see ``POST /generate``): all of
+    them, or only the one with the given id. 404 if ``id`` matches nothing.
+    ISV documents are not affected.
 """
-
-import uuid
 
 from flask import jsonify, request
 from flask.views import MethodView
-from pydantic import ValidationError
-from werkzeug.exceptions import BadRequest, NotFound
+from werkzeug.exceptions import NotFound
 
 from oso.framework.auth.extension import RequireAuth
 from oso.framework.core.logging import get_logger
 from oso.framework.data.types import V1_3
 from oso.framework.plugin import current_oso_plugin_app
-from oso.framework.plugin.document import DocType, doc_id
 from oso.framework.plugin.extension import current_oso_plugin
 
 _logger = get_logger("documents-api")
@@ -77,28 +66,6 @@ class Api(MethodView):
             current_oso_plugin().doc_generator.handle_incoming(
                 raw_docs, plugin_app.to_isv, plugin_app
             )
-        )
-
-    @RequireAuth("mtls", "component")
-    def put(self):
-        """PUT /v1alpha1/documents endpoint."""
-        body = request.get_json(silent=True)
-        if not isinstance(body, dict):
-            raise BadRequest("Request body must be a JSON object")
-        try:
-            doc_type = DocType(body.get("doc_type"))
-        except ValueError:
-            raise BadRequest(f"Unknown doc_type {body.get('doc_type')!r}")
-        key = str(body.get("key") or uuid.uuid4())
-
-        try:
-            meta = current_oso_plugin().doc_generator.generate(
-                doc_type, key, current_oso_plugin_app()
-            )
-        except ValidationError as exc:
-            raise BadRequest(f"Invalid key {key!r}: {exc}")
-        return jsonify(
-            {"id": doc_id(doc_type, key), "metadata": meta.model_dump(mode="json")}
         )
 
     @RequireAuth("mtls", "component")

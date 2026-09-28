@@ -17,6 +17,7 @@
 
 import copy
 import json
+import uuid
 
 import pytest
 
@@ -389,50 +390,50 @@ class TestModule(_BasePluginTests):
 
     def test_generate_documents(self, mode, client):
         headers = {"X-TEST-SSL-VERIFY": "True", "X-TEST-SSL-FINGERPRINT": "VALID"}
-        url = f"/api/{mode}/v1alpha1/documents"
+        url = f"/api/{mode}/v1alpha1/generate"
+        docs_url = f"/api/{mode}/v1alpha1/documents"
         own, other = (
             ("mk_rotation", "mk_rotation_done")
             if mode == "frontend"
             else ("mk_rotation_done", "mk_rotation")
         )
 
-        response = client.put(url, json={"doc_type": own, "key": "r1"}, headers=headers)
+        response = client.post(url, json={"doc_type": own}, headers=headers)
         assert response.status_code == 200
-        assert response.get_json()["id"] == f"{own}_r1"
-        assert response.get_json()["metadata"]["rotation_id"] == "r1"
+        doc_id = response.get_json()["id"]
+        assert str(uuid.UUID(doc_id)) == doc_id
+        assert response.get_json()["metadata"]["doc_type"] == own
 
         docs = V1_3.DocumentList.model_validate_json(
-            client.get(url, headers=headers).data
+            client.get(docs_url, headers=headers).data
         )
-        assert docs.documents[0].id == f"{own}_r1"
+        assert docs.documents[0].id == doc_id
         docs = V1_3.DocumentList.model_validate_json(
-            client.get(url, headers=headers).data
+            client.get(docs_url, headers=headers).data
         )
         # mk_rotation is re-sent until acknowledged; mk_rotation_done once
-        assert (f"{own}_r1" in [d.id for d in docs.documents]) == (mode == "frontend")
+        assert (doc_id in [d.id for d in docs.documents]) == (mode == "frontend")
 
-        # A type this mode consumes, an unknown type, a bad key, a non-object → 400
-        for body in (
-            {"doc_type": other},
-            {"doc_type": "nope"},
-            {"doc_type": own, "key": "../x"},
-            ["x"],
-        ):
-            assert client.put(url, json=body, headers=headers).status_code == 400
-        assert client.put(url, json={"doc_type": own}, headers={}).status_code == 403
+        # A type this mode consumes, an unknown type, a non-object → 400
+        for body in ({"doc_type": other}, {"doc_type": "nope"}, ["x"]):
+            assert client.post(url, json=body, headers=headers).status_code == 400
+        assert client.post(url, json={"doc_type": own}, headers={}).status_code == 403
 
         if mode == "frontend":
             # Pending rotation blocks another until acknowledged or cleared
-            response = client.put(url, json={"doc_type": own}, headers=headers)
+            response = client.post(url, json={"doc_type": own}, headers=headers)
             assert response.status_code == 409
-        client.delete(url, headers=headers)
+        client.delete(docs_url, headers=headers)
 
     def test_clear_documents(self, mode, client):
         headers = {"X-TEST-SSL-VERIFY": "True", "X-TEST-SSL-FINGERPRINT": "VALID"}
         url = f"/api/{mode}/v1alpha1/documents"
         doc_type = "mk_rotation" if mode == "frontend" else "mk_rotation_done"
-        client.put(url, json={"doc_type": doc_type, "key": "c1"}, headers=headers)
-        doc_id = f"{doc_type}_c1"
+        doc_id = client.post(
+            f"/api/{mode}/v1alpha1/generate",
+            json={"doc_type": doc_type},
+            headers=headers,
+        ).get_json()["id"]
 
         response = client.delete(url, query_string={"id": "missing"}, headers=headers)
         assert response.status_code == 404

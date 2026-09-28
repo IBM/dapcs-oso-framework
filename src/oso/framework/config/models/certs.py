@@ -15,7 +15,6 @@
 #
 """Certificate Configuration."""
 
-
 from pathlib import Path
 
 from .. import AutoLoadConfig
@@ -38,6 +37,10 @@ class CertificateConfig(AutoLoadConfig, _config_prefix="certs"):
 
     app_key : str, envvar=CERTS__APP_KEY
         The private key for this application.
+
+    admin_ca : str | None, envvar=CERTS__ADMIN_CA
+        Extra CA the proxy trusts for client certificates, so admin clients
+        can reach endpoints that allow them (see ``PluginConfig.admin_ca``).
     """
 
     ca: str
@@ -50,6 +53,8 @@ class CertificateConfig(AutoLoadConfig, _config_prefix="certs"):
     :envvar: CERTS__APP_KEY
     """
 
+    admin_ca: str | None = None
+
     _loc: Path | None = None
 
     def export(self, root: Path):
@@ -60,11 +65,19 @@ class CertificateConfig(AutoLoadConfig, _config_prefix="certs"):
         self.ca_filename.write_text(self.ca)
         self.crt_filename.write_text(self.app_crt)
         self.key_filename.write_text(self.app_key)
+        self.client_ca_filename.write_text(
+            "\n".join(ca.strip() for ca in (self.ca, self.admin_ca) if ca) + "\n"
+        )
 
     @property
     def ca_filename(self) -> Path:
         """CA filename."""
         return self._loc / "oso-ca.crt"
+
+    @property
+    def client_ca_filename(self) -> Path:
+        """CA bundle trusted for client certificates (CA plus admin CA)."""
+        return self._loc / "client-ca.crt"
 
     @property
     def crt_filename(self) -> Path:

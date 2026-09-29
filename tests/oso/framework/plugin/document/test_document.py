@@ -26,14 +26,12 @@ from werkzeug.exceptions import Conflict
 
 from oso.framework.data.types import V1_3
 from oso.framework.plugin.document import DocType, DocumentGenerator, DocumentHandler
-from oso.framework.plugin.document.mk_rotation import (
-    MkRotation,
-    MkRotationDone,
-    MkRotationDoneMetadata,
-    MkRotationMetadata,
-)
+from oso.framework.plugin.document.mk_rotation import MkRotation, MkRotationMetadata
 
-HANDLERS = (MkRotation(), MkRotationDone())
+HANDLERS = (MkRotation(),)
+
+
+BAD = '{"doc_type": "mk_rotation", "rewrapped_key_ids": "x"}'
 
 
 def _docs(*docs: V1_3.Document) -> V1_3.DocumentList:
@@ -57,7 +55,7 @@ def _rotation_doc(rid: str) -> V1_3.Document:
 
 
 def _done_doc(rid: str) -> V1_3.Document:
-    meta = MkRotationDoneMetadata(rewrapped_key_ids=[])
+    meta = MkRotationMetadata(rewrapped_key_ids=[])
     return V1_3.Document(id=rid, content="", metadata=meta.model_dump(mode="json"))
 
 
@@ -95,7 +93,7 @@ def test_metadata_parse(fe: DocumentGenerator):
     meta = parse(_rotation_doc("r").metadata)
     assert isinstance(meta, MkRotationMetadata)
     with pytest.raises(ValidationError):
-        parse('{"doc_type": "mk_rotation_done"}')
+        parse('{"doc_type": "mk_rotation", "rewrapped_key_ids": "x"}')
 
 
 def test_base_handler_defaults(fe: DocumentGenerator):
@@ -103,7 +101,6 @@ def test_base_handler_defaults(fe: DocumentGenerator):
     h.label = "x"
     with pytest.raises(NotImplementedError):
         h.generate(fe, "k")
-    assert h.consumed_in is None
 
 
 def test_empty_inject(fe: DocumentGenerator):
@@ -129,6 +126,9 @@ def test_frontend_resends_until_acknowledged(fe: DocumentGenerator):
     assert _ids(injected) == ["r1", "d"]
     assert json.loads(injected.documents[0].metadata) == {
         "doc_type": "mk_rotation",
+        "status": None,
+        "rewrapped_key_ids": None,
+        "error": None,
     }
     assert _ids(fe.inject(_docs())) == ["r1"]  # re-sent while pending
 
@@ -140,8 +140,8 @@ def test_frontend_resends_until_acknowledged(fe: DocumentGenerator):
 
 def test_frontend_failed_done_ends_rotation(fe: DocumentGenerator):
     fe.generate(DocType.MK_ROTATION, "r1")
-    failed = MkRotationDoneMetadata(
-        rewrapped_key_ids=[], error="RuntimeError: hsm down"
+    failed = MkRotationMetadata(
+        status="error", rewrapped_key_ids=[], error="RuntimeError: hsm down"
     )
     doc = V1_3.Document(id="r1", content="", metadata=failed.model_dump(mode="json"))
     assert _handle(fe, _docs(doc)) == []
@@ -163,9 +163,7 @@ def test_frontend_ignores_unknown_and_malformed_done(fe: DocumentGenerator):
     fe.generate(DocType.MK_ROTATION, "keep")
     docs = _docs(
         _done_doc("other"),
-        V1_3.Document(
-            id="bad", content="", metadata='{"doc_type": "mk_rotation_done"}'
-        ),
+        V1_3.Document(id="bad", content="", metadata=BAD),
         V1_3.Document(id="d", content="x"),
     )
     assert _handle(fe, docs) == ["bad", "d"]
@@ -173,32 +171,33 @@ def test_frontend_ignores_unknown_and_malformed_done(fe: DocumentGenerator):
 
 
 # ---------------------------------------------------------------------------
-# MkRotationDone (backend)
+# MkRotation (backend)
 # ---------------------------------------------------------------------------
 
 
 def test_backend_rewrap_once_per_rotation(be: DocumentGenerator):
     plugin = _plugin(["k1", "k2"])
-    first = be.generate(DocType.MK_ROTATION_DONE, "r1", plugin)
+    first = be.generate(DocType.MK_ROTATION, "r1", plugin)
     assert first.rewrapped_key_ids == ["k1", "k2"]
     assert json.loads(be.inject(_docs()).documents[0].metadata) == {
-        "doc_type": "mk_rotation_done",
+        "doc_type": "mk_rotation",
+        "status": "success",
         "rewrapped_key_ids": ["k1", "k2"],
         "error": None,
     }
     assert be.inject(_docs()).count == 0  # sent once
 
     # Re-sent signal re-queues the done doc without rewrapping again.
-    assert be.generate(DocType.MK_ROTATION_DONE, "r1", plugin) == first
+    assert be.generate(DocType.MK_ROTATION, "r1", plugin) == first
     plugin.rewrap.assert_called_once_with(rotation_id="r1")
     assert _ids(be.inject(_docs())) == ["r1"]
 
 
 def test_backend_rewrap_without_hook_or_key_ids(be: DocumentGenerator):
-    assert be.generate(DocType.MK_ROTATION_DONE, "r1").rewrapped_key_ids == []
+    assert be.generate(DocType.MK_ROTATION, "r1").rewrapped_key_ids == []
     plugin = MagicMock()
     plugin.rewrap.return_value = object()
-    assert be.generate(DocType.MK_ROTATION_DONE, "r2", plugin).rewrapped_key_ids == []
+    assert be.generate(DocType.MK_ROTATION, "r2", plugin).rewrapped_key_ids == []
 
 
 def test_backend_strips_rotation_docs_and_rewraps(be: DocumentGenerator):
@@ -229,6 +228,7 @@ def test_backend_rewrap_failure_reported_then_retried(be: DocumentGenerator):
     docs = _docs(_rotation_doc("r"), V1_3.Document(id="d", content="x"))
     assert _handle(be, docs, plugin) == ["d"]
     failed = json.loads(be.inject(_docs()).documents[0].metadata)
+    assert failed["status"] == "error"
     assert failed["error"] == "RuntimeError: hsm down"
     assert failed["rewrapped_key_ids"] == []
 
@@ -236,14 +236,16 @@ def test_backend_rewrap_failure_reported_then_retried(be: DocumentGenerator):
     plugin.rewrap.return_value = MagicMock(rewrapped_key_ids=["k1"])
     _handle(be, _docs(_rotation_doc("r")), plugin)
     done = json.loads(be.inject(_docs()).documents[0].metadata)
-    assert (done["error"], done["rewrapped_key_ids"]) == (None, ["k1"])
+    assert (done["status"], done["error"], done["rewrapped_key_ids"]) == (
+        "success",
+        None,
+        ["k1"],
+    )
     assert plugin.rewrap.call_count == 2
 
 
 def test_backend_drops_malformed_framework_doc(be: DocumentGenerator):
-    bad = V1_3.Document(
-        id="bad", content="", metadata='{"doc_type": "mk_rotation_done"}'
-    )
+    bad = V1_3.Document(id="bad", content="", metadata=BAD)
     docs = _docs(bad, V1_3.Document(id="d", content="x"))
     assert _handle(be, docs) == ["d"]
     assert be.inject(_docs()).count == 0
@@ -256,7 +258,7 @@ def test_backend_drops_malformed_framework_doc(be: DocumentGenerator):
 
 def test_clear_one_and_all(be: DocumentGenerator):
     for rid in ("r1", "r2", "r3"):
-        be.generate(DocType.MK_ROTATION_DONE, rid, _plugin([]))
+        be.generate(DocType.MK_ROTATION, rid, _plugin([]))
     assert be.clear("r1") == ["r1"]
     assert be.clear("nope") == []
     assert _ids(be.inject(_docs())) == ["r3", "r2"]

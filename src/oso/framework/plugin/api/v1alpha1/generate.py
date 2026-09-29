@@ -19,8 +19,7 @@ POST /api/{mode}/v1alpha1/generate
     Generates a framework document with a random UUID as its id. Body:
     ``{"doc_type": "<DocType>"}``. Returns ``{"id": ..., "metadata": {...}}``;
     the document goes out on the next ``GET /documents``. 400 for an unknown
-    ``doc_type`` or one this mode cannot generate; 409 if the type disallows
-    duplicates and another is pending.
+    ``doc_type``; 409 if the type disallows duplicates and another is pending.
 
     Allowed for ``component`` clients and for admins (see
     ``PluginConfig.admin_ca``).

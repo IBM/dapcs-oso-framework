@@ -13,25 +13,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Master Key (MK) rotation document types.
+"""Master Key (MK) rotation document type.
 
-A rotation is identified by its document id, a UUID: the mk_rotation doc and
-its mk_rotation_done reply share it, and it is passed to ``rewrap()`` as
-``rotation_id``.
+A single ``mk_rotation`` document carries both the request (frontend ->
+backend) and its result (backend -> frontend). A rotation is identified by its
+document id, a UUID shared by request and result, and passed to ``rewrap()``
+as ``rotation_id``.
 
-Frontend: ``POST /generate`` (``doc_type=mk_rotation``) generates an
-mk_rotation doc. It is re-sent on every GET and stays pending (blocking another
-rotation) until an mk_rotation_done doc with the same id arrives on
-``POST /documents``, or it is cleared via ``DELETE /documents``. A done doc
-carrying an ``error`` also ends the rotation (logged); generate a new one to
-retry.
+Frontend: ``POST /generate`` (``doc_type=mk_rotation``) generates a request. It
+is re-sent on every GET and stays pending (blocking another rotation) until a
+result with the same id arrives on ``POST /documents``, or it is cleared via
+``DELETE /documents``. A result with ``status="error"`` also ends the rotation
+(logged); generate a new one to retry.
 
-Backend: an incoming mk_rotation doc (or ``POST /generate`` with
-``doc_type=mk_rotation_done``) generates an mk_rotation_done doc, calling the
-plugin's ``rewrap()`` hook until it succeeds once for the rotation; repeats
-re-send the stored result. A failing ``rewrap()`` yields a done doc with
-``error`` set. ``rewrap()`` must itself be safe to retry after a partial
-failure (``SigningServerAddon.rewrap_keys`` is).
+Backend: an incoming request (or ``POST /generate``) generates a result,
+calling the plugin's ``rewrap()`` hook until it succeeds once for the rotation;
+repeats re-send the stored result. A failing ``rewrap()`` yields a result with
+``status="error"`` and the message in ``error``. ``rewrap()`` must itself be safe
+to retry after a partial failure (``SigningServerAddon.rewrap_keys`` is).
 
 Incoming rotation docs are handled after ``plugin.to_isv()`` has processed the
 other documents in the same POST.
@@ -52,90 +51,67 @@ ROTATION_ID_PATTERN = r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}"
 
 
 class MkRotationMetadata(DocumentMetadata):
-    """Signals an HSM master-key rotation (frontend -> backend)."""
-
-    doc_type: Literal[DocType.MK_ROTATION] = DocType.MK_ROTATION
-
-
-class MkRotationDoneMetadata(DocumentMetadata):
-    """Confirms a master-key rotation rewrap finished (backend -> frontend).
+    """An HSM master-key rotation request, or its result.
 
     Attributes
     ----------
-    rewrapped_key_ids : list[str]
-        Ordered list of key IDs whose blobs were rewrapped.
+    status : "success" | "error" | None
+        Result only: outcome of the rewrap; ``None`` on a request.
+
+    rewrapped_key_ids : list[str] | None
+        Result only: ordered list of key IDs whose blobs were rewrapped.
 
     error : str | None
-        Set if the rewrap failed; ``rewrapped_key_ids`` is then empty.
+        Result only: the error message when ``status`` is ``"error"``;
+        ``rewrapped_key_ids`` is then empty.
     """
 
-    doc_type: Literal[DocType.MK_ROTATION_DONE] = DocType.MK_ROTATION_DONE
-    rewrapped_key_ids: list[str]
+    doc_type: Literal[DocType.MK_ROTATION] = DocType.MK_ROTATION
+    status: Literal["success", "error"] | None = None
+    rewrapped_key_ids: list[str] | None = None
     error: str | None = None
 
 
 class MkRotation(DocumentHandler):
-    """Signal to rotate the master key (frontend -> backend)."""
+    """Rotate the master key: request on the frontend, rewrap on the backend."""
 
     doc_type = DocType.MK_ROTATION
     metadata_model = MkRotationMetadata
     label = "MK rotation"
-    allow_duplicates = False
-    consumed_in = "backend"
-    resend = True
 
     def generate(
         self, gen: DocumentGenerator, key: str, plugin_app: Any = None
     ) -> MkRotationMetadata:
-        """Queue the rotation signal."""
-        return gen.add(key, MkRotationMetadata())  # type: ignore[return-value]
+        """Frontend: queue the request. Backend: rewrap and queue the result.
 
-    def on_incoming(
-        self,
-        gen: DocumentGenerator,
-        key: str,
-        meta: DocumentMetadata,
-        plugin_app: Any = None,
-    ) -> None:
-        """Backend: rewrap and queue the (possibly failed) confirmation."""
-        gen.generate(DocType.MK_ROTATION_DONE, key, plugin_app)
-
-
-class MkRotationDone(DocumentHandler):
-    """Confirmation that rewrap finished (backend -> frontend)."""
-
-    doc_type = DocType.MK_ROTATION_DONE
-    metadata_model = MkRotationDoneMetadata
-    label = "MK rotation done"
-    consumed_in = "frontend"
-
-    def generate(
-        self, gen: DocumentGenerator, key: str, plugin_app: Any = None
-    ) -> MkRotationDoneMetadata:
-        """Rewrap until it succeeds once per rotation; queue the confirmation.
-
-        A repeated call re-queues a successful confirmation instead of
-        rewrapping again, and retries a failed one.
+        On the backend a repeated call re-queues a successful result instead
+        of rewrapping again, and retries a failed one.
         """
+        if gen.mode == "frontend":
+            return gen.add(  # type: ignore[return-value]
+                key, MkRotationMetadata(), resend=True, unique=True
+            )
         done = gen.generated(self.doc_type, key)
-        if done is None or done.error:  # type: ignore[attr-defined]
+        if done is None or done.status == "error":  # type: ignore[attr-defined]
             done = self._rewrap(key, plugin_app)
         return gen.add(key, done)  # type: ignore[return-value]
 
     @staticmethod
-    def _rewrap(key: str, plugin_app: Any) -> MkRotationDoneMetadata:
+    def _rewrap(key: str, plugin_app: Any) -> MkRotationMetadata:
         if not callable(getattr(plugin_app, "rewrap", None)):
             _logger.warning(f"plugin has no rewrap() hook rotation_id={key}")
-            return MkRotationDoneMetadata(rewrapped_key_ids=[])
+            return MkRotationMetadata(status="success", rewrapped_key_ids=[])
         try:
             result = plugin_app.rewrap(rotation_id=key)
         except Exception as exc:
             _logger.exception(f"Rewrap failed rotation_id={key}")
-            return MkRotationDoneMetadata(
+            return MkRotationMetadata(
+                status="error",
                 rewrapped_key_ids=[],
                 error=f"{type(exc).__name__}: {exc}",
             )
-        return MkRotationDoneMetadata(
+        return MkRotationMetadata(
+            status="success",
             rewrapped_key_ids=list(getattr(result, "rewrapped_key_ids", [])),
         )
 
@@ -146,9 +122,12 @@ class MkRotationDone(DocumentHandler):
         meta: DocumentMetadata,
         plugin_app: Any = None,
     ) -> None:
-        """Frontend: the rotation finished (or failed), so forget it."""
-        if meta.error:  # type: ignore[attr-defined]
+        """Backend: rewrap and queue the result. Frontend: forget the rotation."""
+        if gen.mode == "backend":
+            gen.generate(self.doc_type, key, plugin_app)
+            return
+        if meta.status == "error":  # type: ignore[attr-defined]
             _logger.error(
-                f"MK rotation failed on backend rotation_id={key}: {meta.error}"
-            )  # type: ignore[attr-defined]
-        gen.remove(DocType.MK_ROTATION, key)
+                f"MK rotation failed on backend rotation_id={key}: {meta.error}"  # type: ignore[attr-defined]
+            )
+        gen.remove(self.doc_type, key)

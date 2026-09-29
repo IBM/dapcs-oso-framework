@@ -1,5 +1,5 @@
 #
-# (c) Copyright IBM Corp. 2025, 2026
+# (c) Copyright IBM Corp. 2026
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ OSO treats as opaque, so their schemas are framework-internal. Each type's
 metadata model and behaviour live together in its own module here (e.g.
 :mod:`.mk_rotation`); its handler is registered in ``PluginExtension``.
 """
-
 from __future__ import annotations
 
 import json
@@ -30,7 +29,7 @@ from enum import StrEnum
 from typing import Any, Callable, ClassVar, Iterable
 
 from pydantic import BaseModel, ConfigDict, ValidationError
-from werkzeug.exceptions import BadRequest, Conflict
+from werkzeug.exceptions import Conflict
 
 from oso.framework.core.logging import get_logger
 from oso.framework.data.types import V1_3
@@ -42,7 +41,6 @@ class DocType(StrEnum):
     """Framework document types (the ``metadata.doc_type`` value)."""
 
     MK_ROTATION = "mk_rotation"
-    MK_ROTATION_DONE = "mk_rotation_done"
 
 
 class DocumentMetadata(BaseModel):
@@ -57,7 +55,8 @@ class DocumentHandler:
     """Base for a document type.
 
     Subclass, set the class attributes, and override only the handlers the
-    type needs.
+    type needs. Handlers branch on ``gen.mode`` where the frontend and backend
+    behave differently.
 
     Attributes
     ----------
@@ -67,24 +66,11 @@ class DocumentHandler:
         Model incoming metadata of this type is validated against.
     label : str
         Human-readable name used in messages.
-    allow_duplicates : bool
-        ``False`` rejects :meth:`DocumentGenerator.add` while another
-        document of this type is pending (added and not yet removed).
-    consumed_in : str | None
-        Mode in which an incoming document of this type is stripped and
-        handled by :meth:`on_incoming`; in any other mode it is passed on to
-        ``plugin.to_isv()``.
-    resend : bool
-        ``True`` keeps sending the document on every GET until it is removed,
-        so a lost transfer is recovered; the receiver must be idempotent.
     """
 
     doc_type: ClassVar[DocType]
     metadata_model: ClassVar[type[DocumentMetadata]]
     label: ClassVar[str]
-    allow_duplicates: ClassVar[bool] = True
-    consumed_in: ClassVar[str | None] = None
-    resend: ClassVar[bool] = False
 
     def generate(
         self, gen: DocumentGenerator, key: str, plugin_app: Any = None
@@ -99,8 +85,9 @@ class DocumentHandler:
         meta: DocumentMetadata,
         plugin_app: Any = None,
     ) -> None:
-        """React to this type arriving on POST /documents in ``consumed_in`` mode.
+        """React to this type arriving on POST /documents.
 
+        The document is stripped from what ``plugin.to_isv()`` receives.
         ``key`` is the incoming document's id.
         """
 
@@ -109,50 +96,51 @@ class DocumentGenerator:
     """Queue of framework documents, keyed by ``(DocType, key)``.
 
     ``key`` is also the document id sent to OSO. Each document is sent on one
-    GET only, unless its handler sets ``resend``.
+    GET only, unless added with ``resend``.
     """
 
     def __init__(self, mode: str, handlers: Iterable[DocumentHandler]):
         self.mode = mode
         self._handlers = {h.doc_type: h for h in handlers}
-        # ponytail: in-process state; lost on restart and not shared across
-        # workers. Move to a persistent store if the plugin runs >1 worker.
         self._queued: dict[tuple[DocType, str], DocumentMetadata] = {}
-        # Every document added and not yet removed/cleared, for idempotency
-        # and duplicate checks. Unbounded until cleared.
         self._history: dict[tuple[DocType, str], DocumentMetadata] = {}
+        self._resend: set[tuple[DocType, str]] = set()
 
     def generate(
         self, doc_type: DocType, key: str, plugin_app: Any = None
     ) -> DocumentMetadata:
-        """Run the type's ``generate`` handler.
+        """Run the type's ``generate`` handler."""
+        return self._handlers[doc_type].generate(self, key, plugin_app)
 
-        Raises
-        ------
-        werkzeug.exceptions.BadRequest
-            If this mode is the one that consumes ``doc_type``.
-        """
-        handler = self._handlers[doc_type]
-        if handler.consumed_in == self.mode:
-            raise BadRequest(f"{handler.label} documents cannot be generated here")
-        return handler.generate(self, key, plugin_app)
-
-    def add(self, key: str, metadata: DocumentMetadata) -> DocumentMetadata:
+    def add(
+        self,
+        key: str,
+        metadata: DocumentMetadata,
+        *,
+        resend: bool = False,
+        unique: bool = False,
+    ) -> DocumentMetadata:
         """Queue a document for the next GET. Re-adding the same key replaces it.
+
+        ``resend`` keeps sending it on every GET until it is removed, so a lost
+        transfer is recovered; the receiver must be idempotent. ``unique``
+        rejects it while another document of its type is pending (added and
+        not yet removed).
 
         Raises
         ------
         werkzeug.exceptions.Conflict
-            If the type disallows duplicates and one with another key is pending.
+            If ``unique`` and one with another key is pending.
         """
         doc_type = metadata.doc_type
-        handler = self._handlers[doc_type]
-        if not handler.allow_duplicates and any(
-            t is doc_type and k != key for t, k in self._history
-        ):
-            raise Conflict(f"Document already exists for {handler.label}")
+        if unique and any(t is doc_type and k != key for t, k in self._history):
+            raise Conflict(
+                f"Document already exists for {self._handlers[doc_type].label}"
+            )
         self._queued[(doc_type, key)] = metadata
         self._history[(doc_type, key)] = metadata
+        if resend:
+            self._resend.add((doc_type, key))
         _logger.info(f"Queued {doc_type} key={key}")
         return metadata
 
@@ -162,6 +150,7 @@ class DocumentGenerator:
         Returns whether it was still queued.
         """
         self._history.pop((doc_type, key), None)
+        self._resend.discard((doc_type, key))
         return self._queued.pop((doc_type, key), None) is not None
 
     def clear(self, id_: str | None = None) -> list[str]:
@@ -190,9 +179,7 @@ class DocumentGenerator:
                     metadata=meta.model_dump(mode="json"),
                 ),
             )
-        self._queued = {
-            k: m for k, m in self._queued.items() if self._handlers[k[0]].resend
-        }
+        self._queued = {k: m for k, m in self._queued.items() if k in self._resend}
         doc_list.count = len(doc_list.documents)
         return doc_list
 
@@ -204,8 +191,8 @@ class DocumentGenerator:
     ) -> Any:
         """Pass ISV docs to ``to_isv``, then handle framework docs.
 
-        Framework docs consumed in this mode are processed only after
-        ``to_isv`` returns; the rest go to ``to_isv``. Malformed framework
+        Framework docs are processed only after ``to_isv`` returns; the rest
+        go to ``to_isv``. Malformed framework
         docs are dropped on the backend and passed through on the frontend.
         Returns ``to_isv``'s result.
         """
@@ -220,7 +207,7 @@ class DocumentGenerator:
                     continue
                 meta = None
             handler = self._handlers.get(meta.doc_type) if meta else None
-            if handler is not None and handler.consumed_in == self.mode:
+            if handler is not None:
                 consumed.append((handler, doc.id, meta))  # type: ignore[arg-type]
             else:
                 kept.append(doc)

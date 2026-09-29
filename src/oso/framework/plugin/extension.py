@@ -32,7 +32,7 @@ from oso.framework.exceptions import StartupException
 from .base import PluginProtocol
 from .addons.main import AddonProtocol, BaseAddonConfig
 from .document import DocumentGenerator
-from .document.mk_rotation import MkRotation, MkRotationDone
+from .document.mk_rotation import MkRotation
 
 
 class PluginConfig(
@@ -97,7 +97,7 @@ class PluginExtension:
     def _init_addons(self, addons: list[BaseAddonConfig]):
         self.addons: dict[str, AddonProtocol] = {}
         self.doc_generator = DocumentGenerator(
-            self.config.mode, [MkRotation(), MkRotationDone()]
+            self.config.mode, [MkRotation()]
         )
         for addon in addons:
             self.addons[addon.type.NAME] = addon.type.configure(self.config, addon)

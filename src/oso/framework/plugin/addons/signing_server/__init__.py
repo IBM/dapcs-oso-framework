@@ -36,7 +36,7 @@ from ._grep11_client import Grep11Client
 
 from oso.framework.data.types import V1_3
 from oso.framework.core.logging import get_logger
-from oso.framework.plugin.document.mk_rotation import ROTATION_ID_PATTERN
+from oso.framework.plugin.document import DOC_ID_PATTERN
 
 if TYPE_CHECKING:
     from typing import Any, Callable, ClassVar, Literal
@@ -327,30 +327,15 @@ class SigningServerAddon(AddonProtocol):
         )
 
     def rewrap_key(self, priv_key_bytes: bytes) -> bytes:
-        """Re-wrap a single private-key blob against the current master key.
-
-        For plugins that manage their own keystore: pass the stored blob,
-        persist the returned one.
-        """
+        """Re-wrap a single private-key blob against the current master key."""
         return self._grep11_client.rewrap_key(priv_key_bytes)
 
     def rewrap_keys(self, rotation_id: str) -> list[str]:
-        """Re-wrap every private-key blob in this addon's keystore in place.
+        """Re-wrap every private-key blob in the keystore; safe to retry.
 
-        Intended to be called from the plugin's ``rewrap(rotation_id)`` hook
-        after an HSM master-key rotation. Safe to call again for the same
-        rotation: each key's original blob is backed up to
-        ``<key_id>.key.<rotation_id>.orig`` before it is replaced and every
-        attempt rewraps that original, so a retry after a partial failure never
-        rewraps an already-rewrapped blob. Once all keys are done the result is
-        persisted and later calls return it without touching the HSM.
-
-        Returns
-        -------
-        list[str]
-            The key IDs that were rewrapped.
+        Returns the rewrapped key IDs.
         """
-        if not re.fullmatch(ROTATION_ID_PATTERN, rotation_id):
+        if not re.fullmatch(DOC_ID_PATTERN, rotation_id):
             raise ValueError(f"Invalid rotation_id {rotation_id!r}")
 
         marker = self._keystore / ".mk_rotation" / f"{rotation_id}.json"

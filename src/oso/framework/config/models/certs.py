@@ -39,8 +39,7 @@ class CertificateConfig(AutoLoadConfig, _config_prefix="certs"):
         The private key for this application.
 
     admin_ca : str | None, envvar=CERTS__ADMIN_CA
-        Extra CA the proxy trusts for client certificates, so admin clients
-        can reach endpoints that allow them (see ``PluginConfig.admin_ca``).
+        Extra CA trusted for admin client certificates.
     """
 
     ca: str

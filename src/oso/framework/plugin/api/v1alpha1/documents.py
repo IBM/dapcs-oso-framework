@@ -32,7 +32,16 @@ class Api(MethodView):
 
     @RequireAuth("mtls", "component")
     def get(self):
-        """GET /v1alpha1/documents endpoint."""
+        """GET /v1alpha1/documents endpoint.
+
+        Returns
+        -------
+        body : dict
+            jsonify'd return from `oso.framework.plugin.base.ISVBase.to_oso()`, with
+            any queued framework-generated documents prepended by
+            `DocumentGenerator.inject()`, and a 200 HTTP response code. To return an
+            error, `ISVBase.to_oso()` should raise the appropriate HTTPError.
+        """
         plugin_ext = current_oso_plugin()
 
         doc_list = plugin_ext.doc_generator.inject(current_oso_plugin_app().to_oso())
@@ -41,7 +50,19 @@ class Api(MethodView):
 
     @RequireAuth("mtls", "component")
     def post(self):
-        """POST /v1alpha1/documents endpoint."""
+        """POST /v1alpha1/documents endpoint.
+
+        Framework documents with a registered handler are consumed by
+        `DocumentGenerator.handle_incoming()`; the remaining documents are passed
+        to `oso.framework.plugin.base.ISVBase.to_isv()`.
+
+        Returns
+        -------
+        body : dict
+            jsonify'd return from `oso.framework.plugin.base.ISVBase.to_isv()` with
+            a 200 HTTP response code. To return an error, `ISVBase.to_isv()` should
+            raise the appropriate HTTPError.
+        """
         plugin_app = current_oso_plugin_app()
         raw_docs = V1_3.DocumentList.model_validate_json(request.get_data())
 
@@ -53,7 +74,25 @@ class Api(MethodView):
 
     @RequireAuth("mtls", "component")
     def delete(self):
-        """DELETE /v1alpha1/documents endpoint."""
+        """DELETE /v1alpha1/documents endpoint.
+
+        Parameters
+        ----------
+        id : str, optional
+            Query parameter. Id of the generated document to clear. If omitted,
+            all generated documents are cleared.
+
+        Returns
+        -------
+        body : dict
+            ``{"cleared": [...]}`` listing the cleared document ids, with a 200
+            HTTP response code.
+
+        Raises
+        ------
+        NotFound
+            If ``id`` is given and no generated document matches it.
+        """
         doc_id = request.args.get("id")
         cleared = current_oso_plugin().doc_generator.clear(doc_id)
         if doc_id is not None and not cleared:

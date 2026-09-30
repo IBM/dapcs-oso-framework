@@ -27,10 +27,10 @@ PYPI_OPTIONS += --secret id=netrc,src=$(PRIVATE_PYPI_NETRC)
 endif
 
 $(LOCAL_PLAY)/runtime: Containerfile
-	docker build -f $< -t oso-runtime --target runtime --iidfile $@ .
+	docker build --pull -f $< -t oso-runtime --target runtime --iidfile $@ .
 
 $(LOCAL_PLAY)/builder: Containerfile $(SRCS)
-	docker build $(PYPI_OPTIONS) -f $< -t oso-builder --target builder --iidfile $@ .
+	docker build --pull $(PYPI_OPTIONS) -f $< -t oso-builder --target builder --iidfile $@ .
 
 $(LOCAL_PLAY)/plugin: Containerfile $(LOCAL_PLAY)/builder
 	docker build -f $< -t oso-plugin --target plugin --iidfile $@ .

@@ -13,60 +13,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Framework-generated documents.
-
-Documents the framework adds to ``GET /documents`` on its own, independent of
-the ISV plugin. The documents ride inside ``V1_3.Document.metadata``, which
-OSO treats as opaque, so their schemas are framework-internal. Each type's
-metadata model and behaviour live together in its own module here (e.g.
-:mod:`.mk_rotation`); its handler is registered in ``PluginExtension``.
-"""
+"""Framework-generated documents, carried in ``V1_3.Document.metadata``."""
 from __future__ import annotations
 
 import json
-
-from enum import StrEnum
 from typing import Any, Callable, ClassVar, Iterable
 
-from pydantic import BaseModel, ConfigDict, ValidationError
+from pydantic import ValidationError
 from werkzeug.exceptions import Conflict
 
 from oso.framework.core.logging import get_logger
-from oso.framework.data.types import V1_3
+from oso.framework.data.types import V1_3, DocType, DocumentMetadata
 
 _logger = get_logger("document-generator")
 
 
-class DocType(StrEnum):
-    """Framework document types (the ``metadata.doc_type`` value)."""
-
-    MK_ROTATION = "mk_rotation"
-
-
-class DocumentMetadata(BaseModel):
-    """Base class for framework document metadata."""
-
-    model_config = ConfigDict(extra="allow")
-
-    doc_type: DocType
+DOC_ID_PATTERN = r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}"
 
 
 class DocumentHandler:
-    """Base for a document type.
-
-    Subclass, set the class attributes, and override only the handlers the
-    type needs. Handlers branch on ``gen.mode`` where the frontend and backend
-    behave differently.
-
-    Attributes
-    ----------
-    doc_type : DocType
-        The type this handler owns.
-    metadata_model : type[DocumentMetadata]
-        Model incoming metadata of this type is validated against.
-    label : str
-        Human-readable name used in messages.
-    """
+    """Base for a document type."""
 
     doc_type: ClassVar[DocType]
     metadata_model: ClassVar[type[DocumentMetadata]]
@@ -85,19 +51,11 @@ class DocumentHandler:
         meta: DocumentMetadata,
         plugin_app: Any = None,
     ) -> None:
-        """React to this type arriving on POST /documents.
-
-        The document is stripped from what ``plugin.to_isv()`` receives.
-        ``key`` is the incoming document's id.
-        """
+        """React to this type arriving on POST /documents."""
 
 
 class DocumentGenerator:
-    """Queue of framework documents, keyed by ``(DocType, key)``.
-
-    ``key`` is also the document id sent to OSO. Each document is sent on one
-    GET only, unless added with ``resend``.
-    """
+    """Queue of framework documents, keyed by ``(DocType, key)``."""
 
     def __init__(self, mode: str, handlers: Iterable[DocumentHandler]):
         self.mode = mode
@@ -120,17 +78,10 @@ class DocumentGenerator:
         resend: bool = False,
         unique: bool = False,
     ) -> DocumentMetadata:
-        """Queue a document for the next GET. Re-adding the same key replaces it.
+        """Queue a document for the next GET.
 
-        ``resend`` keeps sending it on every GET until it is removed, so a lost
-        transfer is recovered; the receiver must be idempotent. ``unique``
-        rejects it while another document of its type is pending (added and
-        not yet removed).
-
-        Raises
-        ------
-        werkzeug.exceptions.Conflict
-            If ``unique`` and one with another key is pending.
+        ``resend`` keeps sending it until removed; ``unique`` rejects it while
+        another of its type is pending.
         """
         doc_type = metadata.doc_type
         if unique and any(t is doc_type and k != key for t, k in self._history):
@@ -145,19 +96,13 @@ class DocumentGenerator:
         return metadata
 
     def remove(self, doc_type: DocType, key: str) -> bool:
-        """Forget a document: stop sending it and drop it from history.
-
-        Returns whether it was still queued.
-        """
+        """Forget a document. Returns whether it was still queued."""
         self._history.pop((doc_type, key), None)
         self._resend.discard((doc_type, key))
         return self._queued.pop((doc_type, key), None) is not None
 
     def clear(self, id_: str | None = None) -> list[str]:
-        """Forget all generated documents, or only those with id ``id_``.
-
-        Returns the ids of the cleared documents.
-        """
+        """Forget all generated documents, or only those with id ``id_``."""
         keys = [k for k in self._history if id_ in (None, k[1])]
         for doc_type, key in keys:
             self.remove(doc_type, key)
@@ -189,13 +134,7 @@ class DocumentGenerator:
         to_isv: Callable[[V1_3.DocumentList], Any],
         plugin_app: Any = None,
     ) -> Any:
-        """Pass ISV docs to ``to_isv``, then handle framework docs.
-
-        Framework docs are processed only after ``to_isv`` returns; the rest
-        go to ``to_isv``. Malformed framework
-        docs are dropped on the backend and passed through on the frontend.
-        Returns ``to_isv``'s result.
-        """
+        """Pass ISV docs to ``to_isv``, then handle framework docs."""
         kept: list[V1_3.Document] = []
         consumed: list[tuple[DocumentHandler, str, DocumentMetadata]] = []
         for doc in doc_list.documents:
@@ -217,13 +156,7 @@ class DocumentGenerator:
         return result
 
     def parse(self, raw: str | None) -> DocumentMetadata | None:
-        """Return typed metadata for a framework ``doc_type``, else ``None``.
-
-        Raises
-        ------
-        pydantic.ValidationError
-            If ``doc_type`` is a framework type but the fields are invalid.
-        """
+        """Return typed metadata for a framework ``doc_type``, else ``None``."""
         try:
             data = json.loads(raw) if raw else None
         except json.JSONDecodeError:

@@ -13,33 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Documents Endpoints.
-
-GET  /api/{mode}/v1alpha1/documents
-    Returns ``plugin.to_oso()`` with queued framework documents prepended
-    (see :class:`~oso.framework.plugin.document.DocumentGenerator`).
-
-POST /api/{mode}/v1alpha1/documents
-    Passes ISV documents to ``plugin.to_isv()``, then dispatches framework
-    documents to their ``DocumentHandler.on_incoming``.
-
-DELETE /api/{mode}/v1alpha1/documents[?id=<document id>]
-    Clears framework-generated documents (see ``POST /generate``): all of
-    them, or only the one with the given id. 404 if ``id`` matches nothing.
-    ISV documents are not affected.
-"""
+"""Documents Endpoints."""
 
 from flask import jsonify, request
 from flask.views import MethodView
 from werkzeug.exceptions import NotFound
 
 from oso.framework.auth.extension import RequireAuth
-from oso.framework.core.logging import get_logger
 from oso.framework.data.types import V1_3
 from oso.framework.plugin import current_oso_plugin_app
 from oso.framework.plugin.extension import current_oso_plugin
-
-_logger = get_logger("documents-api")
 
 
 class Api(MethodView):

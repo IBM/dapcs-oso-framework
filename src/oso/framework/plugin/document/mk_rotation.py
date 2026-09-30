@@ -13,28 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Master Key (MK) rotation document type.
-
-A single ``mk_rotation`` document carries both the request (frontend ->
-backend) and its result (backend -> frontend). A rotation is identified by its
-document id, a UUID shared by request and result, and passed to ``rewrap()``
-as ``rotation_id``.
-
-Frontend: ``POST /generate`` (``doc_type=mk_rotation``) generates a request. It
-is re-sent on every GET and stays pending (blocking another rotation) until a
-result with the same id arrives on ``POST /documents``, or it is cleared via
-``DELETE /documents``. A result with ``status="error"`` also ends the rotation
-(logged); generate a new one to retry.
-
-Backend: an incoming request (or ``POST /generate``) generates a result,
-calling the plugin's ``rewrap()`` hook until it succeeds once for the rotation;
-repeats re-send the stored result. A failing ``rewrap()`` yields a result with
-``status="error"`` and the message in ``error``. ``rewrap()`` must itself be safe
-to retry after a partial failure (``SigningServerAddon.rewrap_keys`` is).
-
-Incoming rotation docs are handled after ``plugin.to_isv()`` has processed the
-other documents in the same POST.
-"""
+"""Master Key (MK) rotation document type."""
 
 from __future__ import annotations
 
@@ -46,25 +25,9 @@ from . import DocType, DocumentGenerator, DocumentHandler, DocumentMetadata
 
 _logger = get_logger("mk-rotation")
 
-#: Allowed rotation ids; they end up in keystore file names.
-ROTATION_ID_PATTERN = r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}"
-
 
 class MkRotationMetadata(DocumentMetadata):
-    """An HSM master-key rotation request, or its result.
-
-    Attributes
-    ----------
-    status : "success" | "error" | None
-        Result only: outcome of the rewrap; ``None`` on a request.
-
-    rewrapped_key_ids : list[str] | None
-        Result only: ordered list of key IDs whose blobs were rewrapped.
-
-    error : str | None
-        Result only: the error message when ``status`` is ``"error"``;
-        ``rewrapped_key_ids`` is then empty.
-    """
+    """An HSM master-key rotation request, or its result."""
 
     doc_type: Literal[DocType.MK_ROTATION] = DocType.MK_ROTATION
     status: Literal["success", "error"] | None = None
@@ -82,11 +45,7 @@ class MkRotation(DocumentHandler):
     def generate(
         self, gen: DocumentGenerator, key: str, plugin_app: Any = None
     ) -> MkRotationMetadata:
-        """Frontend: queue the request. Backend: rewrap and queue the result.
-
-        On the backend a repeated call re-queues a successful result instead
-        of rewrapping again, and retries a failed one.
-        """
+        """Frontend: queue the request. Backend: rewrap and queue the result."""
         if gen.mode == "frontend":
             return gen.add(  # type: ignore[return-value]
                 key, MkRotationMetadata(), resend=True, unique=True

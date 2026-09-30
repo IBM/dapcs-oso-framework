@@ -51,11 +51,7 @@ class PluginConfig(
             implements.  Defaults to ``"v1.3"``.  Set to ``"v1.5"`` to enable
             eventing support (``POST /events`` endpoint).
         admin_ca (str | None): PEM CA that issues admin client certificates.
-            An admin may call ``POST /generate`` if its certificate is issued
-            directly by this CA and its fingerprint is in ``admin_allowlist``.
-            The proxy must also trust it (``CERTS__ADMIN_CA``).
-        admin_allowlist (list[str]): JSON list of admin certificate
-            fingerprints (``SHA256:...``).
+        admin_allowlist (list[str]): JSON list of admin certificate fingerprints.
     """
 
     mode: Literal["frontend", "backend"]

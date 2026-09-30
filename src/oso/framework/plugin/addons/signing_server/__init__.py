@@ -349,13 +349,13 @@ class SigningServerAddon(AddonProtocol):
                 key_file = self._keystore / key_type.name / f"{key_id}.key"
                 orig = key_file.with_name(f"{key_file.name}.{rotation_id}.orig")
                 if not orig.exists():
-                    _atomic_write(orig, key_file.read_bytes())
+                    self._atomic_write(orig, key_file.read_bytes())
                 self._logger.info(f"Rewrapping key '{key_id}'")
-                _atomic_write(key_file, self.rewrap_key(orig.read_bytes()))
+                self._atomic_write(key_file, self.rewrap_key(orig.read_bytes()))
                 rewrapped_ids.append(key_id)
 
         marker.parent.mkdir(exist_ok=True)
-        _atomic_write(marker, json.dumps(rewrapped_ids).encode())
+        self._atomic_write(marker, json.dumps(rewrapped_ids).encode())
 
         # Earlier rotations are superseded; keep only this rotation's backups.
         for old in self._keystore.glob("*/*.key.*.orig"):
@@ -364,6 +364,16 @@ class SigningServerAddon(AddonProtocol):
 
         self._logger.info(f"Rewrap completed: {len(rewrapped_ids)} key(s)")
         return rewrapped_ids
+
+    @staticmethod
+    def _atomic_write(path: pathlib.Path, data: bytes) -> None:
+        """Replace ``path`` with ``data`` so a crash never leaves it half-written."""
+        tmp = path.with_name(f"{path.name}.tmp")
+        with open(tmp, "wb") as f:
+            f.write(data)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp, path)
 
     def health_check(self) -> V1_3.ComponentStatus:
         """Check the GREP11 server health status.
@@ -374,13 +384,3 @@ class SigningServerAddon(AddonProtocol):
             OSO component status.
         """
         return self._grep11_client.health_check()
-
-
-def _atomic_write(path: pathlib.Path, data: bytes) -> None:
-    """Replace ``path`` with ``data`` so a crash never leaves it half-written."""
-    tmp = path.with_name(f"{path.name}.tmp")
-    with open(tmp, "wb") as f:
-        f.write(data)
-        f.flush()
-        os.fsync(f.fileno())
-    os.replace(tmp, path)

@@ -1,954 +1,2151 @@
-from google.protobuf.internal import containers as _containers
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
-from google.protobuf import descriptor as _descriptor
-from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
-
-DESCRIPTOR: _descriptor.FileDescriptor
-
-class GenerateRandomRequest(_message.Message):
-    __slots__ = ("Len",)
-    LEN_FIELD_NUMBER: _ClassVar[int]
-    Len: int
-    def __init__(self, Len: _Optional[int] = ...) -> None: ...
-
-class GenerateRandomResponse(_message.Message):
-    __slots__ = ("Rnd",)
-    RND_FIELD_NUMBER: _ClassVar[int]
-    Rnd: bytes
-    def __init__(self, Rnd: _Optional[bytes] = ...) -> None: ...
-
-class DigestInitRequest(_message.Message):
-    __slots__ = ("Mech",)
-    MECH_FIELD_NUMBER: _ClassVar[int]
-    Mech: Mechanism
-    def __init__(self, Mech: _Optional[_Union[Mechanism, _Mapping]] = ...) -> None: ...
-
-class DigestInitResponse(_message.Message):
-    __slots__ = ("State",)
-    STATE_FIELD_NUMBER: _ClassVar[int]
-    State: bytes
-    def __init__(self, State: _Optional[bytes] = ...) -> None: ...
-
-class DigestRequest(_message.Message):
-    __slots__ = ("State", "Data")
-    STATE_FIELD_NUMBER: _ClassVar[int]
-    DATA_FIELD_NUMBER: _ClassVar[int]
-    State: bytes
-    Data: bytes
-    def __init__(self, State: _Optional[bytes] = ..., Data: _Optional[bytes] = ...) -> None: ...
-
-class DigestResponse(_message.Message):
-    __slots__ = ("Digest",)
-    DIGEST_FIELD_NUMBER: _ClassVar[int]
-    Digest: bytes
-    def __init__(self, Digest: _Optional[bytes] = ...) -> None: ...
-
-class DigestUpdateRequest(_message.Message):
-    __slots__ = ("State", "Data")
-    STATE_FIELD_NUMBER: _ClassVar[int]
-    DATA_FIELD_NUMBER: _ClassVar[int]
-    State: bytes
-    Data: bytes
-    def __init__(self, State: _Optional[bytes] = ..., Data: _Optional[bytes] = ...) -> None: ...
-
-class DigestUpdateResponse(_message.Message):
-    __slots__ = ("State",)
-    STATE_FIELD_NUMBER: _ClassVar[int]
-    State: bytes
-    def __init__(self, State: _Optional[bytes] = ...) -> None: ...
-
-class DigestKeyRequest(_message.Message):
-    __slots__ = ("State", "Key")
-    STATE_FIELD_NUMBER: _ClassVar[int]
-    KEY_FIELD_NUMBER: _ClassVar[int]
-    State: bytes
-    Key: KeyBlob
-    def __init__(self, State: _Optional[bytes] = ..., Key: _Optional[_Union[KeyBlob, _Mapping]] = ...) -> None: ...
-
-class DigestKeyResponse(_message.Message):
-    __slots__ = ("State",)
-    STATE_FIELD_NUMBER: _ClassVar[int]
-    State: bytes
-    def __init__(self, State: _Optional[bytes] = ...) -> None: ...
-
-class DigestFinalRequest(_message.Message):
-    __slots__ = ("State",)
-    STATE_FIELD_NUMBER: _ClassVar[int]
-    State: bytes
-    def __init__(self, State: _Optional[bytes] = ...) -> None: ...
-
-class DigestFinalResponse(_message.Message):
-    __slots__ = ("Digest",)
-    DIGEST_FIELD_NUMBER: _ClassVar[int]
-    Digest: bytes
-    def __init__(self, Digest: _Optional[bytes] = ...) -> None: ...
-
-class DigestSingleRequest(_message.Message):
-    __slots__ = ("Mech", "Data")
-    MECH_FIELD_NUMBER: _ClassVar[int]
-    DATA_FIELD_NUMBER: _ClassVar[int]
-    Mech: Mechanism
-    Data: bytes
-    def __init__(self, Mech: _Optional[_Union[Mechanism, _Mapping]] = ..., Data: _Optional[bytes] = ...) -> None: ...
-
-class DigestSingleResponse(_message.Message):
-    __slots__ = ("Digest",)
-    DIGEST_FIELD_NUMBER: _ClassVar[int]
-    Digest: bytes
-    def __init__(self, Digest: _Optional[bytes] = ...) -> None: ...
-
-class EncryptInitRequest(_message.Message):
-    __slots__ = ("Mech", "Key")
-    MECH_FIELD_NUMBER: _ClassVar[int]
-    KEY_FIELD_NUMBER: _ClassVar[int]
-    Mech: Mechanism
-    Key: KeyBlob
-    def __init__(self, Mech: _Optional[_Union[Mechanism, _Mapping]] = ..., Key: _Optional[_Union[KeyBlob, _Mapping]] = ...) -> None: ...
-
-class EncryptInitResponse(_message.Message):
-    __slots__ = ("State",)
-    STATE_FIELD_NUMBER: _ClassVar[int]
-    State: bytes
-    def __init__(self, State: _Optional[bytes] = ...) -> None: ...
-
-class DecryptInitRequest(_message.Message):
-    __slots__ = ("Mech", "Key")
-    MECH_FIELD_NUMBER: _ClassVar[int]
-    KEY_FIELD_NUMBER: _ClassVar[int]
-    Mech: Mechanism
-    Key: KeyBlob
-    def __init__(self, Mech: _Optional[_Union[Mechanism, _Mapping]] = ..., Key: _Optional[_Union[KeyBlob, _Mapping]] = ...) -> None: ...
-
-class DecryptInitResponse(_message.Message):
-    __slots__ = ("State",)
-    STATE_FIELD_NUMBER: _ClassVar[int]
-    State: bytes
-    def __init__(self, State: _Optional[bytes] = ...) -> None: ...
-
-class EncryptUpdateRequest(_message.Message):
-    __slots__ = ("State", "Plain")
-    STATE_FIELD_NUMBER: _ClassVar[int]
-    PLAIN_FIELD_NUMBER: _ClassVar[int]
-    State: bytes
-    Plain: bytes
-    def __init__(self, State: _Optional[bytes] = ..., Plain: _Optional[bytes] = ...) -> None: ...
-
-class EncryptUpdateResponse(_message.Message):
-    __slots__ = ("State", "Ciphered")
-    STATE_FIELD_NUMBER: _ClassVar[int]
-    CIPHERED_FIELD_NUMBER: _ClassVar[int]
-    State: bytes
-    Ciphered: bytes
-    def __init__(self, State: _Optional[bytes] = ..., Ciphered: _Optional[bytes] = ...) -> None: ...
-
-class DecryptUpdateRequest(_message.Message):
-    __slots__ = ("State", "Ciphered")
-    STATE_FIELD_NUMBER: _ClassVar[int]
-    CIPHERED_FIELD_NUMBER: _ClassVar[int]
-    State: bytes
-    Ciphered: bytes
-    def __init__(self, State: _Optional[bytes] = ..., Ciphered: _Optional[bytes] = ...) -> None: ...
-
-class DecryptUpdateResponse(_message.Message):
-    __slots__ = ("State", "Plain")
-    STATE_FIELD_NUMBER: _ClassVar[int]
-    PLAIN_FIELD_NUMBER: _ClassVar[int]
-    State: bytes
-    Plain: bytes
-    def __init__(self, State: _Optional[bytes] = ..., Plain: _Optional[bytes] = ...) -> None: ...
-
-class EncryptRequest(_message.Message):
-    __slots__ = ("State", "Plain")
-    STATE_FIELD_NUMBER: _ClassVar[int]
-    PLAIN_FIELD_NUMBER: _ClassVar[int]
-    State: bytes
-    Plain: bytes
-    def __init__(self, State: _Optional[bytes] = ..., Plain: _Optional[bytes] = ...) -> None: ...
-
-class EncryptResponse(_message.Message):
-    __slots__ = ("Ciphered",)
-    CIPHERED_FIELD_NUMBER: _ClassVar[int]
-    Ciphered: bytes
-    def __init__(self, Ciphered: _Optional[bytes] = ...) -> None: ...
-
-class DecryptRequest(_message.Message):
-    __slots__ = ("State", "Ciphered")
-    STATE_FIELD_NUMBER: _ClassVar[int]
-    CIPHERED_FIELD_NUMBER: _ClassVar[int]
-    State: bytes
-    Ciphered: bytes
-    def __init__(self, State: _Optional[bytes] = ..., Ciphered: _Optional[bytes] = ...) -> None: ...
-
-class DecryptResponse(_message.Message):
-    __slots__ = ("Plain",)
-    PLAIN_FIELD_NUMBER: _ClassVar[int]
-    Plain: bytes
-    def __init__(self, Plain: _Optional[bytes] = ...) -> None: ...
-
-class EncryptFinalRequest(_message.Message):
-    __slots__ = ("State",)
-    STATE_FIELD_NUMBER: _ClassVar[int]
-    State: bytes
-    def __init__(self, State: _Optional[bytes] = ...) -> None: ...
-
-class EncryptFinalResponse(_message.Message):
-    __slots__ = ("Ciphered",)
-    CIPHERED_FIELD_NUMBER: _ClassVar[int]
-    Ciphered: bytes
-    def __init__(self, Ciphered: _Optional[bytes] = ...) -> None: ...
-
-class DecryptFinalRequest(_message.Message):
-    __slots__ = ("State",)
-    STATE_FIELD_NUMBER: _ClassVar[int]
-    State: bytes
-    def __init__(self, State: _Optional[bytes] = ...) -> None: ...
-
-class DecryptFinalResponse(_message.Message):
-    __slots__ = ("Plain",)
-    PLAIN_FIELD_NUMBER: _ClassVar[int]
-    Plain: bytes
-    def __init__(self, Plain: _Optional[bytes] = ...) -> None: ...
-
-class EncryptSingleRequest(_message.Message):
-    __slots__ = ("Mech", "Plain", "Key")
-    MECH_FIELD_NUMBER: _ClassVar[int]
-    PLAIN_FIELD_NUMBER: _ClassVar[int]
-    KEY_FIELD_NUMBER: _ClassVar[int]
-    Mech: Mechanism
-    Plain: bytes
-    Key: KeyBlob
-    def __init__(self, Mech: _Optional[_Union[Mechanism, _Mapping]] = ..., Plain: _Optional[bytes] = ..., Key: _Optional[_Union[KeyBlob, _Mapping]] = ...) -> None: ...
-
-class EncryptSingleResponse(_message.Message):
-    __slots__ = ("Ciphered",)
-    CIPHERED_FIELD_NUMBER: _ClassVar[int]
-    Ciphered: bytes
-    def __init__(self, Ciphered: _Optional[bytes] = ...) -> None: ...
-
-class DecryptSingleRequest(_message.Message):
-    __slots__ = ("Mech", "Ciphered", "Key")
-    MECH_FIELD_NUMBER: _ClassVar[int]
-    CIPHERED_FIELD_NUMBER: _ClassVar[int]
-    KEY_FIELD_NUMBER: _ClassVar[int]
-    Mech: Mechanism
-    Ciphered: bytes
-    Key: KeyBlob
-    def __init__(self, Mech: _Optional[_Union[Mechanism, _Mapping]] = ..., Ciphered: _Optional[bytes] = ..., Key: _Optional[_Union[KeyBlob, _Mapping]] = ...) -> None: ...
-
-class DecryptSingleResponse(_message.Message):
-    __slots__ = ("Plain",)
-    PLAIN_FIELD_NUMBER: _ClassVar[int]
-    Plain: bytes
-    def __init__(self, Plain: _Optional[bytes] = ...) -> None: ...
-
-class SignInitRequest(_message.Message):
-    __slots__ = ("Mech", "PrivKey")
-    MECH_FIELD_NUMBER: _ClassVar[int]
-    PRIVKEY_FIELD_NUMBER: _ClassVar[int]
-    Mech: Mechanism
-    PrivKey: KeyBlob
-    def __init__(self, Mech: _Optional[_Union[Mechanism, _Mapping]] = ..., PrivKey: _Optional[_Union[KeyBlob, _Mapping]] = ...) -> None: ...
-
-class SignInitResponse(_message.Message):
-    __slots__ = ("State",)
-    STATE_FIELD_NUMBER: _ClassVar[int]
-    State: bytes
-    def __init__(self, State: _Optional[bytes] = ...) -> None: ...
-
-class VerifyInitRequest(_message.Message):
-    __slots__ = ("Mech", "PubKey")
-    MECH_FIELD_NUMBER: _ClassVar[int]
-    PUBKEY_FIELD_NUMBER: _ClassVar[int]
-    Mech: Mechanism
-    PubKey: KeyBlob
-    def __init__(self, Mech: _Optional[_Union[Mechanism, _Mapping]] = ..., PubKey: _Optional[_Union[KeyBlob, _Mapping]] = ...) -> None: ...
-
-class VerifyInitResponse(_message.Message):
-    __slots__ = ("State",)
-    STATE_FIELD_NUMBER: _ClassVar[int]
-    State: bytes
-    def __init__(self, State: _Optional[bytes] = ...) -> None: ...
-
-class SignUpdateRequest(_message.Message):
-    __slots__ = ("State", "Data")
-    STATE_FIELD_NUMBER: _ClassVar[int]
-    DATA_FIELD_NUMBER: _ClassVar[int]
-    State: bytes
-    Data: bytes
-    def __init__(self, State: _Optional[bytes] = ..., Data: _Optional[bytes] = ...) -> None: ...
-
-class SignUpdateResponse(_message.Message):
-    __slots__ = ("State",)
-    STATE_FIELD_NUMBER: _ClassVar[int]
-    State: bytes
-    def __init__(self, State: _Optional[bytes] = ...) -> None: ...
-
-class VerifyUpdateRequest(_message.Message):
-    __slots__ = ("State", "Data")
-    STATE_FIELD_NUMBER: _ClassVar[int]
-    DATA_FIELD_NUMBER: _ClassVar[int]
-    State: bytes
-    Data: bytes
-    def __init__(self, State: _Optional[bytes] = ..., Data: _Optional[bytes] = ...) -> None: ...
-
-class VerifyUpdateResponse(_message.Message):
-    __slots__ = ("State",)
-    STATE_FIELD_NUMBER: _ClassVar[int]
-    State: bytes
-    def __init__(self, State: _Optional[bytes] = ...) -> None: ...
-
-class SignFinalRequest(_message.Message):
-    __slots__ = ("State",)
-    STATE_FIELD_NUMBER: _ClassVar[int]
-    State: bytes
-    def __init__(self, State: _Optional[bytes] = ...) -> None: ...
-
-class SignFinalResponse(_message.Message):
-    __slots__ = ("Signature",)
-    SIGNATURE_FIELD_NUMBER: _ClassVar[int]
-    Signature: bytes
-    def __init__(self, Signature: _Optional[bytes] = ...) -> None: ...
-
-class VerifyFinalRequest(_message.Message):
-    __slots__ = ("State", "Signature")
-    STATE_FIELD_NUMBER: _ClassVar[int]
-    SIGNATURE_FIELD_NUMBER: _ClassVar[int]
-    State: bytes
-    Signature: bytes
-    def __init__(self, State: _Optional[bytes] = ..., Signature: _Optional[bytes] = ...) -> None: ...
-
-class VerifyFinalResponse(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
-
-class SignRequest(_message.Message):
-    __slots__ = ("State", "Data")
-    STATE_FIELD_NUMBER: _ClassVar[int]
-    DATA_FIELD_NUMBER: _ClassVar[int]
-    State: bytes
-    Data: bytes
-    def __init__(self, State: _Optional[bytes] = ..., Data: _Optional[bytes] = ...) -> None: ...
-
-class SignResponse(_message.Message):
-    __slots__ = ("Signature",)
-    SIGNATURE_FIELD_NUMBER: _ClassVar[int]
-    Signature: bytes
-    def __init__(self, Signature: _Optional[bytes] = ...) -> None: ...
-
-class VerifyRequest(_message.Message):
-    __slots__ = ("State", "Data", "Signature")
-    STATE_FIELD_NUMBER: _ClassVar[int]
-    DATA_FIELD_NUMBER: _ClassVar[int]
-    SIGNATURE_FIELD_NUMBER: _ClassVar[int]
-    State: bytes
-    Data: bytes
-    Signature: bytes
-    def __init__(self, State: _Optional[bytes] = ..., Data: _Optional[bytes] = ..., Signature: _Optional[bytes] = ...) -> None: ...
-
-class VerifyResponse(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
-
-class SignSingleRequest(_message.Message):
-    __slots__ = ("Mech", "Data", "PrivKey")
-    MECH_FIELD_NUMBER: _ClassVar[int]
-    DATA_FIELD_NUMBER: _ClassVar[int]
-    PRIVKEY_FIELD_NUMBER: _ClassVar[int]
-    Mech: Mechanism
-    Data: bytes
-    PrivKey: KeyBlob
-    def __init__(self, Mech: _Optional[_Union[Mechanism, _Mapping]] = ..., Data: _Optional[bytes] = ..., PrivKey: _Optional[_Union[KeyBlob, _Mapping]] = ...) -> None: ...
-
-class SignSingleResponse(_message.Message):
-    __slots__ = ("Signature",)
-    SIGNATURE_FIELD_NUMBER: _ClassVar[int]
-    Signature: bytes
-    def __init__(self, Signature: _Optional[bytes] = ...) -> None: ...
-
-class VerifySingleRequest(_message.Message):
-    __slots__ = ("Mech", "Data", "Signature", "PubKey")
-    MECH_FIELD_NUMBER: _ClassVar[int]
-    DATA_FIELD_NUMBER: _ClassVar[int]
-    SIGNATURE_FIELD_NUMBER: _ClassVar[int]
-    PUBKEY_FIELD_NUMBER: _ClassVar[int]
-    Mech: Mechanism
-    Data: bytes
-    Signature: bytes
-    PubKey: KeyBlob
-    def __init__(self, Mech: _Optional[_Union[Mechanism, _Mapping]] = ..., Data: _Optional[bytes] = ..., Signature: _Optional[bytes] = ..., PubKey: _Optional[_Union[KeyBlob, _Mapping]] = ...) -> None: ...
-
-class VerifySingleResponse(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
-
-class ReencryptSingleRequest(_message.Message):
-    __slots__ = ("DecMech", "EncMech", "Ciphered", "DecKey", "EncKey")
-    DECMECH_FIELD_NUMBER: _ClassVar[int]
-    ENCMECH_FIELD_NUMBER: _ClassVar[int]
-    CIPHERED_FIELD_NUMBER: _ClassVar[int]
-    DECKEY_FIELD_NUMBER: _ClassVar[int]
-    ENCKEY_FIELD_NUMBER: _ClassVar[int]
-    DecMech: Mechanism
-    EncMech: Mechanism
-    Ciphered: bytes
-    DecKey: KeyBlob
-    EncKey: KeyBlob
-    def __init__(self, DecMech: _Optional[_Union[Mechanism, _Mapping]] = ..., EncMech: _Optional[_Union[Mechanism, _Mapping]] = ..., Ciphered: _Optional[bytes] = ..., DecKey: _Optional[_Union[KeyBlob, _Mapping]] = ..., EncKey: _Optional[_Union[KeyBlob, _Mapping]] = ...) -> None: ...
-
-class ReencryptSingleResponse(_message.Message):
-    __slots__ = ("Reciphered",)
-    RECIPHERED_FIELD_NUMBER: _ClassVar[int]
-    Reciphered: bytes
-    def __init__(self, Reciphered: _Optional[bytes] = ...) -> None: ...
-
-class GenerateKeyRequest(_message.Message):
-    __slots__ = ("Mech", "Template")
-    class TemplateEntry(_message.Message):
-        __slots__ = ("key", "value")
-        KEY_FIELD_NUMBER: _ClassVar[int]
-        VALUE_FIELD_NUMBER: _ClassVar[int]
-        key: int
-        value: AttributeValue
-        def __init__(self, key: _Optional[int] = ..., value: _Optional[_Union[AttributeValue, _Mapping]] = ...) -> None: ...
-    MECH_FIELD_NUMBER: _ClassVar[int]
-    TEMPLATE_FIELD_NUMBER: _ClassVar[int]
-    Mech: Mechanism
-    Template: _containers.MessageMap[int, AttributeValue]
-    def __init__(self, Mech: _Optional[_Union[Mechanism, _Mapping]] = ..., Template: _Optional[_Mapping[int, AttributeValue]] = ...) -> None: ...
-
-class GenerateKeyResponse(_message.Message):
-    __slots__ = ("KeyBytes", "CheckSum", "Key")
-    KEYBYTES_FIELD_NUMBER: _ClassVar[int]
-    CHECKSUM_FIELD_NUMBER: _ClassVar[int]
-    KEY_FIELD_NUMBER: _ClassVar[int]
-    KeyBytes: bytes
-    CheckSum: bytes
-    Key: KeyBlob
-    def __init__(self, KeyBytes: _Optional[bytes] = ..., CheckSum: _Optional[bytes] = ..., Key: _Optional[_Union[KeyBlob, _Mapping]] = ...) -> None: ...
-
-class GenerateKeyPairRequest(_message.Message):
-    __slots__ = ("Mech", "PrivKeyTemplate", "PubKeyTemplate")
-    class PrivKeyTemplateEntry(_message.Message):
-        __slots__ = ("key", "value")
-        KEY_FIELD_NUMBER: _ClassVar[int]
-        VALUE_FIELD_NUMBER: _ClassVar[int]
-        key: int
-        value: AttributeValue
-        def __init__(self, key: _Optional[int] = ..., value: _Optional[_Union[AttributeValue, _Mapping]] = ...) -> None: ...
-    class PubKeyTemplateEntry(_message.Message):
-        __slots__ = ("key", "value")
-        KEY_FIELD_NUMBER: _ClassVar[int]
-        VALUE_FIELD_NUMBER: _ClassVar[int]
-        key: int
-        value: AttributeValue
-        def __init__(self, key: _Optional[int] = ..., value: _Optional[_Union[AttributeValue, _Mapping]] = ...) -> None: ...
-    MECH_FIELD_NUMBER: _ClassVar[int]
-    PRIVKEYTEMPLATE_FIELD_NUMBER: _ClassVar[int]
-    PUBKEYTEMPLATE_FIELD_NUMBER: _ClassVar[int]
-    Mech: Mechanism
-    PrivKeyTemplate: _containers.MessageMap[int, AttributeValue]
-    PubKeyTemplate: _containers.MessageMap[int, AttributeValue]
-    def __init__(self, Mech: _Optional[_Union[Mechanism, _Mapping]] = ..., PrivKeyTemplate: _Optional[_Mapping[int, AttributeValue]] = ..., PubKeyTemplate: _Optional[_Mapping[int, AttributeValue]] = ...) -> None: ...
-
-class GenerateKeyPairResponse(_message.Message):
-    __slots__ = ("PrivKeyBytes", "PubKeyBytes", "PrivKey", "PubKey")
-    PRIVKEYBYTES_FIELD_NUMBER: _ClassVar[int]
-    PUBKEYBYTES_FIELD_NUMBER: _ClassVar[int]
-    PRIVKEY_FIELD_NUMBER: _ClassVar[int]
-    PUBKEY_FIELD_NUMBER: _ClassVar[int]
-    PrivKeyBytes: bytes
-    PubKeyBytes: bytes
-    PrivKey: KeyBlob
-    PubKey: KeyBlob
-    def __init__(self, PrivKeyBytes: _Optional[bytes] = ..., PubKeyBytes: _Optional[bytes] = ..., PrivKey: _Optional[_Union[KeyBlob, _Mapping]] = ..., PubKey: _Optional[_Union[KeyBlob, _Mapping]] = ...) -> None: ...
-
-class WrapKeyRequest(_message.Message):
-    __slots__ = ("Mech", "Key", "KeK", "MacKey")
-    MECH_FIELD_NUMBER: _ClassVar[int]
-    KEY_FIELD_NUMBER: _ClassVar[int]
-    KEK_FIELD_NUMBER: _ClassVar[int]
-    MACKEY_FIELD_NUMBER: _ClassVar[int]
-    Mech: Mechanism
-    Key: KeyBlob
-    KeK: KeyBlob
-    MacKey: KeyBlob
-    def __init__(self, Mech: _Optional[_Union[Mechanism, _Mapping]] = ..., Key: _Optional[_Union[KeyBlob, _Mapping]] = ..., KeK: _Optional[_Union[KeyBlob, _Mapping]] = ..., MacKey: _Optional[_Union[KeyBlob, _Mapping]] = ...) -> None: ...
-
-class WrapKeyResponse(_message.Message):
-    __slots__ = ("Wrapped",)
-    WRAPPED_FIELD_NUMBER: _ClassVar[int]
-    Wrapped: bytes
-    def __init__(self, Wrapped: _Optional[bytes] = ...) -> None: ...
-
-class UnwrapKeyRequest(_message.Message):
-    __slots__ = ("Wrapped", "Mech", "Template", "KeK", "MacKey")
-    class TemplateEntry(_message.Message):
-        __slots__ = ("key", "value")
-        KEY_FIELD_NUMBER: _ClassVar[int]
-        VALUE_FIELD_NUMBER: _ClassVar[int]
-        key: int
-        value: AttributeValue
-        def __init__(self, key: _Optional[int] = ..., value: _Optional[_Union[AttributeValue, _Mapping]] = ...) -> None: ...
-    WRAPPED_FIELD_NUMBER: _ClassVar[int]
-    MECH_FIELD_NUMBER: _ClassVar[int]
-    TEMPLATE_FIELD_NUMBER: _ClassVar[int]
-    KEK_FIELD_NUMBER: _ClassVar[int]
-    MACKEY_FIELD_NUMBER: _ClassVar[int]
-    Wrapped: bytes
-    Mech: Mechanism
-    Template: _containers.MessageMap[int, AttributeValue]
-    KeK: KeyBlob
-    MacKey: KeyBlob
-    def __init__(self, Wrapped: _Optional[bytes] = ..., Mech: _Optional[_Union[Mechanism, _Mapping]] = ..., Template: _Optional[_Mapping[int, AttributeValue]] = ..., KeK: _Optional[_Union[KeyBlob, _Mapping]] = ..., MacKey: _Optional[_Union[KeyBlob, _Mapping]] = ...) -> None: ...
-
-class UnwrapKeyResponse(_message.Message):
-    __slots__ = ("UnwrappedBytes", "CheckSum", "Unwrapped")
-    UNWRAPPEDBYTES_FIELD_NUMBER: _ClassVar[int]
-    CHECKSUM_FIELD_NUMBER: _ClassVar[int]
-    UNWRAPPED_FIELD_NUMBER: _ClassVar[int]
-    UnwrappedBytes: bytes
-    CheckSum: bytes
-    Unwrapped: KeyBlob
-    def __init__(self, UnwrappedBytes: _Optional[bytes] = ..., CheckSum: _Optional[bytes] = ..., Unwrapped: _Optional[_Union[KeyBlob, _Mapping]] = ...) -> None: ...
-
-class DeriveKeyRequest(_message.Message):
-    __slots__ = ("Mech", "Data", "Template", "BaseKey")
-    class TemplateEntry(_message.Message):
-        __slots__ = ("key", "value")
-        KEY_FIELD_NUMBER: _ClassVar[int]
-        VALUE_FIELD_NUMBER: _ClassVar[int]
-        key: int
-        value: AttributeValue
-        def __init__(self, key: _Optional[int] = ..., value: _Optional[_Union[AttributeValue, _Mapping]] = ...) -> None: ...
-    MECH_FIELD_NUMBER: _ClassVar[int]
-    DATA_FIELD_NUMBER: _ClassVar[int]
-    TEMPLATE_FIELD_NUMBER: _ClassVar[int]
-    BASEKEY_FIELD_NUMBER: _ClassVar[int]
-    Mech: Mechanism
-    Data: bytes
-    Template: _containers.MessageMap[int, AttributeValue]
-    BaseKey: KeyBlob
-    def __init__(self, Mech: _Optional[_Union[Mechanism, _Mapping]] = ..., Data: _Optional[bytes] = ..., Template: _Optional[_Mapping[int, AttributeValue]] = ..., BaseKey: _Optional[_Union[KeyBlob, _Mapping]] = ...) -> None: ...
-
-class DeriveKeyResponse(_message.Message):
-    __slots__ = ("NewKeyBytes", "CheckSum", "NewKey")
-    NEWKEYBYTES_FIELD_NUMBER: _ClassVar[int]
-    CHECKSUM_FIELD_NUMBER: _ClassVar[int]
-    NEWKEY_FIELD_NUMBER: _ClassVar[int]
-    NewKeyBytes: bytes
-    CheckSum: bytes
-    NewKey: KeyBlob
-    def __init__(self, NewKeyBytes: _Optional[bytes] = ..., CheckSum: _Optional[bytes] = ..., NewKey: _Optional[_Union[KeyBlob, _Mapping]] = ...) -> None: ...
-
-class GetMechanismListRequest(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
-
-class GetMechanismListResponse(_message.Message):
-    __slots__ = ("Mechs",)
-    MECHS_FIELD_NUMBER: _ClassVar[int]
-    Mechs: _containers.RepeatedScalarFieldContainer[int]
-    def __init__(self, Mechs: _Optional[_Iterable[int]] = ...) -> None: ...
-
-class GetMechanismInfoRequest(_message.Message):
-    __slots__ = ("Mech",)
-    MECH_FIELD_NUMBER: _ClassVar[int]
-    Mech: int
-    def __init__(self, Mech: _Optional[int] = ...) -> None: ...
-
-class GetMechanismInfoResponse(_message.Message):
-    __slots__ = ("MechInfo",)
-    MECHINFO_FIELD_NUMBER: _ClassVar[int]
-    MechInfo: MechanismInfo
-    def __init__(self, MechInfo: _Optional[_Union[MechanismInfo, _Mapping]] = ...) -> None: ...
-
-class GetAttributeValueRequest(_message.Message):
-    __slots__ = ("Object", "AttributesBytes", "Attributes")
-    class AttributesBytesEntry(_message.Message):
-        __slots__ = ("key", "value")
-        KEY_FIELD_NUMBER: _ClassVar[int]
-        VALUE_FIELD_NUMBER: _ClassVar[int]
-        key: int
-        value: bytes
-        def __init__(self, key: _Optional[int] = ..., value: _Optional[bytes] = ...) -> None: ...
-    class AttributesEntry(_message.Message):
-        __slots__ = ("key", "value")
-        KEY_FIELD_NUMBER: _ClassVar[int]
-        VALUE_FIELD_NUMBER: _ClassVar[int]
-        key: int
-        value: AttributeValue
-        def __init__(self, key: _Optional[int] = ..., value: _Optional[_Union[AttributeValue, _Mapping]] = ...) -> None: ...
-    OBJECT_FIELD_NUMBER: _ClassVar[int]
-    ATTRIBUTESBYTES_FIELD_NUMBER: _ClassVar[int]
-    ATTRIBUTES_FIELD_NUMBER: _ClassVar[int]
-    Object: bytes
-    AttributesBytes: _containers.ScalarMap[int, bytes]
-    Attributes: _containers.MessageMap[int, AttributeValue]
-    def __init__(self, Object: _Optional[bytes] = ..., AttributesBytes: _Optional[_Mapping[int, bytes]] = ..., Attributes: _Optional[_Mapping[int, AttributeValue]] = ...) -> None: ...
-
-class GetAttributeValueResponse(_message.Message):
-    __slots__ = ("AttributesBytes", "Attributes")
-    class AttributesBytesEntry(_message.Message):
-        __slots__ = ("key", "value")
-        KEY_FIELD_NUMBER: _ClassVar[int]
-        VALUE_FIELD_NUMBER: _ClassVar[int]
-        key: int
-        value: bytes
-        def __init__(self, key: _Optional[int] = ..., value: _Optional[bytes] = ...) -> None: ...
-    class AttributesEntry(_message.Message):
-        __slots__ = ("key", "value")
-        KEY_FIELD_NUMBER: _ClassVar[int]
-        VALUE_FIELD_NUMBER: _ClassVar[int]
-        key: int
-        value: AttributeValue
-        def __init__(self, key: _Optional[int] = ..., value: _Optional[_Union[AttributeValue, _Mapping]] = ...) -> None: ...
-    ATTRIBUTESBYTES_FIELD_NUMBER: _ClassVar[int]
-    ATTRIBUTES_FIELD_NUMBER: _ClassVar[int]
-    AttributesBytes: _containers.ScalarMap[int, bytes]
-    Attributes: _containers.MessageMap[int, AttributeValue]
-    def __init__(self, AttributesBytes: _Optional[_Mapping[int, bytes]] = ..., Attributes: _Optional[_Mapping[int, AttributeValue]] = ...) -> None: ...
-
-class SetAttributeValueRequest(_message.Message):
-    __slots__ = ("Object", "Attributes")
-    class AttributesEntry(_message.Message):
-        __slots__ = ("key", "value")
-        KEY_FIELD_NUMBER: _ClassVar[int]
-        VALUE_FIELD_NUMBER: _ClassVar[int]
-        key: int
-        value: AttributeValue
-        def __init__(self, key: _Optional[int] = ..., value: _Optional[_Union[AttributeValue, _Mapping]] = ...) -> None: ...
-    OBJECT_FIELD_NUMBER: _ClassVar[int]
-    ATTRIBUTES_FIELD_NUMBER: _ClassVar[int]
-    Object: bytes
-    Attributes: _containers.MessageMap[int, AttributeValue]
-    def __init__(self, Object: _Optional[bytes] = ..., Attributes: _Optional[_Mapping[int, AttributeValue]] = ...) -> None: ...
-
-class SetAttributeValueResponse(_message.Message):
-    __slots__ = ("Object",)
-    OBJECT_FIELD_NUMBER: _ClassVar[int]
-    Object: bytes
-    def __init__(self, Object: _Optional[bytes] = ...) -> None: ...
-
-class LoginRequest(_message.Message):
-    __slots__ = ("Storeid", "Pin")
-    STOREID_FIELD_NUMBER: _ClassVar[int]
-    PIN_FIELD_NUMBER: _ClassVar[int]
-    Storeid: bytes
-    Pin: bytes
-    def __init__(self, Storeid: _Optional[bytes] = ..., Pin: _Optional[bytes] = ...) -> None: ...
-
-class LoginResponse(_message.Message):
-    __slots__ = ("Pinblob",)
-    PINBLOB_FIELD_NUMBER: _ClassVar[int]
-    Pinblob: bytes
-    def __init__(self, Pinblob: _Optional[bytes] = ...) -> None: ...
-
-class LogoutRequest(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
-
-class LogoutResponse(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
-
-class Mechanism(_message.Message):
-    __slots__ = ("Mechanism", "ParameterB", "RSAOAEPParameter", "RSAPSSParameter", "ECDH1DeriveParameter", "BTCDeriveParameter", "ECSGParameter", "KyberKEMParameter", "ECAGGParameter")
-    MECHANISM_FIELD_NUMBER: _ClassVar[int]
-    PARAMETERB_FIELD_NUMBER: _ClassVar[int]
-    RSAOAEPPARAMETER_FIELD_NUMBER: _ClassVar[int]
-    RSAPSSPARAMETER_FIELD_NUMBER: _ClassVar[int]
-    ECDH1DERIVEPARAMETER_FIELD_NUMBER: _ClassVar[int]
-    BTCDERIVEPARAMETER_FIELD_NUMBER: _ClassVar[int]
-    ECSGPARAMETER_FIELD_NUMBER: _ClassVar[int]
-    KYBERKEMPARAMETER_FIELD_NUMBER: _ClassVar[int]
-    ECAGGPARAMETER_FIELD_NUMBER: _ClassVar[int]
-    Mechanism: int
-    ParameterB: bytes
-    RSAOAEPParameter: RSAOAEPParm
-    RSAPSSParameter: RSAPSSParm
-    ECDH1DeriveParameter: ECDH1DeriveParm
-    BTCDeriveParameter: BTCDeriveParm
-    ECSGParameter: ECSGParm
-    KyberKEMParameter: KyberKEMParm
-    ECAGGParameter: ECAGGParm
-    def __init__(self, Mechanism: _Optional[int] = ..., ParameterB: _Optional[bytes] = ..., RSAOAEPParameter: _Optional[_Union[RSAOAEPParm, _Mapping]] = ..., RSAPSSParameter: _Optional[_Union[RSAPSSParm, _Mapping]] = ..., ECDH1DeriveParameter: _Optional[_Union[ECDH1DeriveParm, _Mapping]] = ..., BTCDeriveParameter: _Optional[_Union[BTCDeriveParm, _Mapping]] = ..., ECSGParameter: _Optional[_Union[ECSGParm, _Mapping]] = ..., KyberKEMParameter: _Optional[_Union[KyberKEMParm, _Mapping]] = ..., ECAGGParameter: _Optional[_Union[ECAGGParm, _Mapping]] = ...) -> None: ...
-
-class MechanismInfo(_message.Message):
-    __slots__ = ("MinKeySize", "MaxKeySize", "Flags")
-    MINKEYSIZE_FIELD_NUMBER: _ClassVar[int]
-    MAXKEYSIZE_FIELD_NUMBER: _ClassVar[int]
-    FLAGS_FIELD_NUMBER: _ClassVar[int]
-    MinKeySize: int
-    MaxKeySize: int
-    Flags: int
-    def __init__(self, MinKeySize: _Optional[int] = ..., MaxKeySize: _Optional[int] = ..., Flags: _Optional[int] = ...) -> None: ...
-
-class RSAOAEPParm(_message.Message):
-    __slots__ = ("HashMech", "Mgf", "EncodingParmType", "EncodingParm")
-    class Mask(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
-        __slots__ = ()
-        CkgMgf1None: _ClassVar[RSAOAEPParm.Mask]
-        CkgMgf1Sha1: _ClassVar[RSAOAEPParm.Mask]
-        CkgMgf1Sha256: _ClassVar[RSAOAEPParm.Mask]
-        CkgMgf1Sha384: _ClassVar[RSAOAEPParm.Mask]
-        CkgMgf1Sha512: _ClassVar[RSAOAEPParm.Mask]
-        CkgMgf1Sha224: _ClassVar[RSAOAEPParm.Mask]
-        CkgIbmMgf1Sha3_224: _ClassVar[RSAOAEPParm.Mask]
-        CkgIbmMgf1Sha3_256: _ClassVar[RSAOAEPParm.Mask]
-        CkgIbmMgf1Sha3_384: _ClassVar[RSAOAEPParm.Mask]
-        CkgIbmMgf1Sha3_512: _ClassVar[RSAOAEPParm.Mask]
-    CkgMgf1None: RSAOAEPParm.Mask
-    CkgMgf1Sha1: RSAOAEPParm.Mask
-    CkgMgf1Sha256: RSAOAEPParm.Mask
-    CkgMgf1Sha384: RSAOAEPParm.Mask
-    CkgMgf1Sha512: RSAOAEPParm.Mask
-    CkgMgf1Sha224: RSAOAEPParm.Mask
-    CkgIbmMgf1Sha3_224: RSAOAEPParm.Mask
-    CkgIbmMgf1Sha3_256: RSAOAEPParm.Mask
-    CkgIbmMgf1Sha3_384: RSAOAEPParm.Mask
-    CkgIbmMgf1Sha3_512: RSAOAEPParm.Mask
-    class ParmType(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
-        __slots__ = ()
-        CkzNoDataSpecified: _ClassVar[RSAOAEPParm.ParmType]
-        CkzDataSpecifiied: _ClassVar[RSAOAEPParm.ParmType]
-    CkzNoDataSpecified: RSAOAEPParm.ParmType
-    CkzDataSpecifiied: RSAOAEPParm.ParmType
-    HASHMECH_FIELD_NUMBER: _ClassVar[int]
-    MGF_FIELD_NUMBER: _ClassVar[int]
-    ENCODINGPARMTYPE_FIELD_NUMBER: _ClassVar[int]
-    ENCODINGPARM_FIELD_NUMBER: _ClassVar[int]
-    HashMech: int
-    Mgf: RSAOAEPParm.Mask
-    EncodingParmType: RSAOAEPParm.ParmType
-    EncodingParm: bytes
-    def __init__(self, HashMech: _Optional[int] = ..., Mgf: _Optional[_Union[RSAOAEPParm.Mask, str]] = ..., EncodingParmType: _Optional[_Union[RSAOAEPParm.ParmType, str]] = ..., EncodingParm: _Optional[bytes] = ...) -> None: ...
-
-class RSAPSSParm(_message.Message):
-    __slots__ = ("HashMech", "Mgf", "SaltByteCount")
-    class Mask(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
-        __slots__ = ()
-        CkgMgf1None: _ClassVar[RSAPSSParm.Mask]
-        CkgMgf1Sha1: _ClassVar[RSAPSSParm.Mask]
-        CkgMgf1Sha256: _ClassVar[RSAPSSParm.Mask]
-        CkgMgf1Sha384: _ClassVar[RSAPSSParm.Mask]
-        CkgMgf1Sha512: _ClassVar[RSAPSSParm.Mask]
-        CkgMgf1Sha224: _ClassVar[RSAPSSParm.Mask]
-        CkgIbmMgf1Sha3_224: _ClassVar[RSAPSSParm.Mask]
-        CkgIbmMgf1Sha3_256: _ClassVar[RSAPSSParm.Mask]
-        CkgIbmMgf1Sha3_384: _ClassVar[RSAPSSParm.Mask]
-        CkgIbmMgf1Sha3_512: _ClassVar[RSAPSSParm.Mask]
-    CkgMgf1None: RSAPSSParm.Mask
-    CkgMgf1Sha1: RSAPSSParm.Mask
-    CkgMgf1Sha256: RSAPSSParm.Mask
-    CkgMgf1Sha384: RSAPSSParm.Mask
-    CkgMgf1Sha512: RSAPSSParm.Mask
-    CkgMgf1Sha224: RSAPSSParm.Mask
-    CkgIbmMgf1Sha3_224: RSAPSSParm.Mask
-    CkgIbmMgf1Sha3_256: RSAPSSParm.Mask
-    CkgIbmMgf1Sha3_384: RSAPSSParm.Mask
-    CkgIbmMgf1Sha3_512: RSAPSSParm.Mask
-    HASHMECH_FIELD_NUMBER: _ClassVar[int]
-    MGF_FIELD_NUMBER: _ClassVar[int]
-    SALTBYTECOUNT_FIELD_NUMBER: _ClassVar[int]
-    HashMech: int
-    Mgf: RSAPSSParm.Mask
-    SaltByteCount: int
-    def __init__(self, HashMech: _Optional[int] = ..., Mgf: _Optional[_Union[RSAPSSParm.Mask, str]] = ..., SaltByteCount: _Optional[int] = ...) -> None: ...
-
-class ECDH1DeriveParm(_message.Message):
-    __slots__ = ("Kdf", "SharedData", "PublicData")
-    class KeyDerivationFunction(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
-        __slots__ = ()
-        CkdNotUsed0: _ClassVar[ECDH1DeriveParm.KeyDerivationFunction]
-        CkdNull: _ClassVar[ECDH1DeriveParm.KeyDerivationFunction]
-        CkdSha1Kdf: _ClassVar[ECDH1DeriveParm.KeyDerivationFunction]
-        CkdNotUsed3: _ClassVar[ECDH1DeriveParm.KeyDerivationFunction]
-        CkdNotUsed4: _ClassVar[ECDH1DeriveParm.KeyDerivationFunction]
-        CkdSha224Kdf: _ClassVar[ECDH1DeriveParm.KeyDerivationFunction]
-        CkdSha256Kdf: _ClassVar[ECDH1DeriveParm.KeyDerivationFunction]
-        CkdSha384Kdf: _ClassVar[ECDH1DeriveParm.KeyDerivationFunction]
-        CkdSha512Kdf: _ClassVar[ECDH1DeriveParm.KeyDerivationFunction]
-        CkdIbmHybridNull: _ClassVar[ECDH1DeriveParm.KeyDerivationFunction]
-    CkdNotUsed0: ECDH1DeriveParm.KeyDerivationFunction
-    CkdNull: ECDH1DeriveParm.KeyDerivationFunction
-    CkdSha1Kdf: ECDH1DeriveParm.KeyDerivationFunction
-    CkdNotUsed3: ECDH1DeriveParm.KeyDerivationFunction
-    CkdNotUsed4: ECDH1DeriveParm.KeyDerivationFunction
-    CkdSha224Kdf: ECDH1DeriveParm.KeyDerivationFunction
-    CkdSha256Kdf: ECDH1DeriveParm.KeyDerivationFunction
-    CkdSha384Kdf: ECDH1DeriveParm.KeyDerivationFunction
-    CkdSha512Kdf: ECDH1DeriveParm.KeyDerivationFunction
-    CkdIbmHybridNull: ECDH1DeriveParm.KeyDerivationFunction
-    KDF_FIELD_NUMBER: _ClassVar[int]
-    SHAREDDATA_FIELD_NUMBER: _ClassVar[int]
-    PUBLICDATA_FIELD_NUMBER: _ClassVar[int]
-    Kdf: ECDH1DeriveParm.KeyDerivationFunction
-    SharedData: bytes
-    PublicData: bytes
-    def __init__(self, Kdf: _Optional[_Union[ECDH1DeriveParm.KeyDerivationFunction, str]] = ..., SharedData: _Optional[bytes] = ..., PublicData: _Optional[bytes] = ...) -> None: ...
-
-class BTCDeriveParm(_message.Message):
-    __slots__ = ("Type", "ChildKeyIndex", "ChainCode", "Version")
-    class BTCDeriveType(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
-        __slots__ = ()
-        CkBIP0032NotUsed: _ClassVar[BTCDeriveParm.BTCDeriveType]
-        CkBIP0032PRV2PRV: _ClassVar[BTCDeriveParm.BTCDeriveType]
-        CkBIP0032PRV2PUB: _ClassVar[BTCDeriveParm.BTCDeriveType]
-        CkBIP0032PUB2PUB: _ClassVar[BTCDeriveParm.BTCDeriveType]
-        CkBIP0032MASTERK: _ClassVar[BTCDeriveParm.BTCDeriveType]
-        CkSLIP0010PRV2PRV: _ClassVar[BTCDeriveParm.BTCDeriveType]
-        CkSLIP0010PRV2PUB: _ClassVar[BTCDeriveParm.BTCDeriveType]
-        CkSLIP0010PUB2PUB: _ClassVar[BTCDeriveParm.BTCDeriveType]
-        CkSLIP0010MASTERK: _ClassVar[BTCDeriveParm.BTCDeriveType]
-    CkBIP0032NotUsed: BTCDeriveParm.BTCDeriveType
-    CkBIP0032PRV2PRV: BTCDeriveParm.BTCDeriveType
-    CkBIP0032PRV2PUB: BTCDeriveParm.BTCDeriveType
-    CkBIP0032PUB2PUB: BTCDeriveParm.BTCDeriveType
-    CkBIP0032MASTERK: BTCDeriveParm.BTCDeriveType
-    CkSLIP0010PRV2PRV: BTCDeriveParm.BTCDeriveType
-    CkSLIP0010PRV2PUB: BTCDeriveParm.BTCDeriveType
-    CkSLIP0010PUB2PUB: BTCDeriveParm.BTCDeriveType
-    CkSLIP0010MASTERK: BTCDeriveParm.BTCDeriveType
-    TYPE_FIELD_NUMBER: _ClassVar[int]
-    CHILDKEYINDEX_FIELD_NUMBER: _ClassVar[int]
-    CHAINCODE_FIELD_NUMBER: _ClassVar[int]
-    VERSION_FIELD_NUMBER: _ClassVar[int]
-    Type: BTCDeriveParm.BTCDeriveType
-    ChildKeyIndex: int
-    ChainCode: bytes
-    Version: int
-    def __init__(self, Type: _Optional[_Union[BTCDeriveParm.BTCDeriveType, str]] = ..., ChildKeyIndex: _Optional[int] = ..., ChainCode: _Optional[bytes] = ..., Version: _Optional[int] = ...) -> None: ...
-
-class ECSGParm(_message.Message):
-    __slots__ = ("Type",)
-    class ECSGType(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
-        __slots__ = ()
-        CkEcsgIbmNotUsed: _ClassVar[ECSGParm.ECSGType]
-        CkEcsgIbmEcsdsaS256: _ClassVar[ECSGParm.ECSGType]
-        CkEcsgIbmEcsdsaComprMulti: _ClassVar[ECSGParm.ECSGType]
-        CkEcsgIbmBls: _ClassVar[ECSGParm.ECSGType]
-    CkEcsgIbmNotUsed: ECSGParm.ECSGType
-    CkEcsgIbmEcsdsaS256: ECSGParm.ECSGType
-    CkEcsgIbmEcsdsaComprMulti: ECSGParm.ECSGType
-    CkEcsgIbmBls: ECSGParm.ECSGType
-    TYPE_FIELD_NUMBER: _ClassVar[int]
-    Type: ECSGParm.ECSGType
-    def __init__(self, Type: _Optional[_Union[ECSGParm.ECSGType, str]] = ...) -> None: ...
-
-class ECAGGParm(_message.Message):
-    __slots__ = ("Version", "Mode", "PerElementSize", "Elements")
-    class ECAGGMode(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
-        __slots__ = ()
-        CkIbmEcAggInvalid: _ClassVar[ECAGGParm.ECAGGMode]
-        CkIbmEcAggBLS12_381Sign: _ClassVar[ECAGGParm.ECAGGMode]
-        CkIbmEcAggBLS12_381Pkey: _ClassVar[ECAGGParm.ECAGGMode]
-    CkIbmEcAggInvalid: ECAGGParm.ECAGGMode
-    CkIbmEcAggBLS12_381Sign: ECAGGParm.ECAGGMode
-    CkIbmEcAggBLS12_381Pkey: ECAGGParm.ECAGGMode
-    VERSION_FIELD_NUMBER: _ClassVar[int]
-    MODE_FIELD_NUMBER: _ClassVar[int]
-    PERELEMENTSIZE_FIELD_NUMBER: _ClassVar[int]
-    ELEMENTS_FIELD_NUMBER: _ClassVar[int]
-    Version: int
-    Mode: ECAGGParm.ECAGGMode
-    PerElementSize: int
-    Elements: bytes
-    def __init__(self, Version: _Optional[int] = ..., Mode: _Optional[_Union[ECAGGParm.ECAGGMode, str]] = ..., PerElementSize: _Optional[int] = ..., Elements: _Optional[bytes] = ...) -> None: ...
-
-class KyberKEMParm(_message.Message):
-    __slots__ = ("Version", "Mode", "Kdf", "Prepend", "CipherText", "SharedData", "Blob")
-    class KyberMode(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
-        __slots__ = ()
-        CkNotUsed: _ClassVar[KyberKEMParm.KyberMode]
-        CkIbmKEMEncapsulate: _ClassVar[KyberKEMParm.KyberMode]
-        CkIbmKEMDecapsulate: _ClassVar[KyberKEMParm.KyberMode]
-    CkNotUsed: KyberKEMParm.KyberMode
-    CkIbmKEMEncapsulate: KyberKEMParm.KyberMode
-    CkIbmKEMDecapsulate: KyberKEMParm.KyberMode
-    class KyberDeriveType(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
-        __slots__ = ()
-        CkdNotUsed: _ClassVar[KyberKEMParm.KyberDeriveType]
-        CkdNull: _ClassVar[KyberKEMParm.KyberDeriveType]
-        CkdIbmHybridNull: _ClassVar[KyberKEMParm.KyberDeriveType]
-        CkdIbmHybridSha1Kdf: _ClassVar[KyberKEMParm.KyberDeriveType]
-        CkdIbmHybridSha224Kdf: _ClassVar[KyberKEMParm.KyberDeriveType]
-        CkdIbmHybridSha256Kdf: _ClassVar[KyberKEMParm.KyberDeriveType]
-        CkdIbmHybridSha384Kdf: _ClassVar[KyberKEMParm.KyberDeriveType]
-        CkdIbmHybridSha512Kdf: _ClassVar[KyberKEMParm.KyberDeriveType]
-    CkdNotUsed: KyberKEMParm.KyberDeriveType
-    CkdNull: KyberKEMParm.KyberDeriveType
-    CkdIbmHybridNull: KyberKEMParm.KyberDeriveType
-    CkdIbmHybridSha1Kdf: KyberKEMParm.KyberDeriveType
-    CkdIbmHybridSha224Kdf: KyberKEMParm.KyberDeriveType
-    CkdIbmHybridSha256Kdf: KyberKEMParm.KyberDeriveType
-    CkdIbmHybridSha384Kdf: KyberKEMParm.KyberDeriveType
-    CkdIbmHybridSha512Kdf: KyberKEMParm.KyberDeriveType
-    VERSION_FIELD_NUMBER: _ClassVar[int]
-    MODE_FIELD_NUMBER: _ClassVar[int]
-    KDF_FIELD_NUMBER: _ClassVar[int]
-    PREPEND_FIELD_NUMBER: _ClassVar[int]
-    CIPHERTEXT_FIELD_NUMBER: _ClassVar[int]
-    SHAREDDATA_FIELD_NUMBER: _ClassVar[int]
-    BLOB_FIELD_NUMBER: _ClassVar[int]
-    Version: int
-    Mode: KyberKEMParm.KyberMode
-    Kdf: KyberKEMParm.KyberDeriveType
-    Prepend: bool
-    CipherText: bytes
-    SharedData: bytes
-    Blob: bytes
-    def __init__(self, Version: _Optional[int] = ..., Mode: _Optional[_Union[KyberKEMParm.KyberMode, str]] = ..., Kdf: _Optional[_Union[KyberKEMParm.KyberDeriveType, str]] = ..., Prepend: bool = ..., CipherText: _Optional[bytes] = ..., SharedData: _Optional[bytes] = ..., Blob: _Optional[bytes] = ...) -> None: ...
-
-class HMACGeneralParm(_message.Message):
-    __slots__ = ("ReturnByteCount",)
-    RETURNBYTECOUNT_FIELD_NUMBER: _ClassVar[int]
-    ReturnByteCount: int
-    def __init__(self, ReturnByteCount: _Optional[int] = ...) -> None: ...
-
-class RewrapKeyBlobRequest(_message.Message):
-    __slots__ = ("WrappedKeyBytes", "WrappedKey")
-    WRAPPEDKEYBYTES_FIELD_NUMBER: _ClassVar[int]
-    WRAPPEDKEY_FIELD_NUMBER: _ClassVar[int]
-    WrappedKeyBytes: bytes
-    WrappedKey: KeyBlob
-    def __init__(self, WrappedKeyBytes: _Optional[bytes] = ..., WrappedKey: _Optional[_Union[KeyBlob, _Mapping]] = ...) -> None: ...
-
-class RewrapKeyBlobResponse(_message.Message):
-    __slots__ = ("RewrappedKeyBytes", "RewrappedKey")
-    REWRAPPEDKEYBYTES_FIELD_NUMBER: _ClassVar[int]
-    REWRAPPEDKEY_FIELD_NUMBER: _ClassVar[int]
-    RewrappedKeyBytes: bytes
-    RewrappedKey: KeyBlob
-    def __init__(self, RewrappedKeyBytes: _Optional[bytes] = ..., RewrappedKey: _Optional[_Union[KeyBlob, _Mapping]] = ...) -> None: ...
-
-class AttributeValue(_message.Message):
-    __slots__ = ("AttributeB", "AttributeTF", "AttributeI")
-    ATTRIBUTEB_FIELD_NUMBER: _ClassVar[int]
-    ATTRIBUTETF_FIELD_NUMBER: _ClassVar[int]
-    ATTRIBUTEI_FIELD_NUMBER: _ClassVar[int]
-    AttributeB: bytes
-    AttributeTF: bool
-    AttributeI: int
-    def __init__(self, AttributeB: _Optional[bytes] = ..., AttributeTF: bool = ..., AttributeI: _Optional[int] = ...) -> None: ...
-
-class KeyBlob(_message.Message):
-    __slots__ = ("KeyBlobID", "Version", "TxID", "Attributes", "KeyBlobs")
-    class AttributesEntry(_message.Message):
-        __slots__ = ("key", "value")
-        KEY_FIELD_NUMBER: _ClassVar[int]
-        VALUE_FIELD_NUMBER: _ClassVar[int]
-        key: int
-        value: AttributeValue
-        def __init__(self, key: _Optional[int] = ..., value: _Optional[_Union[AttributeValue, _Mapping]] = ...) -> None: ...
-    KEYBLOBID_FIELD_NUMBER: _ClassVar[int]
-    VERSION_FIELD_NUMBER: _ClassVar[int]
-    TXID_FIELD_NUMBER: _ClassVar[int]
-    ATTRIBUTES_FIELD_NUMBER: _ClassVar[int]
-    KEYBLOBS_FIELD_NUMBER: _ClassVar[int]
-    KeyBlobID: bytes
-    Version: int
-    TxID: bytes
-    Attributes: _containers.MessageMap[int, AttributeValue]
-    KeyBlobs: _containers.RepeatedScalarFieldContainer[bytes]
-    def __init__(self, KeyBlobID: _Optional[bytes] = ..., Version: _Optional[int] = ..., TxID: _Optional[bytes] = ..., Attributes: _Optional[_Mapping[int, AttributeValue]] = ..., KeyBlobs: _Optional[_Iterable[bytes]] = ...) -> None: ...
+"""
+@generated by mypy-protobuf.  Do not edit manually!
+isort:skip_file
+
+Copyright IBM Corp. All Rights Reserved.
+
+SPDX-License-Identifier: Apache-2.0
+"""
+
+import builtins
+import collections.abc
+import google.protobuf.descriptor
+import google.protobuf.internal.containers
+import google.protobuf.internal.enum_type_wrapper
+import google.protobuf.message
+import sys
+import typing
+
+if sys.version_info >= (3, 10):
+    import typing as typing_extensions
+else:
+    import typing_extensions
+
+DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
+
+@typing.final
+class GenerateRandomRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    LEN_FIELD_NUMBER: builtins.int
+    Len: builtins.int
+    def __init__(
+        self,
+        *,
+        Len: builtins.int = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Len", b"Len"]) -> None: ...
+
+global___GenerateRandomRequest = GenerateRandomRequest
+
+@typing.final
+class GenerateRandomResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    RND_FIELD_NUMBER: builtins.int
+    Rnd: builtins.bytes
+    def __init__(
+        self,
+        *,
+        Rnd: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Rnd", b"Rnd"]) -> None: ...
+
+global___GenerateRandomResponse = GenerateRandomResponse
+
+@typing.final
+class DigestInitRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    MECH_FIELD_NUMBER: builtins.int
+    @property
+    def Mech(self) -> global___Mechanism: ...
+    def __init__(
+        self,
+        *,
+        Mech: global___Mechanism | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["Mech", b"Mech"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["Mech", b"Mech"]) -> None: ...
+
+global___DigestInitRequest = DigestInitRequest
+
+@typing.final
+class DigestInitResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    STATE_FIELD_NUMBER: builtins.int
+    State: builtins.bytes
+    def __init__(
+        self,
+        *,
+        State: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["State", b"State"]) -> None: ...
+
+global___DigestInitResponse = DigestInitResponse
+
+@typing.final
+class DigestRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    STATE_FIELD_NUMBER: builtins.int
+    DATA_FIELD_NUMBER: builtins.int
+    State: builtins.bytes
+    Data: builtins.bytes
+    def __init__(
+        self,
+        *,
+        State: builtins.bytes = ...,
+        Data: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Data", b"Data", "State", b"State"]) -> None: ...
+
+global___DigestRequest = DigestRequest
+
+@typing.final
+class DigestResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    DIGEST_FIELD_NUMBER: builtins.int
+    Digest: builtins.bytes
+    def __init__(
+        self,
+        *,
+        Digest: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Digest", b"Digest"]) -> None: ...
+
+global___DigestResponse = DigestResponse
+
+@typing.final
+class DigestUpdateRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    STATE_FIELD_NUMBER: builtins.int
+    DATA_FIELD_NUMBER: builtins.int
+    State: builtins.bytes
+    Data: builtins.bytes
+    def __init__(
+        self,
+        *,
+        State: builtins.bytes = ...,
+        Data: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Data", b"Data", "State", b"State"]) -> None: ...
+
+global___DigestUpdateRequest = DigestUpdateRequest
+
+@typing.final
+class DigestUpdateResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    STATE_FIELD_NUMBER: builtins.int
+    State: builtins.bytes
+    def __init__(
+        self,
+        *,
+        State: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["State", b"State"]) -> None: ...
+
+global___DigestUpdateResponse = DigestUpdateResponse
+
+@typing.final
+class DigestKeyRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    STATE_FIELD_NUMBER: builtins.int
+    KEY_FIELD_NUMBER: builtins.int
+    State: builtins.bytes
+    @property
+    def Key(self) -> global___KeyBlob: ...
+    def __init__(
+        self,
+        *,
+        State: builtins.bytes = ...,
+        Key: global___KeyBlob | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["Key", b"Key"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["Key", b"Key", "State", b"State"]) -> None: ...
+
+global___DigestKeyRequest = DigestKeyRequest
+
+@typing.final
+class DigestKeyResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    STATE_FIELD_NUMBER: builtins.int
+    State: builtins.bytes
+    def __init__(
+        self,
+        *,
+        State: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["State", b"State"]) -> None: ...
+
+global___DigestKeyResponse = DigestKeyResponse
+
+@typing.final
+class DigestFinalRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    STATE_FIELD_NUMBER: builtins.int
+    State: builtins.bytes
+    def __init__(
+        self,
+        *,
+        State: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["State", b"State"]) -> None: ...
+
+global___DigestFinalRequest = DigestFinalRequest
+
+@typing.final
+class DigestFinalResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    DIGEST_FIELD_NUMBER: builtins.int
+    Digest: builtins.bytes
+    def __init__(
+        self,
+        *,
+        Digest: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Digest", b"Digest"]) -> None: ...
+
+global___DigestFinalResponse = DigestFinalResponse
+
+@typing.final
+class DigestSingleRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    MECH_FIELD_NUMBER: builtins.int
+    DATA_FIELD_NUMBER: builtins.int
+    Data: builtins.bytes
+    @property
+    def Mech(self) -> global___Mechanism: ...
+    def __init__(
+        self,
+        *,
+        Mech: global___Mechanism | None = ...,
+        Data: builtins.bytes = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["Mech", b"Mech"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["Data", b"Data", "Mech", b"Mech"]) -> None: ...
+
+global___DigestSingleRequest = DigestSingleRequest
+
+@typing.final
+class DigestSingleResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    DIGEST_FIELD_NUMBER: builtins.int
+    Digest: builtins.bytes
+    def __init__(
+        self,
+        *,
+        Digest: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Digest", b"Digest"]) -> None: ...
+
+global___DigestSingleResponse = DigestSingleResponse
+
+@typing.final
+class EncryptInitRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    MECH_FIELD_NUMBER: builtins.int
+    KEY_FIELD_NUMBER: builtins.int
+    @property
+    def Mech(self) -> global___Mechanism: ...
+    @property
+    def Key(self) -> global___KeyBlob: ...
+    def __init__(
+        self,
+        *,
+        Mech: global___Mechanism | None = ...,
+        Key: global___KeyBlob | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["Key", b"Key", "Mech", b"Mech"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["Key", b"Key", "Mech", b"Mech"]) -> None: ...
+
+global___EncryptInitRequest = EncryptInitRequest
+
+@typing.final
+class EncryptInitResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    STATE_FIELD_NUMBER: builtins.int
+    State: builtins.bytes
+    def __init__(
+        self,
+        *,
+        State: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["State", b"State"]) -> None: ...
+
+global___EncryptInitResponse = EncryptInitResponse
+
+@typing.final
+class DecryptInitRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    MECH_FIELD_NUMBER: builtins.int
+    KEY_FIELD_NUMBER: builtins.int
+    @property
+    def Mech(self) -> global___Mechanism: ...
+    @property
+    def Key(self) -> global___KeyBlob: ...
+    def __init__(
+        self,
+        *,
+        Mech: global___Mechanism | None = ...,
+        Key: global___KeyBlob | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["Key", b"Key", "Mech", b"Mech"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["Key", b"Key", "Mech", b"Mech"]) -> None: ...
+
+global___DecryptInitRequest = DecryptInitRequest
+
+@typing.final
+class DecryptInitResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    STATE_FIELD_NUMBER: builtins.int
+    State: builtins.bytes
+    def __init__(
+        self,
+        *,
+        State: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["State", b"State"]) -> None: ...
+
+global___DecryptInitResponse = DecryptInitResponse
+
+@typing.final
+class EncryptUpdateRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    STATE_FIELD_NUMBER: builtins.int
+    PLAIN_FIELD_NUMBER: builtins.int
+    State: builtins.bytes
+    Plain: builtins.bytes
+    def __init__(
+        self,
+        *,
+        State: builtins.bytes = ...,
+        Plain: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Plain", b"Plain", "State", b"State"]) -> None: ...
+
+global___EncryptUpdateRequest = EncryptUpdateRequest
+
+@typing.final
+class EncryptUpdateResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    STATE_FIELD_NUMBER: builtins.int
+    CIPHERED_FIELD_NUMBER: builtins.int
+    State: builtins.bytes
+    Ciphered: builtins.bytes
+    def __init__(
+        self,
+        *,
+        State: builtins.bytes = ...,
+        Ciphered: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Ciphered", b"Ciphered", "State", b"State"]) -> None: ...
+
+global___EncryptUpdateResponse = EncryptUpdateResponse
+
+@typing.final
+class DecryptUpdateRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    STATE_FIELD_NUMBER: builtins.int
+    CIPHERED_FIELD_NUMBER: builtins.int
+    State: builtins.bytes
+    Ciphered: builtins.bytes
+    def __init__(
+        self,
+        *,
+        State: builtins.bytes = ...,
+        Ciphered: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Ciphered", b"Ciphered", "State", b"State"]) -> None: ...
+
+global___DecryptUpdateRequest = DecryptUpdateRequest
+
+@typing.final
+class DecryptUpdateResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    STATE_FIELD_NUMBER: builtins.int
+    PLAIN_FIELD_NUMBER: builtins.int
+    State: builtins.bytes
+    Plain: builtins.bytes
+    def __init__(
+        self,
+        *,
+        State: builtins.bytes = ...,
+        Plain: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Plain", b"Plain", "State", b"State"]) -> None: ...
+
+global___DecryptUpdateResponse = DecryptUpdateResponse
+
+@typing.final
+class EncryptRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    STATE_FIELD_NUMBER: builtins.int
+    PLAIN_FIELD_NUMBER: builtins.int
+    State: builtins.bytes
+    Plain: builtins.bytes
+    def __init__(
+        self,
+        *,
+        State: builtins.bytes = ...,
+        Plain: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Plain", b"Plain", "State", b"State"]) -> None: ...
+
+global___EncryptRequest = EncryptRequest
+
+@typing.final
+class EncryptResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    CIPHERED_FIELD_NUMBER: builtins.int
+    Ciphered: builtins.bytes
+    def __init__(
+        self,
+        *,
+        Ciphered: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Ciphered", b"Ciphered"]) -> None: ...
+
+global___EncryptResponse = EncryptResponse
+
+@typing.final
+class DecryptRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    STATE_FIELD_NUMBER: builtins.int
+    CIPHERED_FIELD_NUMBER: builtins.int
+    State: builtins.bytes
+    Ciphered: builtins.bytes
+    def __init__(
+        self,
+        *,
+        State: builtins.bytes = ...,
+        Ciphered: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Ciphered", b"Ciphered", "State", b"State"]) -> None: ...
+
+global___DecryptRequest = DecryptRequest
+
+@typing.final
+class DecryptResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    PLAIN_FIELD_NUMBER: builtins.int
+    Plain: builtins.bytes
+    def __init__(
+        self,
+        *,
+        Plain: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Plain", b"Plain"]) -> None: ...
+
+global___DecryptResponse = DecryptResponse
+
+@typing.final
+class EncryptFinalRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    STATE_FIELD_NUMBER: builtins.int
+    State: builtins.bytes
+    def __init__(
+        self,
+        *,
+        State: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["State", b"State"]) -> None: ...
+
+global___EncryptFinalRequest = EncryptFinalRequest
+
+@typing.final
+class EncryptFinalResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    CIPHERED_FIELD_NUMBER: builtins.int
+    Ciphered: builtins.bytes
+    def __init__(
+        self,
+        *,
+        Ciphered: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Ciphered", b"Ciphered"]) -> None: ...
+
+global___EncryptFinalResponse = EncryptFinalResponse
+
+@typing.final
+class DecryptFinalRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    STATE_FIELD_NUMBER: builtins.int
+    State: builtins.bytes
+    def __init__(
+        self,
+        *,
+        State: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["State", b"State"]) -> None: ...
+
+global___DecryptFinalRequest = DecryptFinalRequest
+
+@typing.final
+class DecryptFinalResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    PLAIN_FIELD_NUMBER: builtins.int
+    Plain: builtins.bytes
+    def __init__(
+        self,
+        *,
+        Plain: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Plain", b"Plain"]) -> None: ...
+
+global___DecryptFinalResponse = DecryptFinalResponse
+
+@typing.final
+class EncryptSingleRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    MECH_FIELD_NUMBER: builtins.int
+    PLAIN_FIELD_NUMBER: builtins.int
+    KEY_FIELD_NUMBER: builtins.int
+    Plain: builtins.bytes
+    @property
+    def Mech(self) -> global___Mechanism: ...
+    @property
+    def Key(self) -> global___KeyBlob: ...
+    def __init__(
+        self,
+        *,
+        Mech: global___Mechanism | None = ...,
+        Plain: builtins.bytes = ...,
+        Key: global___KeyBlob | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["Key", b"Key", "Mech", b"Mech"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["Key", b"Key", "Mech", b"Mech", "Plain", b"Plain"]) -> None: ...
+
+global___EncryptSingleRequest = EncryptSingleRequest
+
+@typing.final
+class EncryptSingleResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    CIPHERED_FIELD_NUMBER: builtins.int
+    Ciphered: builtins.bytes
+    def __init__(
+        self,
+        *,
+        Ciphered: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Ciphered", b"Ciphered"]) -> None: ...
+
+global___EncryptSingleResponse = EncryptSingleResponse
+
+@typing.final
+class DecryptSingleRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    MECH_FIELD_NUMBER: builtins.int
+    CIPHERED_FIELD_NUMBER: builtins.int
+    KEY_FIELD_NUMBER: builtins.int
+    Ciphered: builtins.bytes
+    @property
+    def Mech(self) -> global___Mechanism: ...
+    @property
+    def Key(self) -> global___KeyBlob: ...
+    def __init__(
+        self,
+        *,
+        Mech: global___Mechanism | None = ...,
+        Ciphered: builtins.bytes = ...,
+        Key: global___KeyBlob | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["Key", b"Key", "Mech", b"Mech"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["Ciphered", b"Ciphered", "Key", b"Key", "Mech", b"Mech"]) -> None: ...
+
+global___DecryptSingleRequest = DecryptSingleRequest
+
+@typing.final
+class DecryptSingleResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    PLAIN_FIELD_NUMBER: builtins.int
+    Plain: builtins.bytes
+    def __init__(
+        self,
+        *,
+        Plain: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Plain", b"Plain"]) -> None: ...
+
+global___DecryptSingleResponse = DecryptSingleResponse
+
+@typing.final
+class SignInitRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    MECH_FIELD_NUMBER: builtins.int
+    PRIVKEY_FIELD_NUMBER: builtins.int
+    @property
+    def Mech(self) -> global___Mechanism: ...
+    @property
+    def PrivKey(self) -> global___KeyBlob: ...
+    def __init__(
+        self,
+        *,
+        Mech: global___Mechanism | None = ...,
+        PrivKey: global___KeyBlob | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["Mech", b"Mech", "PrivKey", b"PrivKey"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["Mech", b"Mech", "PrivKey", b"PrivKey"]) -> None: ...
+
+global___SignInitRequest = SignInitRequest
+
+@typing.final
+class SignInitResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    STATE_FIELD_NUMBER: builtins.int
+    State: builtins.bytes
+    def __init__(
+        self,
+        *,
+        State: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["State", b"State"]) -> None: ...
+
+global___SignInitResponse = SignInitResponse
+
+@typing.final
+class VerifyInitRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    MECH_FIELD_NUMBER: builtins.int
+    PUBKEY_FIELD_NUMBER: builtins.int
+    @property
+    def Mech(self) -> global___Mechanism: ...
+    @property
+    def PubKey(self) -> global___KeyBlob: ...
+    def __init__(
+        self,
+        *,
+        Mech: global___Mechanism | None = ...,
+        PubKey: global___KeyBlob | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["Mech", b"Mech", "PubKey", b"PubKey"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["Mech", b"Mech", "PubKey", b"PubKey"]) -> None: ...
+
+global___VerifyInitRequest = VerifyInitRequest
+
+@typing.final
+class VerifyInitResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    STATE_FIELD_NUMBER: builtins.int
+    State: builtins.bytes
+    def __init__(
+        self,
+        *,
+        State: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["State", b"State"]) -> None: ...
+
+global___VerifyInitResponse = VerifyInitResponse
+
+@typing.final
+class SignUpdateRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    STATE_FIELD_NUMBER: builtins.int
+    DATA_FIELD_NUMBER: builtins.int
+    State: builtins.bytes
+    Data: builtins.bytes
+    def __init__(
+        self,
+        *,
+        State: builtins.bytes = ...,
+        Data: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Data", b"Data", "State", b"State"]) -> None: ...
+
+global___SignUpdateRequest = SignUpdateRequest
+
+@typing.final
+class SignUpdateResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    STATE_FIELD_NUMBER: builtins.int
+    State: builtins.bytes
+    def __init__(
+        self,
+        *,
+        State: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["State", b"State"]) -> None: ...
+
+global___SignUpdateResponse = SignUpdateResponse
+
+@typing.final
+class VerifyUpdateRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    STATE_FIELD_NUMBER: builtins.int
+    DATA_FIELD_NUMBER: builtins.int
+    State: builtins.bytes
+    Data: builtins.bytes
+    def __init__(
+        self,
+        *,
+        State: builtins.bytes = ...,
+        Data: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Data", b"Data", "State", b"State"]) -> None: ...
+
+global___VerifyUpdateRequest = VerifyUpdateRequest
+
+@typing.final
+class VerifyUpdateResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    STATE_FIELD_NUMBER: builtins.int
+    State: builtins.bytes
+    def __init__(
+        self,
+        *,
+        State: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["State", b"State"]) -> None: ...
+
+global___VerifyUpdateResponse = VerifyUpdateResponse
+
+@typing.final
+class SignFinalRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    STATE_FIELD_NUMBER: builtins.int
+    State: builtins.bytes
+    def __init__(
+        self,
+        *,
+        State: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["State", b"State"]) -> None: ...
+
+global___SignFinalRequest = SignFinalRequest
+
+@typing.final
+class SignFinalResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SIGNATURE_FIELD_NUMBER: builtins.int
+    Signature: builtins.bytes
+    def __init__(
+        self,
+        *,
+        Signature: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Signature", b"Signature"]) -> None: ...
+
+global___SignFinalResponse = SignFinalResponse
+
+@typing.final
+class VerifyFinalRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    STATE_FIELD_NUMBER: builtins.int
+    SIGNATURE_FIELD_NUMBER: builtins.int
+    State: builtins.bytes
+    Signature: builtins.bytes
+    def __init__(
+        self,
+        *,
+        State: builtins.bytes = ...,
+        Signature: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Signature", b"Signature", "State", b"State"]) -> None: ...
+
+global___VerifyFinalRequest = VerifyFinalRequest
+
+@typing.final
+class VerifyFinalResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    def __init__(
+        self,
+    ) -> None: ...
+
+global___VerifyFinalResponse = VerifyFinalResponse
+
+@typing.final
+class SignRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    STATE_FIELD_NUMBER: builtins.int
+    DATA_FIELD_NUMBER: builtins.int
+    State: builtins.bytes
+    Data: builtins.bytes
+    def __init__(
+        self,
+        *,
+        State: builtins.bytes = ...,
+        Data: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Data", b"Data", "State", b"State"]) -> None: ...
+
+global___SignRequest = SignRequest
+
+@typing.final
+class SignResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SIGNATURE_FIELD_NUMBER: builtins.int
+    Signature: builtins.bytes
+    def __init__(
+        self,
+        *,
+        Signature: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Signature", b"Signature"]) -> None: ...
+
+global___SignResponse = SignResponse
+
+@typing.final
+class VerifyRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    STATE_FIELD_NUMBER: builtins.int
+    DATA_FIELD_NUMBER: builtins.int
+    SIGNATURE_FIELD_NUMBER: builtins.int
+    State: builtins.bytes
+    Data: builtins.bytes
+    Signature: builtins.bytes
+    def __init__(
+        self,
+        *,
+        State: builtins.bytes = ...,
+        Data: builtins.bytes = ...,
+        Signature: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Data", b"Data", "Signature", b"Signature", "State", b"State"]) -> None: ...
+
+global___VerifyRequest = VerifyRequest
+
+@typing.final
+class VerifyResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    def __init__(
+        self,
+    ) -> None: ...
+
+global___VerifyResponse = VerifyResponse
+
+@typing.final
+class SignSingleRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    MECH_FIELD_NUMBER: builtins.int
+    DATA_FIELD_NUMBER: builtins.int
+    PRIVKEY_FIELD_NUMBER: builtins.int
+    Data: builtins.bytes
+    @property
+    def Mech(self) -> global___Mechanism: ...
+    @property
+    def PrivKey(self) -> global___KeyBlob: ...
+    def __init__(
+        self,
+        *,
+        Mech: global___Mechanism | None = ...,
+        Data: builtins.bytes = ...,
+        PrivKey: global___KeyBlob | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["Mech", b"Mech", "PrivKey", b"PrivKey"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["Data", b"Data", "Mech", b"Mech", "PrivKey", b"PrivKey"]) -> None: ...
+
+global___SignSingleRequest = SignSingleRequest
+
+@typing.final
+class SignSingleResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SIGNATURE_FIELD_NUMBER: builtins.int
+    Signature: builtins.bytes
+    def __init__(
+        self,
+        *,
+        Signature: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Signature", b"Signature"]) -> None: ...
+
+global___SignSingleResponse = SignSingleResponse
+
+@typing.final
+class VerifySingleRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    MECH_FIELD_NUMBER: builtins.int
+    DATA_FIELD_NUMBER: builtins.int
+    SIGNATURE_FIELD_NUMBER: builtins.int
+    PUBKEY_FIELD_NUMBER: builtins.int
+    Data: builtins.bytes
+    Signature: builtins.bytes
+    @property
+    def Mech(self) -> global___Mechanism: ...
+    @property
+    def PubKey(self) -> global___KeyBlob: ...
+    def __init__(
+        self,
+        *,
+        Mech: global___Mechanism | None = ...,
+        Data: builtins.bytes = ...,
+        Signature: builtins.bytes = ...,
+        PubKey: global___KeyBlob | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["Mech", b"Mech", "PubKey", b"PubKey"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["Data", b"Data", "Mech", b"Mech", "PubKey", b"PubKey", "Signature", b"Signature"]) -> None: ...
+
+global___VerifySingleRequest = VerifySingleRequest
+
+@typing.final
+class VerifySingleResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    def __init__(
+        self,
+    ) -> None: ...
+
+global___VerifySingleResponse = VerifySingleResponse
+
+@typing.final
+class ReencryptSingleRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    DECMECH_FIELD_NUMBER: builtins.int
+    ENCMECH_FIELD_NUMBER: builtins.int
+    CIPHERED_FIELD_NUMBER: builtins.int
+    DECKEY_FIELD_NUMBER: builtins.int
+    ENCKEY_FIELD_NUMBER: builtins.int
+    Ciphered: builtins.bytes
+    @property
+    def DecMech(self) -> global___Mechanism: ...
+    @property
+    def EncMech(self) -> global___Mechanism: ...
+    @property
+    def DecKey(self) -> global___KeyBlob: ...
+    @property
+    def EncKey(self) -> global___KeyBlob: ...
+    def __init__(
+        self,
+        *,
+        DecMech: global___Mechanism | None = ...,
+        EncMech: global___Mechanism | None = ...,
+        Ciphered: builtins.bytes = ...,
+        DecKey: global___KeyBlob | None = ...,
+        EncKey: global___KeyBlob | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["DecKey", b"DecKey", "DecMech", b"DecMech", "EncKey", b"EncKey", "EncMech", b"EncMech"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["Ciphered", b"Ciphered", "DecKey", b"DecKey", "DecMech", b"DecMech", "EncKey", b"EncKey", "EncMech", b"EncMech"]) -> None: ...
+
+global___ReencryptSingleRequest = ReencryptSingleRequest
+
+@typing.final
+class ReencryptSingleResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    RECIPHERED_FIELD_NUMBER: builtins.int
+    Reciphered: builtins.bytes
+    def __init__(
+        self,
+        *,
+        Reciphered: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Reciphered", b"Reciphered"]) -> None: ...
+
+global___ReencryptSingleResponse = ReencryptSingleResponse
+
+@typing.final
+class GenerateKeyRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing.final
+    class TemplateEntry(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        KEY_FIELD_NUMBER: builtins.int
+        VALUE_FIELD_NUMBER: builtins.int
+        key: builtins.int
+        @property
+        def value(self) -> global___AttributeValue: ...
+        def __init__(
+            self,
+            *,
+            key: builtins.int = ...,
+            value: global___AttributeValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing.Literal["value", b"value"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
+
+    MECH_FIELD_NUMBER: builtins.int
+    TEMPLATE_FIELD_NUMBER: builtins.int
+    @property
+    def Mech(self) -> global___Mechanism: ...
+    @property
+    def Template(self) -> google.protobuf.internal.containers.MessageMap[builtins.int, global___AttributeValue]: ...
+    def __init__(
+        self,
+        *,
+        Mech: global___Mechanism | None = ...,
+        Template: collections.abc.Mapping[builtins.int, global___AttributeValue] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["Mech", b"Mech"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["Mech", b"Mech", "Template", b"Template"]) -> None: ...
+
+global___GenerateKeyRequest = GenerateKeyRequest
+
+@typing.final
+class GenerateKeyResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    KEYBYTES_FIELD_NUMBER: builtins.int
+    CHECKSUM_FIELD_NUMBER: builtins.int
+    KEY_FIELD_NUMBER: builtins.int
+    KeyBytes: builtins.bytes
+    CheckSum: builtins.bytes
+    @property
+    def Key(self) -> global___KeyBlob: ...
+    def __init__(
+        self,
+        *,
+        KeyBytes: builtins.bytes = ...,
+        CheckSum: builtins.bytes = ...,
+        Key: global___KeyBlob | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["Key", b"Key"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["CheckSum", b"CheckSum", "Key", b"Key", "KeyBytes", b"KeyBytes"]) -> None: ...
+
+global___GenerateKeyResponse = GenerateKeyResponse
+
+@typing.final
+class GenerateKeyPairRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing.final
+    class PrivKeyTemplateEntry(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        KEY_FIELD_NUMBER: builtins.int
+        VALUE_FIELD_NUMBER: builtins.int
+        key: builtins.int
+        @property
+        def value(self) -> global___AttributeValue: ...
+        def __init__(
+            self,
+            *,
+            key: builtins.int = ...,
+            value: global___AttributeValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing.Literal["value", b"value"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
+
+    @typing.final
+    class PubKeyTemplateEntry(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        KEY_FIELD_NUMBER: builtins.int
+        VALUE_FIELD_NUMBER: builtins.int
+        key: builtins.int
+        @property
+        def value(self) -> global___AttributeValue: ...
+        def __init__(
+            self,
+            *,
+            key: builtins.int = ...,
+            value: global___AttributeValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing.Literal["value", b"value"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
+
+    MECH_FIELD_NUMBER: builtins.int
+    PRIVKEYTEMPLATE_FIELD_NUMBER: builtins.int
+    PUBKEYTEMPLATE_FIELD_NUMBER: builtins.int
+    @property
+    def Mech(self) -> global___Mechanism: ...
+    @property
+    def PrivKeyTemplate(self) -> google.protobuf.internal.containers.MessageMap[builtins.int, global___AttributeValue]: ...
+    @property
+    def PubKeyTemplate(self) -> google.protobuf.internal.containers.MessageMap[builtins.int, global___AttributeValue]: ...
+    def __init__(
+        self,
+        *,
+        Mech: global___Mechanism | None = ...,
+        PrivKeyTemplate: collections.abc.Mapping[builtins.int, global___AttributeValue] | None = ...,
+        PubKeyTemplate: collections.abc.Mapping[builtins.int, global___AttributeValue] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["Mech", b"Mech"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["Mech", b"Mech", "PrivKeyTemplate", b"PrivKeyTemplate", "PubKeyTemplate", b"PubKeyTemplate"]) -> None: ...
+
+global___GenerateKeyPairRequest = GenerateKeyPairRequest
+
+@typing.final
+class GenerateKeyPairResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    PRIVKEYBYTES_FIELD_NUMBER: builtins.int
+    PUBKEYBYTES_FIELD_NUMBER: builtins.int
+    PRIVKEY_FIELD_NUMBER: builtins.int
+    PUBKEY_FIELD_NUMBER: builtins.int
+    PrivKeyBytes: builtins.bytes
+    PubKeyBytes: builtins.bytes
+    @property
+    def PrivKey(self) -> global___KeyBlob: ...
+    @property
+    def PubKey(self) -> global___KeyBlob: ...
+    def __init__(
+        self,
+        *,
+        PrivKeyBytes: builtins.bytes = ...,
+        PubKeyBytes: builtins.bytes = ...,
+        PrivKey: global___KeyBlob | None = ...,
+        PubKey: global___KeyBlob | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["PrivKey", b"PrivKey", "PubKey", b"PubKey"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["PrivKey", b"PrivKey", "PrivKeyBytes", b"PrivKeyBytes", "PubKey", b"PubKey", "PubKeyBytes", b"PubKeyBytes"]) -> None: ...
+
+global___GenerateKeyPairResponse = GenerateKeyPairResponse
+
+@typing.final
+class WrapKeyRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    MECH_FIELD_NUMBER: builtins.int
+    KEY_FIELD_NUMBER: builtins.int
+    KEK_FIELD_NUMBER: builtins.int
+    MACKEY_FIELD_NUMBER: builtins.int
+    @property
+    def Mech(self) -> global___Mechanism: ...
+    @property
+    def Key(self) -> global___KeyBlob: ...
+    @property
+    def KeK(self) -> global___KeyBlob: ...
+    @property
+    def MacKey(self) -> global___KeyBlob: ...
+    def __init__(
+        self,
+        *,
+        Mech: global___Mechanism | None = ...,
+        Key: global___KeyBlob | None = ...,
+        KeK: global___KeyBlob | None = ...,
+        MacKey: global___KeyBlob | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["KeK", b"KeK", "Key", b"Key", "MacKey", b"MacKey", "Mech", b"Mech"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["KeK", b"KeK", "Key", b"Key", "MacKey", b"MacKey", "Mech", b"Mech"]) -> None: ...
+
+global___WrapKeyRequest = WrapKeyRequest
+
+@typing.final
+class WrapKeyResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    WRAPPED_FIELD_NUMBER: builtins.int
+    Wrapped: builtins.bytes
+    def __init__(
+        self,
+        *,
+        Wrapped: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Wrapped", b"Wrapped"]) -> None: ...
+
+global___WrapKeyResponse = WrapKeyResponse
+
+@typing.final
+class UnwrapKeyRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing.final
+    class TemplateEntry(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        KEY_FIELD_NUMBER: builtins.int
+        VALUE_FIELD_NUMBER: builtins.int
+        key: builtins.int
+        @property
+        def value(self) -> global___AttributeValue: ...
+        def __init__(
+            self,
+            *,
+            key: builtins.int = ...,
+            value: global___AttributeValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing.Literal["value", b"value"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
+
+    WRAPPED_FIELD_NUMBER: builtins.int
+    MECH_FIELD_NUMBER: builtins.int
+    TEMPLATE_FIELD_NUMBER: builtins.int
+    KEK_FIELD_NUMBER: builtins.int
+    MACKEY_FIELD_NUMBER: builtins.int
+    Wrapped: builtins.bytes
+    @property
+    def Mech(self) -> global___Mechanism: ...
+    @property
+    def Template(self) -> google.protobuf.internal.containers.MessageMap[builtins.int, global___AttributeValue]: ...
+    @property
+    def KeK(self) -> global___KeyBlob: ...
+    @property
+    def MacKey(self) -> global___KeyBlob: ...
+    def __init__(
+        self,
+        *,
+        Wrapped: builtins.bytes = ...,
+        Mech: global___Mechanism | None = ...,
+        Template: collections.abc.Mapping[builtins.int, global___AttributeValue] | None = ...,
+        KeK: global___KeyBlob | None = ...,
+        MacKey: global___KeyBlob | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["KeK", b"KeK", "MacKey", b"MacKey", "Mech", b"Mech"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["KeK", b"KeK", "MacKey", b"MacKey", "Mech", b"Mech", "Template", b"Template", "Wrapped", b"Wrapped"]) -> None: ...
+
+global___UnwrapKeyRequest = UnwrapKeyRequest
+
+@typing.final
+class UnwrapKeyResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    UNWRAPPEDBYTES_FIELD_NUMBER: builtins.int
+    CHECKSUM_FIELD_NUMBER: builtins.int
+    UNWRAPPED_FIELD_NUMBER: builtins.int
+    UnwrappedBytes: builtins.bytes
+    CheckSum: builtins.bytes
+    @property
+    def Unwrapped(self) -> global___KeyBlob: ...
+    def __init__(
+        self,
+        *,
+        UnwrappedBytes: builtins.bytes = ...,
+        CheckSum: builtins.bytes = ...,
+        Unwrapped: global___KeyBlob | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["Unwrapped", b"Unwrapped"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["CheckSum", b"CheckSum", "Unwrapped", b"Unwrapped", "UnwrappedBytes", b"UnwrappedBytes"]) -> None: ...
+
+global___UnwrapKeyResponse = UnwrapKeyResponse
+
+@typing.final
+class DeriveKeyRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing.final
+    class TemplateEntry(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        KEY_FIELD_NUMBER: builtins.int
+        VALUE_FIELD_NUMBER: builtins.int
+        key: builtins.int
+        @property
+        def value(self) -> global___AttributeValue: ...
+        def __init__(
+            self,
+            *,
+            key: builtins.int = ...,
+            value: global___AttributeValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing.Literal["value", b"value"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
+
+    MECH_FIELD_NUMBER: builtins.int
+    DATA_FIELD_NUMBER: builtins.int
+    TEMPLATE_FIELD_NUMBER: builtins.int
+    BASEKEY_FIELD_NUMBER: builtins.int
+    Data: builtins.bytes
+    @property
+    def Mech(self) -> global___Mechanism: ...
+    @property
+    def Template(self) -> google.protobuf.internal.containers.MessageMap[builtins.int, global___AttributeValue]: ...
+    @property
+    def BaseKey(self) -> global___KeyBlob: ...
+    def __init__(
+        self,
+        *,
+        Mech: global___Mechanism | None = ...,
+        Data: builtins.bytes = ...,
+        Template: collections.abc.Mapping[builtins.int, global___AttributeValue] | None = ...,
+        BaseKey: global___KeyBlob | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["BaseKey", b"BaseKey", "Mech", b"Mech"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["BaseKey", b"BaseKey", "Data", b"Data", "Mech", b"Mech", "Template", b"Template"]) -> None: ...
+
+global___DeriveKeyRequest = DeriveKeyRequest
+
+@typing.final
+class DeriveKeyResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    NEWKEYBYTES_FIELD_NUMBER: builtins.int
+    CHECKSUM_FIELD_NUMBER: builtins.int
+    NEWKEY_FIELD_NUMBER: builtins.int
+    NewKeyBytes: builtins.bytes
+    CheckSum: builtins.bytes
+    @property
+    def NewKey(self) -> global___KeyBlob: ...
+    def __init__(
+        self,
+        *,
+        NewKeyBytes: builtins.bytes = ...,
+        CheckSum: builtins.bytes = ...,
+        NewKey: global___KeyBlob | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["NewKey", b"NewKey"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["CheckSum", b"CheckSum", "NewKey", b"NewKey", "NewKeyBytes", b"NewKeyBytes"]) -> None: ...
+
+global___DeriveKeyResponse = DeriveKeyResponse
+
+@typing.final
+class GetMechanismListRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    def __init__(
+        self,
+    ) -> None: ...
+
+global___GetMechanismListRequest = GetMechanismListRequest
+
+@typing.final
+class GetMechanismListResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    MECHS_FIELD_NUMBER: builtins.int
+    @property
+    def Mechs(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
+    def __init__(
+        self,
+        *,
+        Mechs: collections.abc.Iterable[builtins.int] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Mechs", b"Mechs"]) -> None: ...
+
+global___GetMechanismListResponse = GetMechanismListResponse
+
+@typing.final
+class GetMechanismInfoRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    MECH_FIELD_NUMBER: builtins.int
+    Mech: builtins.int
+    def __init__(
+        self,
+        *,
+        Mech: builtins.int = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Mech", b"Mech"]) -> None: ...
+
+global___GetMechanismInfoRequest = GetMechanismInfoRequest
+
+@typing.final
+class GetMechanismInfoResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    MECHINFO_FIELD_NUMBER: builtins.int
+    @property
+    def MechInfo(self) -> global___MechanismInfo: ...
+    def __init__(
+        self,
+        *,
+        MechInfo: global___MechanismInfo | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["MechInfo", b"MechInfo"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["MechInfo", b"MechInfo"]) -> None: ...
+
+global___GetMechanismInfoResponse = GetMechanismInfoResponse
+
+@typing.final
+class GetAttributeValueRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing.final
+    class AttributesBytesEntry(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        KEY_FIELD_NUMBER: builtins.int
+        VALUE_FIELD_NUMBER: builtins.int
+        key: builtins.int
+        value: builtins.bytes
+        def __init__(
+            self,
+            *,
+            key: builtins.int = ...,
+            value: builtins.bytes = ...,
+        ) -> None: ...
+        def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
+
+    @typing.final
+    class AttributesEntry(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        KEY_FIELD_NUMBER: builtins.int
+        VALUE_FIELD_NUMBER: builtins.int
+        key: builtins.int
+        @property
+        def value(self) -> global___AttributeValue: ...
+        def __init__(
+            self,
+            *,
+            key: builtins.int = ...,
+            value: global___AttributeValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing.Literal["value", b"value"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
+
+    OBJECT_FIELD_NUMBER: builtins.int
+    ATTRIBUTESBYTES_FIELD_NUMBER: builtins.int
+    ATTRIBUTES_FIELD_NUMBER: builtins.int
+    Object: builtins.bytes
+    @property
+    def AttributesBytes(self) -> google.protobuf.internal.containers.ScalarMap[builtins.int, builtins.bytes]: ...
+    @property
+    def Attributes(self) -> google.protobuf.internal.containers.MessageMap[builtins.int, global___AttributeValue]: ...
+    def __init__(
+        self,
+        *,
+        Object: builtins.bytes = ...,
+        AttributesBytes: collections.abc.Mapping[builtins.int, builtins.bytes] | None = ...,
+        Attributes: collections.abc.Mapping[builtins.int, global___AttributeValue] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Attributes", b"Attributes", "AttributesBytes", b"AttributesBytes", "Object", b"Object"]) -> None: ...
+
+global___GetAttributeValueRequest = GetAttributeValueRequest
+
+@typing.final
+class GetAttributeValueResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing.final
+    class AttributesBytesEntry(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        KEY_FIELD_NUMBER: builtins.int
+        VALUE_FIELD_NUMBER: builtins.int
+        key: builtins.int
+        value: builtins.bytes
+        def __init__(
+            self,
+            *,
+            key: builtins.int = ...,
+            value: builtins.bytes = ...,
+        ) -> None: ...
+        def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
+
+    @typing.final
+    class AttributesEntry(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        KEY_FIELD_NUMBER: builtins.int
+        VALUE_FIELD_NUMBER: builtins.int
+        key: builtins.int
+        @property
+        def value(self) -> global___AttributeValue: ...
+        def __init__(
+            self,
+            *,
+            key: builtins.int = ...,
+            value: global___AttributeValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing.Literal["value", b"value"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
+
+    ATTRIBUTESBYTES_FIELD_NUMBER: builtins.int
+    ATTRIBUTES_FIELD_NUMBER: builtins.int
+    @property
+    def AttributesBytes(self) -> google.protobuf.internal.containers.ScalarMap[builtins.int, builtins.bytes]: ...
+    @property
+    def Attributes(self) -> google.protobuf.internal.containers.MessageMap[builtins.int, global___AttributeValue]: ...
+    def __init__(
+        self,
+        *,
+        AttributesBytes: collections.abc.Mapping[builtins.int, builtins.bytes] | None = ...,
+        Attributes: collections.abc.Mapping[builtins.int, global___AttributeValue] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Attributes", b"Attributes", "AttributesBytes", b"AttributesBytes"]) -> None: ...
+
+global___GetAttributeValueResponse = GetAttributeValueResponse
+
+@typing.final
+class SetAttributeValueRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing.final
+    class AttributesEntry(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        KEY_FIELD_NUMBER: builtins.int
+        VALUE_FIELD_NUMBER: builtins.int
+        key: builtins.int
+        @property
+        def value(self) -> global___AttributeValue: ...
+        def __init__(
+            self,
+            *,
+            key: builtins.int = ...,
+            value: global___AttributeValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing.Literal["value", b"value"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
+
+    OBJECT_FIELD_NUMBER: builtins.int
+    ATTRIBUTES_FIELD_NUMBER: builtins.int
+    Object: builtins.bytes
+    @property
+    def Attributes(self) -> google.protobuf.internal.containers.MessageMap[builtins.int, global___AttributeValue]: ...
+    def __init__(
+        self,
+        *,
+        Object: builtins.bytes = ...,
+        Attributes: collections.abc.Mapping[builtins.int, global___AttributeValue] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Attributes", b"Attributes", "Object", b"Object"]) -> None: ...
+
+global___SetAttributeValueRequest = SetAttributeValueRequest
+
+@typing.final
+class SetAttributeValueResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    OBJECT_FIELD_NUMBER: builtins.int
+    Object: builtins.bytes
+    def __init__(
+        self,
+        *,
+        Object: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Object", b"Object"]) -> None: ...
+
+global___SetAttributeValueResponse = SetAttributeValueResponse
+
+@typing.final
+class LoginRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    STOREID_FIELD_NUMBER: builtins.int
+    PIN_FIELD_NUMBER: builtins.int
+    Storeid: builtins.bytes
+    Pin: builtins.bytes
+    def __init__(
+        self,
+        *,
+        Storeid: builtins.bytes = ...,
+        Pin: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Pin", b"Pin", "Storeid", b"Storeid"]) -> None: ...
+
+global___LoginRequest = LoginRequest
+
+@typing.final
+class LoginResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    PINBLOB_FIELD_NUMBER: builtins.int
+    Pinblob: builtins.bytes
+    def __init__(
+        self,
+        *,
+        Pinblob: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Pinblob", b"Pinblob"]) -> None: ...
+
+global___LoginResponse = LoginResponse
+
+@typing.final
+class LogoutRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    def __init__(
+        self,
+    ) -> None: ...
+
+global___LogoutRequest = LogoutRequest
+
+@typing.final
+class LogoutResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    def __init__(
+        self,
+    ) -> None: ...
+
+global___LogoutResponse = LogoutResponse
+
+@typing.final
+class Mechanism(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    MECHANISM_FIELD_NUMBER: builtins.int
+    PARAMETERB_FIELD_NUMBER: builtins.int
+    RSAOAEPPARAMETER_FIELD_NUMBER: builtins.int
+    RSAPSSPARAMETER_FIELD_NUMBER: builtins.int
+    ECDH1DERIVEPARAMETER_FIELD_NUMBER: builtins.int
+    BTCDERIVEPARAMETER_FIELD_NUMBER: builtins.int
+    ECSGPARAMETER_FIELD_NUMBER: builtins.int
+    KYBERKEMPARAMETER_FIELD_NUMBER: builtins.int
+    ECAGGPARAMETER_FIELD_NUMBER: builtins.int
+    Mechanism: builtins.int
+    ParameterB: builtins.bytes
+    @property
+    def RSAOAEPParameter(self) -> global___RSAOAEPParm: ...
+    @property
+    def RSAPSSParameter(self) -> global___RSAPSSParm: ...
+    @property
+    def ECDH1DeriveParameter(self) -> global___ECDH1DeriveParm: ...
+    @property
+    def BTCDeriveParameter(self) -> global___BTCDeriveParm: ...
+    @property
+    def ECSGParameter(self) -> global___ECSGParm: ...
+    @property
+    def KyberKEMParameter(self) -> global___KyberKEMParm: ...
+    @property
+    def ECAGGParameter(self) -> global___ECAGGParm: ...
+    def __init__(
+        self,
+        *,
+        Mechanism: builtins.int = ...,
+        ParameterB: builtins.bytes = ...,
+        RSAOAEPParameter: global___RSAOAEPParm | None = ...,
+        RSAPSSParameter: global___RSAPSSParm | None = ...,
+        ECDH1DeriveParameter: global___ECDH1DeriveParm | None = ...,
+        BTCDeriveParameter: global___BTCDeriveParm | None = ...,
+        ECSGParameter: global___ECSGParm | None = ...,
+        KyberKEMParameter: global___KyberKEMParm | None = ...,
+        ECAGGParameter: global___ECAGGParm | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["BTCDeriveParameter", b"BTCDeriveParameter", "ECAGGParameter", b"ECAGGParameter", "ECDH1DeriveParameter", b"ECDH1DeriveParameter", "ECSGParameter", b"ECSGParameter", "KyberKEMParameter", b"KyberKEMParameter", "Parameter", b"Parameter", "ParameterB", b"ParameterB", "RSAOAEPParameter", b"RSAOAEPParameter", "RSAPSSParameter", b"RSAPSSParameter"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["BTCDeriveParameter", b"BTCDeriveParameter", "ECAGGParameter", b"ECAGGParameter", "ECDH1DeriveParameter", b"ECDH1DeriveParameter", "ECSGParameter", b"ECSGParameter", "KyberKEMParameter", b"KyberKEMParameter", "Mechanism", b"Mechanism", "Parameter", b"Parameter", "ParameterB", b"ParameterB", "RSAOAEPParameter", b"RSAOAEPParameter", "RSAPSSParameter", b"RSAPSSParameter"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["Parameter", b"Parameter"]) -> typing.Literal["ParameterB", "RSAOAEPParameter", "RSAPSSParameter", "ECDH1DeriveParameter", "BTCDeriveParameter", "ECSGParameter", "KyberKEMParameter", "ECAGGParameter"] | None: ...
+
+global___Mechanism = Mechanism
+
+@typing.final
+class MechanismInfo(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    MINKEYSIZE_FIELD_NUMBER: builtins.int
+    MAXKEYSIZE_FIELD_NUMBER: builtins.int
+    FLAGS_FIELD_NUMBER: builtins.int
+    MinKeySize: builtins.int
+    MaxKeySize: builtins.int
+    Flags: builtins.int
+    def __init__(
+        self,
+        *,
+        MinKeySize: builtins.int = ...,
+        MaxKeySize: builtins.int = ...,
+        Flags: builtins.int = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Flags", b"Flags", "MaxKeySize", b"MaxKeySize", "MinKeySize", b"MinKeySize"]) -> None: ...
+
+global___MechanismInfo = MechanismInfo
+
+@typing.final
+class RSAOAEPParm(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    class _Mask:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _MaskEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[RSAOAEPParm._Mask.ValueType], builtins.type):
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        CkgMgf1None: RSAOAEPParm._Mask.ValueType  # 0
+        CkgMgf1Sha1: RSAOAEPParm._Mask.ValueType  # 1
+        CkgMgf1Sha256: RSAOAEPParm._Mask.ValueType  # 2
+        CkgMgf1Sha384: RSAOAEPParm._Mask.ValueType  # 3
+        CkgMgf1Sha512: RSAOAEPParm._Mask.ValueType  # 4
+        CkgMgf1Sha224: RSAOAEPParm._Mask.ValueType  # 5
+        CkgIbmMgf1Sha3_224: RSAOAEPParm._Mask.ValueType  # 8388609
+        CkgIbmMgf1Sha3_256: RSAOAEPParm._Mask.ValueType  # 8388610
+        CkgIbmMgf1Sha3_384: RSAOAEPParm._Mask.ValueType  # 8388611
+        CkgIbmMgf1Sha3_512: RSAOAEPParm._Mask.ValueType  # 8388612
+
+    class Mask(_Mask, metaclass=_MaskEnumTypeWrapper): ...
+    CkgMgf1None: RSAOAEPParm.Mask.ValueType  # 0
+    CkgMgf1Sha1: RSAOAEPParm.Mask.ValueType  # 1
+    CkgMgf1Sha256: RSAOAEPParm.Mask.ValueType  # 2
+    CkgMgf1Sha384: RSAOAEPParm.Mask.ValueType  # 3
+    CkgMgf1Sha512: RSAOAEPParm.Mask.ValueType  # 4
+    CkgMgf1Sha224: RSAOAEPParm.Mask.ValueType  # 5
+    CkgIbmMgf1Sha3_224: RSAOAEPParm.Mask.ValueType  # 8388609
+    CkgIbmMgf1Sha3_256: RSAOAEPParm.Mask.ValueType  # 8388610
+    CkgIbmMgf1Sha3_384: RSAOAEPParm.Mask.ValueType  # 8388611
+    CkgIbmMgf1Sha3_512: RSAOAEPParm.Mask.ValueType  # 8388612
+
+    class _ParmType:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _ParmTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[RSAOAEPParm._ParmType.ValueType], builtins.type):
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        CkzNoDataSpecified: RSAOAEPParm._ParmType.ValueType  # 0
+        CkzDataSpecifiied: RSAOAEPParm._ParmType.ValueType  # 1
+
+    class ParmType(_ParmType, metaclass=_ParmTypeEnumTypeWrapper): ...
+    CkzNoDataSpecified: RSAOAEPParm.ParmType.ValueType  # 0
+    CkzDataSpecifiied: RSAOAEPParm.ParmType.ValueType  # 1
+
+    HASHMECH_FIELD_NUMBER: builtins.int
+    MGF_FIELD_NUMBER: builtins.int
+    ENCODINGPARMTYPE_FIELD_NUMBER: builtins.int
+    ENCODINGPARM_FIELD_NUMBER: builtins.int
+    HashMech: builtins.int
+    Mgf: global___RSAOAEPParm.Mask.ValueType
+    EncodingParmType: global___RSAOAEPParm.ParmType.ValueType
+    EncodingParm: builtins.bytes
+    def __init__(
+        self,
+        *,
+        HashMech: builtins.int = ...,
+        Mgf: global___RSAOAEPParm.Mask.ValueType = ...,
+        EncodingParmType: global___RSAOAEPParm.ParmType.ValueType = ...,
+        EncodingParm: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["EncodingParm", b"EncodingParm", "EncodingParmType", b"EncodingParmType", "HashMech", b"HashMech", "Mgf", b"Mgf"]) -> None: ...
+
+global___RSAOAEPParm = RSAOAEPParm
+
+@typing.final
+class RSAPSSParm(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    class _Mask:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _MaskEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[RSAPSSParm._Mask.ValueType], builtins.type):
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        CkgMgf1None: RSAPSSParm._Mask.ValueType  # 0
+        CkgMgf1Sha1: RSAPSSParm._Mask.ValueType  # 1
+        CkgMgf1Sha256: RSAPSSParm._Mask.ValueType  # 2
+        CkgMgf1Sha384: RSAPSSParm._Mask.ValueType  # 3
+        CkgMgf1Sha512: RSAPSSParm._Mask.ValueType  # 4
+        CkgMgf1Sha224: RSAPSSParm._Mask.ValueType  # 5
+        CkgIbmMgf1Sha3_224: RSAPSSParm._Mask.ValueType  # 8388609
+        CkgIbmMgf1Sha3_256: RSAPSSParm._Mask.ValueType  # 8388610
+        CkgIbmMgf1Sha3_384: RSAPSSParm._Mask.ValueType  # 8388611
+        CkgIbmMgf1Sha3_512: RSAPSSParm._Mask.ValueType  # 8388612
+
+    class Mask(_Mask, metaclass=_MaskEnumTypeWrapper): ...
+    CkgMgf1None: RSAPSSParm.Mask.ValueType  # 0
+    CkgMgf1Sha1: RSAPSSParm.Mask.ValueType  # 1
+    CkgMgf1Sha256: RSAPSSParm.Mask.ValueType  # 2
+    CkgMgf1Sha384: RSAPSSParm.Mask.ValueType  # 3
+    CkgMgf1Sha512: RSAPSSParm.Mask.ValueType  # 4
+    CkgMgf1Sha224: RSAPSSParm.Mask.ValueType  # 5
+    CkgIbmMgf1Sha3_224: RSAPSSParm.Mask.ValueType  # 8388609
+    CkgIbmMgf1Sha3_256: RSAPSSParm.Mask.ValueType  # 8388610
+    CkgIbmMgf1Sha3_384: RSAPSSParm.Mask.ValueType  # 8388611
+    CkgIbmMgf1Sha3_512: RSAPSSParm.Mask.ValueType  # 8388612
+
+    HASHMECH_FIELD_NUMBER: builtins.int
+    MGF_FIELD_NUMBER: builtins.int
+    SALTBYTECOUNT_FIELD_NUMBER: builtins.int
+    HashMech: builtins.int
+    Mgf: global___RSAPSSParm.Mask.ValueType
+    SaltByteCount: builtins.int
+    def __init__(
+        self,
+        *,
+        HashMech: builtins.int = ...,
+        Mgf: global___RSAPSSParm.Mask.ValueType = ...,
+        SaltByteCount: builtins.int = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["HashMech", b"HashMech", "Mgf", b"Mgf", "SaltByteCount", b"SaltByteCount"]) -> None: ...
+
+global___RSAPSSParm = RSAPSSParm
+
+@typing.final
+class ECDH1DeriveParm(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    class _KeyDerivationFunction:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _KeyDerivationFunctionEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[ECDH1DeriveParm._KeyDerivationFunction.ValueType], builtins.type):
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        CkdNotUsed0: ECDH1DeriveParm._KeyDerivationFunction.ValueType  # 0
+        CkdNull: ECDH1DeriveParm._KeyDerivationFunction.ValueType  # 1
+        CkdSha1Kdf: ECDH1DeriveParm._KeyDerivationFunction.ValueType  # 2
+        CkdNotUsed3: ECDH1DeriveParm._KeyDerivationFunction.ValueType  # 3
+        CkdNotUsed4: ECDH1DeriveParm._KeyDerivationFunction.ValueType  # 4
+        CkdSha224Kdf: ECDH1DeriveParm._KeyDerivationFunction.ValueType  # 5
+        CkdSha256Kdf: ECDH1DeriveParm._KeyDerivationFunction.ValueType  # 6
+        CkdSha384Kdf: ECDH1DeriveParm._KeyDerivationFunction.ValueType  # 7
+        CkdSha512Kdf: ECDH1DeriveParm._KeyDerivationFunction.ValueType  # 8
+        CkdIbmHybridNull: ECDH1DeriveParm._KeyDerivationFunction.ValueType  # 8388609
+
+    class KeyDerivationFunction(_KeyDerivationFunction, metaclass=_KeyDerivationFunctionEnumTypeWrapper): ...
+    CkdNotUsed0: ECDH1DeriveParm.KeyDerivationFunction.ValueType  # 0
+    CkdNull: ECDH1DeriveParm.KeyDerivationFunction.ValueType  # 1
+    CkdSha1Kdf: ECDH1DeriveParm.KeyDerivationFunction.ValueType  # 2
+    CkdNotUsed3: ECDH1DeriveParm.KeyDerivationFunction.ValueType  # 3
+    CkdNotUsed4: ECDH1DeriveParm.KeyDerivationFunction.ValueType  # 4
+    CkdSha224Kdf: ECDH1DeriveParm.KeyDerivationFunction.ValueType  # 5
+    CkdSha256Kdf: ECDH1DeriveParm.KeyDerivationFunction.ValueType  # 6
+    CkdSha384Kdf: ECDH1DeriveParm.KeyDerivationFunction.ValueType  # 7
+    CkdSha512Kdf: ECDH1DeriveParm.KeyDerivationFunction.ValueType  # 8
+    CkdIbmHybridNull: ECDH1DeriveParm.KeyDerivationFunction.ValueType  # 8388609
+
+    KDF_FIELD_NUMBER: builtins.int
+    SHAREDDATA_FIELD_NUMBER: builtins.int
+    PUBLICDATA_FIELD_NUMBER: builtins.int
+    Kdf: global___ECDH1DeriveParm.KeyDerivationFunction.ValueType
+    SharedData: builtins.bytes
+    PublicData: builtins.bytes
+    def __init__(
+        self,
+        *,
+        Kdf: global___ECDH1DeriveParm.KeyDerivationFunction.ValueType = ...,
+        SharedData: builtins.bytes = ...,
+        PublicData: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Kdf", b"Kdf", "PublicData", b"PublicData", "SharedData", b"SharedData"]) -> None: ...
+
+global___ECDH1DeriveParm = ECDH1DeriveParm
+
+@typing.final
+class BTCDeriveParm(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    class _BTCDeriveType:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _BTCDeriveTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[BTCDeriveParm._BTCDeriveType.ValueType], builtins.type):
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        CkBIP0032NotUsed: BTCDeriveParm._BTCDeriveType.ValueType  # 0
+        CkBIP0032PRV2PRV: BTCDeriveParm._BTCDeriveType.ValueType  # 1
+        CkBIP0032PRV2PUB: BTCDeriveParm._BTCDeriveType.ValueType  # 2
+        CkBIP0032PUB2PUB: BTCDeriveParm._BTCDeriveType.ValueType  # 3
+        CkBIP0032MASTERK: BTCDeriveParm._BTCDeriveType.ValueType  # 4
+        CkSLIP0010PRV2PRV: BTCDeriveParm._BTCDeriveType.ValueType  # 5
+        CkSLIP0010PRV2PUB: BTCDeriveParm._BTCDeriveType.ValueType  # 6
+        CkSLIP0010PUB2PUB: BTCDeriveParm._BTCDeriveType.ValueType  # 7
+        CkSLIP0010MASTERK: BTCDeriveParm._BTCDeriveType.ValueType  # 8
+
+    class BTCDeriveType(_BTCDeriveType, metaclass=_BTCDeriveTypeEnumTypeWrapper): ...
+    CkBIP0032NotUsed: BTCDeriveParm.BTCDeriveType.ValueType  # 0
+    CkBIP0032PRV2PRV: BTCDeriveParm.BTCDeriveType.ValueType  # 1
+    CkBIP0032PRV2PUB: BTCDeriveParm.BTCDeriveType.ValueType  # 2
+    CkBIP0032PUB2PUB: BTCDeriveParm.BTCDeriveType.ValueType  # 3
+    CkBIP0032MASTERK: BTCDeriveParm.BTCDeriveType.ValueType  # 4
+    CkSLIP0010PRV2PRV: BTCDeriveParm.BTCDeriveType.ValueType  # 5
+    CkSLIP0010PRV2PUB: BTCDeriveParm.BTCDeriveType.ValueType  # 6
+    CkSLIP0010PUB2PUB: BTCDeriveParm.BTCDeriveType.ValueType  # 7
+    CkSLIP0010MASTERK: BTCDeriveParm.BTCDeriveType.ValueType  # 8
+
+    TYPE_FIELD_NUMBER: builtins.int
+    CHILDKEYINDEX_FIELD_NUMBER: builtins.int
+    CHAINCODE_FIELD_NUMBER: builtins.int
+    VERSION_FIELD_NUMBER: builtins.int
+    Type: global___BTCDeriveParm.BTCDeriveType.ValueType
+    ChildKeyIndex: builtins.int
+    ChainCode: builtins.bytes
+    Version: builtins.int
+    def __init__(
+        self,
+        *,
+        Type: global___BTCDeriveParm.BTCDeriveType.ValueType = ...,
+        ChildKeyIndex: builtins.int = ...,
+        ChainCode: builtins.bytes = ...,
+        Version: builtins.int = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["ChainCode", b"ChainCode", "ChildKeyIndex", b"ChildKeyIndex", "Type", b"Type", "Version", b"Version"]) -> None: ...
+
+global___BTCDeriveParm = BTCDeriveParm
+
+@typing.final
+class ECSGParm(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    class _ECSGType:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _ECSGTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[ECSGParm._ECSGType.ValueType], builtins.type):
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        CkEcsgIbmNotUsed: ECSGParm._ECSGType.ValueType  # 0
+        CkEcsgIbmEcsdsaS256: ECSGParm._ECSGType.ValueType  # 3
+        CkEcsgIbmEcsdsaComprMulti: ECSGParm._ECSGType.ValueType  # 5
+        CkEcsgIbmBls: ECSGParm._ECSGType.ValueType  # 6
+
+    class ECSGType(_ECSGType, metaclass=_ECSGTypeEnumTypeWrapper): ...
+    CkEcsgIbmNotUsed: ECSGParm.ECSGType.ValueType  # 0
+    CkEcsgIbmEcsdsaS256: ECSGParm.ECSGType.ValueType  # 3
+    CkEcsgIbmEcsdsaComprMulti: ECSGParm.ECSGType.ValueType  # 5
+    CkEcsgIbmBls: ECSGParm.ECSGType.ValueType  # 6
+
+    TYPE_FIELD_NUMBER: builtins.int
+    Type: global___ECSGParm.ECSGType.ValueType
+    def __init__(
+        self,
+        *,
+        Type: global___ECSGParm.ECSGType.ValueType = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Type", b"Type"]) -> None: ...
+
+global___ECSGParm = ECSGParm
+
+@typing.final
+class ECAGGParm(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    class _ECAGGMode:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _ECAGGModeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[ECAGGParm._ECAGGMode.ValueType], builtins.type):
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        CkIbmEcAggInvalid: ECAGGParm._ECAGGMode.ValueType  # 0
+        CkIbmEcAggBLS12_381Sign: ECAGGParm._ECAGGMode.ValueType  # 1
+        CkIbmEcAggBLS12_381Pkey: ECAGGParm._ECAGGMode.ValueType  # 2
+
+    class ECAGGMode(_ECAGGMode, metaclass=_ECAGGModeEnumTypeWrapper): ...
+    CkIbmEcAggInvalid: ECAGGParm.ECAGGMode.ValueType  # 0
+    CkIbmEcAggBLS12_381Sign: ECAGGParm.ECAGGMode.ValueType  # 1
+    CkIbmEcAggBLS12_381Pkey: ECAGGParm.ECAGGMode.ValueType  # 2
+
+    VERSION_FIELD_NUMBER: builtins.int
+    MODE_FIELD_NUMBER: builtins.int
+    PERELEMENTSIZE_FIELD_NUMBER: builtins.int
+    ELEMENTS_FIELD_NUMBER: builtins.int
+    Version: builtins.int
+    Mode: global___ECAGGParm.ECAGGMode.ValueType
+    PerElementSize: builtins.int
+    Elements: builtins.bytes
+    def __init__(
+        self,
+        *,
+        Version: builtins.int = ...,
+        Mode: global___ECAGGParm.ECAGGMode.ValueType = ...,
+        PerElementSize: builtins.int = ...,
+        Elements: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Elements", b"Elements", "Mode", b"Mode", "PerElementSize", b"PerElementSize", "Version", b"Version"]) -> None: ...
+
+global___ECAGGParm = ECAGGParm
+
+@typing.final
+class KyberKEMParm(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    class _KyberMode:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _KyberModeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[KyberKEMParm._KyberMode.ValueType], builtins.type):
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        CkNotUsed: KyberKEMParm._KyberMode.ValueType  # 0
+        CkIbmKEMEncapsulate: KyberKEMParm._KyberMode.ValueType  # 1
+        CkIbmKEMDecapsulate: KyberKEMParm._KyberMode.ValueType  # 2
+
+    class KyberMode(_KyberMode, metaclass=_KyberModeEnumTypeWrapper): ...
+    CkNotUsed: KyberKEMParm.KyberMode.ValueType  # 0
+    CkIbmKEMEncapsulate: KyberKEMParm.KyberMode.ValueType  # 1
+    CkIbmKEMDecapsulate: KyberKEMParm.KyberMode.ValueType  # 2
+
+    class _KyberDeriveType:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _KyberDeriveTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[KyberKEMParm._KyberDeriveType.ValueType], builtins.type):
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        CkdNotUsed: KyberKEMParm._KyberDeriveType.ValueType  # 0
+        CkdNull: KyberKEMParm._KyberDeriveType.ValueType  # 1
+        CkdIbmHybridNull: KyberKEMParm._KyberDeriveType.ValueType  # 8388609
+        CkdIbmHybridSha1Kdf: KyberKEMParm._KyberDeriveType.ValueType  # 8388610
+        CkdIbmHybridSha224Kdf: KyberKEMParm._KyberDeriveType.ValueType  # 8388611
+        CkdIbmHybridSha256Kdf: KyberKEMParm._KyberDeriveType.ValueType  # 8388612
+        CkdIbmHybridSha384Kdf: KyberKEMParm._KyberDeriveType.ValueType  # 8388613
+        CkdIbmHybridSha512Kdf: KyberKEMParm._KyberDeriveType.ValueType  # 8388614
+
+    class KyberDeriveType(_KyberDeriveType, metaclass=_KyberDeriveTypeEnumTypeWrapper): ...
+    CkdNotUsed: KyberKEMParm.KyberDeriveType.ValueType  # 0
+    CkdNull: KyberKEMParm.KyberDeriveType.ValueType  # 1
+    CkdIbmHybridNull: KyberKEMParm.KyberDeriveType.ValueType  # 8388609
+    CkdIbmHybridSha1Kdf: KyberKEMParm.KyberDeriveType.ValueType  # 8388610
+    CkdIbmHybridSha224Kdf: KyberKEMParm.KyberDeriveType.ValueType  # 8388611
+    CkdIbmHybridSha256Kdf: KyberKEMParm.KyberDeriveType.ValueType  # 8388612
+    CkdIbmHybridSha384Kdf: KyberKEMParm.KyberDeriveType.ValueType  # 8388613
+    CkdIbmHybridSha512Kdf: KyberKEMParm.KyberDeriveType.ValueType  # 8388614
+
+    VERSION_FIELD_NUMBER: builtins.int
+    MODE_FIELD_NUMBER: builtins.int
+    KDF_FIELD_NUMBER: builtins.int
+    PREPEND_FIELD_NUMBER: builtins.int
+    CIPHERTEXT_FIELD_NUMBER: builtins.int
+    SHAREDDATA_FIELD_NUMBER: builtins.int
+    BLOB_FIELD_NUMBER: builtins.int
+    Version: builtins.int
+    Mode: global___KyberKEMParm.KyberMode.ValueType
+    Kdf: global___KyberKEMParm.KyberDeriveType.ValueType
+    Prepend: builtins.bool
+    CipherText: builtins.bytes
+    SharedData: builtins.bytes
+    Blob: builtins.bytes
+    def __init__(
+        self,
+        *,
+        Version: builtins.int = ...,
+        Mode: global___KyberKEMParm.KyberMode.ValueType = ...,
+        Kdf: global___KyberKEMParm.KyberDeriveType.ValueType = ...,
+        Prepend: builtins.bool = ...,
+        CipherText: builtins.bytes = ...,
+        SharedData: builtins.bytes = ...,
+        Blob: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Blob", b"Blob", "CipherText", b"CipherText", "Kdf", b"Kdf", "Mode", b"Mode", "Prepend", b"Prepend", "SharedData", b"SharedData", "Version", b"Version"]) -> None: ...
+
+global___KyberKEMParm = KyberKEMParm
+
+@typing.final
+class HMACGeneralParm(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    RETURNBYTECOUNT_FIELD_NUMBER: builtins.int
+    ReturnByteCount: builtins.int
+    def __init__(
+        self,
+        *,
+        ReturnByteCount: builtins.int = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["ReturnByteCount", b"ReturnByteCount"]) -> None: ...
+
+global___HMACGeneralParm = HMACGeneralParm
+
+@typing.final
+class RewrapKeyBlobRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    WRAPPEDKEYBYTES_FIELD_NUMBER: builtins.int
+    WRAPPEDKEY_FIELD_NUMBER: builtins.int
+    WrappedKeyBytes: builtins.bytes
+    @property
+    def WrappedKey(self) -> global___KeyBlob: ...
+    def __init__(
+        self,
+        *,
+        WrappedKeyBytes: builtins.bytes = ...,
+        WrappedKey: global___KeyBlob | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["WrappedKey", b"WrappedKey"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["WrappedKey", b"WrappedKey", "WrappedKeyBytes", b"WrappedKeyBytes"]) -> None: ...
+
+global___RewrapKeyBlobRequest = RewrapKeyBlobRequest
+
+@typing.final
+class RewrapKeyBlobResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    REWRAPPEDKEYBYTES_FIELD_NUMBER: builtins.int
+    REWRAPPEDKEY_FIELD_NUMBER: builtins.int
+    RewrappedKeyBytes: builtins.bytes
+    @property
+    def RewrappedKey(self) -> global___KeyBlob: ...
+    def __init__(
+        self,
+        *,
+        RewrappedKeyBytes: builtins.bytes = ...,
+        RewrappedKey: global___KeyBlob | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["RewrappedKey", b"RewrappedKey"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["RewrappedKey", b"RewrappedKey", "RewrappedKeyBytes", b"RewrappedKeyBytes"]) -> None: ...
+
+global___RewrapKeyBlobResponse = RewrapKeyBlobResponse
+
+@typing.final
+class AttributeValue(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    ATTRIBUTEB_FIELD_NUMBER: builtins.int
+    ATTRIBUTETF_FIELD_NUMBER: builtins.int
+    ATTRIBUTEI_FIELD_NUMBER: builtins.int
+    AttributeB: builtins.bytes
+    AttributeTF: builtins.bool
+    AttributeI: builtins.int
+    def __init__(
+        self,
+        *,
+        AttributeB: builtins.bytes = ...,
+        AttributeTF: builtins.bool = ...,
+        AttributeI: builtins.int = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["AttributeB", b"AttributeB", "AttributeI", b"AttributeI", "AttributeTF", b"AttributeTF", "one_attr", b"one_attr"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["AttributeB", b"AttributeB", "AttributeI", b"AttributeI", "AttributeTF", b"AttributeTF", "one_attr", b"one_attr"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["one_attr", b"one_attr"]) -> typing.Literal["AttributeB", "AttributeTF", "AttributeI"] | None: ...
+
+global___AttributeValue = AttributeValue
+
+@typing.final
+class KeyBlob(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing.final
+    class AttributesEntry(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        KEY_FIELD_NUMBER: builtins.int
+        VALUE_FIELD_NUMBER: builtins.int
+        key: builtins.int
+        @property
+        def value(self) -> global___AttributeValue: ...
+        def __init__(
+            self,
+            *,
+            key: builtins.int = ...,
+            value: global___AttributeValue | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing.Literal["value", b"value"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
+
+    KEYBLOBID_FIELD_NUMBER: builtins.int
+    VERSION_FIELD_NUMBER: builtins.int
+    TXID_FIELD_NUMBER: builtins.int
+    ATTRIBUTES_FIELD_NUMBER: builtins.int
+    KEYBLOBS_FIELD_NUMBER: builtins.int
+    KeyBlobID: builtins.bytes
+    """UUID"""
+    Version: builtins.int
+    """Incrementing version counter ("Lamport timer"), to prevent inter-client races"""
+    TxID: builtins.bytes
+    """Random 'version', to detect replays on same client"""
+    @property
+    def Attributes(self) -> google.protobuf.internal.containers.MessageMap[builtins.int, global___AttributeValue]: ...
+    @property
+    def KeyBlobs(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.bytes]: ...
+    def __init__(
+        self,
+        *,
+        KeyBlobID: builtins.bytes = ...,
+        Version: builtins.int = ...,
+        TxID: builtins.bytes = ...,
+        Attributes: collections.abc.Mapping[builtins.int, global___AttributeValue] | None = ...,
+        KeyBlobs: collections.abc.Iterable[builtins.bytes] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Attributes", b"Attributes", "KeyBlobID", b"KeyBlobID", "KeyBlobs", b"KeyBlobs", "TxID", b"TxID", "Version", b"Version"]) -> None: ...
+
+global___KeyBlob = KeyBlob

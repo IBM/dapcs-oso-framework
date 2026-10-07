@@ -15,6 +15,8 @@
 #
 
 
+import contextlib
+
 from abc import ABC
 from inspect import isabstract
 from collections.abc import Mapping, MutableMapping, Sequence
@@ -72,20 +74,12 @@ class _EnvSourceListSupport(EnvSettingsSource):
                 # Nested BaseModel
                 for k, v in anno.model_fields.items():
                     o = get_origin(v.annotation)
-                    # Only index-keyed dicts; ``Json[list]`` fields arrive as str
-                    if (
-                        isinstance(o, type)
-                        and issubclass(o, Sequence)
-                        and isinstance(prepared.get(k), dict)
-                    ):
-                        prepared[k] = list(prepared[k].values())
+                    if isinstance(o, type) and issubclass(o, Sequence):
+                        with contextlib.suppress(KeyError):
+                            prepared[k] = list(prepared[k].values())
                 return prepared
             o = get_origin(field.annotation)
-            if (
-                isinstance(o, type)
-                and issubclass(o, Sequence)
-                and isinstance(prepared, dict)
-            ):
+            if isinstance(o, type) and issubclass(o, Sequence):
                 return list(prepared.values())
         # Return the original prepared value
         return prepared

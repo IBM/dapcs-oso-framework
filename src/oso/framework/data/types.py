@@ -17,7 +17,6 @@
 
 import json
 from datetime import datetime
-from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -111,17 +110,6 @@ class V1_3:
 class V1_5:
     """Version 1.5."""
 
-    class DocType(StrEnum):
-        """Framework document types (the ``metadata.doc_type`` value)."""
-
-        MK_ROTATION = "mk_rotation"
-
-    class DocumentMetadata(BaseModel):
-        """Base class for framework document metadata."""
-
-        model_config = ConfigDict(extra="allow")
-        doc_type: "DocType"
-
     class DocumentEvent(BaseModel):
         """Document Event.
 
@@ -199,5 +187,3 @@ ComponentStatus = V1_3.ComponentStatus
 DocumentEvent = V1_5.DocumentEvent
 EventList = V1_5.EventList
 EventResponse = V1_5.EventResponse
-DocType = V1_5.DocType
-DocumentMetadata = V1_5.DocumentMetadata

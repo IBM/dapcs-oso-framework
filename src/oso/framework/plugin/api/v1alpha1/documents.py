@@ -52,9 +52,9 @@ class Api(MethodView):
     def post(self):
         """POST /v1alpha1/documents endpoint.
 
-        Framework documents with a registered handler are consumed by
-        `DocumentGenerator.handle_incoming()`; the remaining documents are passed
-        to `oso.framework.plugin.base.ISVBase.to_isv()`.
+        Framework-generated documents are removed and handled by
+        `DocumentGenerator.eject()`; the rest are passed to
+        `oso.framework.plugin.base.ISVBase.to_isv()`.
 
         Returns
         -------
@@ -63,14 +63,11 @@ class Api(MethodView):
             a 200 HTTP response code. To return an error, `ISVBase.to_isv()` should
             raise the appropriate HTTPError.
         """
-        plugin_app = current_oso_plugin_app()
-        raw_docs = V1_3.DocumentList.model_validate_json(request.get_data())
-
-        return jsonify(
-            current_oso_plugin().doc_generator.handle_incoming(
-                raw_docs, plugin_app.to_isv, plugin_app
-            )
+        docs = current_oso_plugin().doc_generator.eject(
+            V1_3.DocumentList.model_validate_json(request.get_data()),
+            current_oso_plugin_app(),
         )
+        return jsonify(current_oso_plugin_app().to_isv(docs))
 
     @RequireAuth("mtls", "component")
     def delete(self):

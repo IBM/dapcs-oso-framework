@@ -21,72 +21,68 @@ from typing import Any, Literal
 
 from oso.framework.core.logging import get_logger
 
-from . import DocType, DocumentGenerator, DocumentHandler, DocumentMetadata
+from . import DocumentGenerator, DocumentHandler, DocumentMetadata
 
 _logger = get_logger("mk-rotation")
+
+MK_ROTATION = "mk_rotation"
 
 
 class MkRotationMetadata(DocumentMetadata):
     """An HSM master-key rotation request, or its result."""
 
-    doc_type: Literal[DocType.MK_ROTATION] = DocType.MK_ROTATION
+    doc_type: Literal["mk_rotation"] = MK_ROTATION
     status: Literal["success", "error"] | None = None
     rewrapped_key_ids: list[str] | None = None
     error: str | None = None
 
 
 class MkRotation(DocumentHandler):
-    """Rotate the master key: request on the frontend, rewrap on the backend."""
+    """Rotate the master key: request on the frontend, rewrap on the backend.
 
-    doc_type = DocType.MK_ROTATION
+    The backend calls the plugin's ``rewrap(rotation_id=...) -> list[str]`` hook,
+    which re-wraps every stored key blob and returns the re-wrapped key ids.
+    """
+
+    doc_type = MK_ROTATION
     metadata_model = MkRotationMetadata
-    label = "MK rotation"
 
     def generate(
-        self, gen: DocumentGenerator, key: str, plugin_app: Any = None
+        self, gen: DocumentGenerator, doc_id: str, plugin_app: Any
     ) -> MkRotationMetadata:
-        """Frontend: queue the request. Backend: rewrap and queue the result."""
-        if gen.mode == "frontend":
-            return gen.add(  # type: ignore[return-value]
-                key, MkRotationMetadata(), resend=True, unique=True
-            )
-        done = gen.generated(self.doc_type, key)
-        if done is None or done.status == "error":  # type: ignore[attr-defined]
-            done = self._rewrap(key, plugin_app)
-        return gen.add(key, done)  # type: ignore[return-value]
+        """Frontend: queue the rotation request."""
+        gen.add(doc_id, request := MkRotationMetadata())
+        return request
+
+    def on_incoming(
+        self,
+        gen: DocumentGenerator,
+        doc_id: str,
+        meta: DocumentMetadata,
+        plugin_app: Any,
+    ) -> None:
+        """Backend: rewrap once and queue the result. Frontend: end the rotation."""
+        if gen.mode == "backend":
+            done = gen.get(doc_id)
+            # The frontend re-sends until it sees the result; rewrap only once.
+            if not (isinstance(done, MkRotationMetadata) and done.status == "success"):
+                done = self._rewrap(doc_id, plugin_app)
+            gen.add(doc_id, done)
+            return
+        if isinstance(meta, MkRotationMetadata) and meta.status == "error":
+            _logger.error(f"MK rotation failed on backend id={doc_id}: {meta.error}")
+        gen.remove(doc_id)
 
     @staticmethod
-    def _rewrap(key: str, plugin_app: Any) -> MkRotationMetadata:
-        if not callable(getattr(plugin_app, "rewrap", None)):
-            _logger.warning(f"plugin has no rewrap() hook rotation_id={key}")
-            return MkRotationMetadata(status="success", rewrapped_key_ids=[])
+    def _rewrap(doc_id: str, plugin_app: Any) -> MkRotationMetadata:
         try:
-            result = plugin_app.rewrap(rotation_id=key)
+            key_ids = list(plugin_app.rewrap(rotation_id=doc_id))
         except Exception as exc:
-            _logger.exception(f"Rewrap failed rotation_id={key}")
+            # Includes a plugin without a rewrap() hook: nothing was rewrapped.
+            _logger.exception(f"Rewrap failed id={doc_id}")
             return MkRotationMetadata(
                 status="error",
                 rewrapped_key_ids=[],
                 error=f"{type(exc).__name__}: {exc}",
             )
-        return MkRotationMetadata(
-            status="success",
-            rewrapped_key_ids=list(getattr(result, "rewrapped_key_ids", [])),
-        )
-
-    def on_incoming(
-        self,
-        gen: DocumentGenerator,
-        key: str,
-        meta: DocumentMetadata,
-        plugin_app: Any = None,
-    ) -> None:
-        """Backend: rewrap and queue the result. Frontend: forget the rotation."""
-        if gen.mode == "backend":
-            gen.generate(self.doc_type, key, plugin_app)
-            return
-        if meta.status == "error":  # type: ignore[attr-defined]
-            _logger.error(
-                f"MK rotation failed on backend rotation_id={key}: {meta.error}"  # type: ignore[attr-defined]
-            )
-        gen.remove(self.doc_type, key)
+        return MkRotationMetadata(status="success", rewrapped_key_ids=key_ids)

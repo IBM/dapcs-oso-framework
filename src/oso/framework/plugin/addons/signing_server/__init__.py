@@ -18,12 +18,9 @@
 from __future__ import annotations
 
 import uuid
-import json
 import logging
-import os
 import pathlib
 import base64
-import re
 
 from typing import TYPE_CHECKING
 from typing import Callable
@@ -36,7 +33,6 @@ from ._grep11_client import Grep11Client
 
 from oso.framework.data.types import V1_3
 from oso.framework.core.logging import get_logger
-from oso.framework.plugin.document import DOC_ID_PATTERN
 
 if TYPE_CHECKING:
     from typing import Any, Callable, ClassVar, Literal
@@ -329,51 +325,6 @@ class SigningServerAddon(AddonProtocol):
     def rewrap_key(self, priv_key_bytes: bytes) -> bytes:
         """Re-wrap a single private-key blob against the current master key."""
         return self._grep11_client.rewrap_key(priv_key_bytes)
-
-    def rewrap_keys(self, rotation_id: str) -> list[str]:
-        """Re-wrap every private-key blob in the keystore; safe to retry.
-
-        Returns the rewrapped key IDs.
-        """
-        if not re.fullmatch(DOC_ID_PATTERN, rotation_id):
-            raise ValueError(f"Invalid rotation_id {rotation_id!r}")
-
-        marker = self._keystore / ".mk_rotation" / f"{rotation_id}.json"
-        if marker.exists():
-            self._logger.info(f"Rotation '{rotation_id}' already rewrapped")
-            return json.loads(marker.read_text())
-
-        rewrapped_ids: list[str] = []
-        for key_type in KeyType:
-            for key_id in self.list_keys(key_type):
-                key_file = self._keystore / key_type.name / f"{key_id}.key"
-                orig = key_file.with_name(f"{key_file.name}.{rotation_id}.orig")
-                if not orig.exists():
-                    self._atomic_write(orig, key_file.read_bytes())
-                self._logger.info(f"Rewrapping key '{key_id}'")
-                self._atomic_write(key_file, self.rewrap_key(orig.read_bytes()))
-                rewrapped_ids.append(key_id)
-
-        marker.parent.mkdir(exist_ok=True)
-        self._atomic_write(marker, json.dumps(rewrapped_ids).encode())
-
-        # Earlier rotations are superseded; keep only this rotation's backups.
-        for old in self._keystore.glob("*/*.key.*.orig"):
-            if old.name.split(".", 2)[2] != f"{rotation_id}.orig":
-                old.unlink()
-
-        self._logger.info(f"Rewrap completed: {len(rewrapped_ids)} key(s)")
-        return rewrapped_ids
-
-    @staticmethod
-    def _atomic_write(path: pathlib.Path, data: bytes) -> None:
-        """Replace ``path`` with ``data`` so a crash never leaves it half-written."""
-        tmp = path.with_name(f"{path.name}.tmp")
-        with open(tmp, "wb") as f:
-            f.write(data)
-            f.flush()
-            os.fsync(f.fileno())
-        os.replace(tmp, path)
 
     def health_check(self) -> V1_3.ComponentStatus:
         """Check the GREP11 server health status.

@@ -18,13 +18,11 @@
 
 from typing import ClassVar, Literal, Type
 
-from cryptography.x509 import load_pem_x509_certificate
 from flask import Flask, current_app
 from flask.views import View
-from pydantic import BaseModel, Json
+from pydantic import BaseModel
 from pydantic.types import ImportString
 
-from oso.framework.auth.mtls import parse_allowlist
 from oso.framework.config import AutoLoadConfig, ImportListMixin
 from oso.framework.core.logging import get_logger
 from oso.framework.exceptions import StartupException
@@ -50,15 +48,11 @@ class PluginConfig(
         schema (Literal["v1.3", "v1.5"]): The OSO schema version the plugin
             implements.  Defaults to ``"v1.3"``.  Set to ``"v1.5"`` to enable
             eventing support (``POST /events`` endpoint).
-        admin_ca (str | None): PEM CA that issues admin client certificates.
-        admin_allowlist (list[str]): JSON list of admin certificate fingerprints.
     """
 
     mode: Literal["frontend", "backend"]
     application: ImportString
     schema: Literal["v1.3", "v1.5"] = "v1.3"
-    admin_ca: str | None = None
-    admin_allowlist: Json[list[str]] = []  # type: ignore[assignment]
 
 
 class PluginExtension:
@@ -82,19 +76,11 @@ class PluginExtension:
             config (PluginConfig): The configuration for the plugin.
         """
         self.config = config
-        self.admin_ca = (
-            load_pem_x509_certificate(config.admin_ca.encode())
-            if config.admin_ca
-            else None
-        )
-        self.admin_fingerprints = parse_allowlist(config.admin_allowlist)
+        self.doc_generator = DocumentGenerator(config.mode, [MkRotation()])
         self._init_addons(config.addons)  # type: ignore [reportAttributeAccessError]
 
     def _init_addons(self, addons: list[BaseAddonConfig]):
         self.addons: dict[str, AddonProtocol] = {}
-        self.doc_generator = DocumentGenerator(
-            self.config.mode, [MkRotation()]
-        )
         for addon in addons:
             self.addons[addon.type.NAME] = addon.type.configure(self.config, addon)
 
@@ -140,11 +126,13 @@ class PluginExtension:
             rule=f"/api/{self.config.mode}/{V1DocumentsApi.ENDPOINT}",
             view_func=V1DocumentsApi.as_view(f"plugin-{V1DocumentsApi.ENDPOINT}"),
         )
-        self._add_endpoint(
-            app=app,
-            rule=f"/api/{self.config.mode}/{V1GenerateApi.ENDPOINT}",
-            view_func=V1GenerateApi.as_view(f"plugin-{V1GenerateApi.ENDPOINT}"),
-        )
+        if self.config.mode == "frontend":
+            # Framework documents start on the frontend; the backend only replies.
+            self._add_endpoint(
+                app=app,
+                rule=f"/api/{self.config.mode}/{V1GenerateApi.ENDPOINT}",
+                view_func=V1GenerateApi.as_view(f"plugin-{V1GenerateApi.ENDPOINT}"),
+            )
         self._add_endpoint(
             app=app,
             rule=f"/api/{self.config.mode}/{V1StatusApi.ENDPOINT}",

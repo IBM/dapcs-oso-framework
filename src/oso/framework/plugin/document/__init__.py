@@ -13,147 +13,132 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Framework-generated documents, carried in ``V1_3.Document.metadata``."""
+"""Framework-generated documents, carried in ``V1_3.Document.metadata``.
+
+To add a document type, subclass `DocumentMetadata` and `DocumentHandler`, and
+register the handler in `oso.framework.plugin.extension.PluginExtension`.
+"""
+
 from __future__ import annotations
 
 import json
-from typing import Any, Callable, ClassVar, Iterable
+from typing import Any, ClassVar, Iterable
 
-from pydantic import ValidationError
-from werkzeug.exceptions import Conflict
+from pydantic import BaseModel, ConfigDict, ValidationError
+from werkzeug.exceptions import BadRequest, Conflict
 
 from oso.framework.core.logging import get_logger
-from oso.framework.data.types import V1_3, DocType, DocumentMetadata
+from oso.framework.data.types import V1_3
 
 _logger = get_logger("document-generator")
 
 
-DOC_ID_PATTERN = r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}"
+class DocumentMetadata(BaseModel):
+    """Base for framework document metadata; ``doc_type`` selects the handler."""
+
+    model_config = ConfigDict(extra="allow")
+    doc_type: str
 
 
 class DocumentHandler:
     """Base for a document type."""
 
-    doc_type: ClassVar[DocType]
+    doc_type: ClassVar[str]
     metadata_model: ClassVar[type[DocumentMetadata]]
-    label: ClassVar[str]
 
     def generate(
-        self, gen: DocumentGenerator, key: str, plugin_app: Any = None
+        self, gen: DocumentGenerator, doc_id: str, plugin_app: Any
     ) -> DocumentMetadata:
-        """Create and queue a document of this type."""
-        raise NotImplementedError(f"{self.label} documents cannot be generated here")
+        """Create and queue a document of this type (POST /generate)."""
+        raise NotImplementedError(f"{type(self).__name__} cannot generate documents")
 
     def on_incoming(
         self,
         gen: DocumentGenerator,
-        key: str,
+        doc_id: str,
         meta: DocumentMetadata,
-        plugin_app: Any = None,
+        plugin_app: Any,
     ) -> None:
         """React to this type arriving on POST /documents."""
 
 
 class DocumentGenerator:
-    """Queue of framework documents, keyed by ``(DocType, key)``."""
+    """Framework documents, keyed by document id.
+
+    Frontend documents are requests: one pending per type, re-sent on every
+    GET until removed. Backend documents are replies: sent on the next GET only.
+    """
 
     def __init__(self, mode: str, handlers: Iterable[DocumentHandler]):
         self.mode = mode
         self._handlers = {h.doc_type: h for h in handlers}
-        self._queued: dict[tuple[DocType, str], DocumentMetadata] = {}
-        self._history: dict[tuple[DocType, str], DocumentMetadata] = {}
-        self._resend: set[tuple[DocType, str]] = set()
+        self._docs: dict[str, DocumentMetadata] = {}
+        self._outbox: set[str] = set()
 
-    def generate(
-        self, doc_type: DocType, key: str, plugin_app: Any = None
-    ) -> DocumentMetadata:
+    def generate(self, doc_type: Any, doc_id: str, plugin_app: Any) -> DocumentMetadata:
         """Run the type's ``generate`` handler."""
-        return self._handlers[doc_type].generate(self, key, plugin_app)
+        handler = self._handler(doc_type)
+        if handler is None:
+            raise BadRequest(f"Unknown doc_type {doc_type!r}")
+        return handler.generate(self, doc_id, plugin_app)
 
-    def add(
-        self,
-        key: str,
-        metadata: DocumentMetadata,
-        *,
-        resend: bool = False,
-        unique: bool = False,
-    ) -> DocumentMetadata:
-        """Queue a document for the next GET.
-
-        ``resend`` keeps sending it until removed; ``unique`` rejects it while
-        another of its type is pending.
-        """
-        doc_type = metadata.doc_type
-        if unique and any(t is doc_type and k != key for t, k in self._history):
-            raise Conflict(
-                f"Document already exists for {self._handlers[doc_type].label}"
-            )
-        self._queued[(doc_type, key)] = metadata
-        self._history[(doc_type, key)] = metadata
-        if resend:
-            self._resend.add((doc_type, key))
-        _logger.info(f"Queued {doc_type} key={key}")
+    def add(self, doc_id: str, metadata: DocumentMetadata) -> DocumentMetadata:
+        """Queue a document for the next GET."""
+        if self.mode == "frontend" and any(
+            m.doc_type == metadata.doc_type and k != doc_id
+            for k, m in self._docs.items()
+        ):
+            raise Conflict(f"A {metadata.doc_type} document is already pending")
+        self._docs[doc_id] = metadata
+        self._outbox.add(doc_id)
+        _logger.info(f"Queued {metadata.doc_type} id={doc_id}")
         return metadata
 
-    def remove(self, doc_type: DocType, key: str) -> bool:
-        """Forget a document. Returns whether it was still queued."""
-        self._history.pop((doc_type, key), None)
-        self._resend.discard((doc_type, key))
-        return self._queued.pop((doc_type, key), None) is not None
-
-    def clear(self, id_: str | None = None) -> list[str]:
-        """Forget all generated documents, or only those with id ``id_``."""
-        keys = [k for k in self._history if id_ in (None, k[1])]
-        for doc_type, key in keys:
-            self.remove(doc_type, key)
-        _logger.info(f"Cleared {len(keys)} generated document(s)")
-        return [key for _, key in keys]
-
-    def generated(self, doc_type: DocType, key: str) -> DocumentMetadata | None:
+    def get(self, doc_id: str) -> DocumentMetadata | None:
         """Return a previously added document's metadata, even if already sent."""
-        return self._history.get((doc_type, key))
+        return self._docs.get(doc_id)
+
+    def remove(self, doc_id: str) -> None:
+        """Forget a document."""
+        self._docs.pop(doc_id, None)
+        self._outbox.discard(doc_id)
+
+    def clear(self, doc_id: str | None = None) -> list[str]:
+        """Forget all generated documents, or only the one with id ``doc_id``."""
+        ids = [k for k in self._docs if doc_id in (None, k)]
+        for k in ids:
+            self.remove(k)
+        _logger.info(f"Cleared {len(ids)} generated document(s)")
+        return ids
 
     def inject(self, doc_list: V1_3.DocumentList) -> V1_3.DocumentList:
-        """Prepend queued documents and dequeue those not marked ``resend``."""
-        for (doc_type, key), meta in self._queued.items():
-            doc_list.documents.insert(
-                0,
-                V1_3.Document(
-                    id=key,
-                    content="",
-                    metadata=meta.model_dump(mode="json"),
-                ),
-            )
-        self._queued = {k: m for k, m in self._queued.items() if k in self._resend}
+        """Prepend queued documents; the opposite of ``eject``."""
+        doc_list.documents[:0] = [
+            V1_3.Document(id=k, content="", metadata=m.model_dump(mode="json"))
+            for k, m in self._docs.items()
+            if k in self._outbox
+        ]
+        if self.mode == "backend":
+            self._outbox.clear()
         doc_list.count = len(doc_list.documents)
         return doc_list
 
-    def handle_incoming(
-        self,
-        doc_list: V1_3.DocumentList,
-        to_isv: Callable[[V1_3.DocumentList], Any],
-        plugin_app: Any = None,
-    ) -> Any:
-        """Pass ISV docs to ``to_isv``, then handle framework docs."""
+    def eject(self, doc_list: V1_3.DocumentList, plugin_app: Any) -> V1_3.DocumentList:
+        """Remove generated documents and handle them; the opposite of ``inject``."""
         kept: list[V1_3.Document] = []
-        consumed: list[tuple[DocumentHandler, str, DocumentMetadata]] = []
         for doc in doc_list.documents:
             try:
                 meta = self.parse(doc.metadata)
             except ValidationError as exc:
-                _logger.warning(f"Malformed framework doc id={doc.id!r}: {exc}")
-                if self.mode == "backend":
-                    continue
-                meta = None
-            handler = self._handlers.get(meta.doc_type) if meta else None
-            if handler is not None:
-                consumed.append((handler, doc.id, meta))  # type: ignore[arg-type]
-            else:
+                _logger.warning(f"Dropped malformed framework doc id={doc.id!r}: {exc}")
+                continue
+            if meta is None:
                 kept.append(doc)
-        result = to_isv(V1_3.DocumentList(documents=kept, count=len(kept)))
-        for handler, key, meta in consumed:
-            handler.on_incoming(self, key, meta, plugin_app)
-        return result
+                continue
+            self._handlers[meta.doc_type].on_incoming(self, doc.id, meta, plugin_app)
+        doc_list.documents = kept
+        doc_list.count = len(kept)
+        return doc_list
 
     def parse(self, raw: str | None) -> DocumentMetadata | None:
         """Return typed metadata for a framework ``doc_type``, else ``None``."""
@@ -163,5 +148,9 @@ class DocumentGenerator:
             return None
         if not isinstance(data, dict):
             return None
-        handler = self._handlers.get(data.get("doc_type"))
+        handler = self._handler(data.get("doc_type"))
         return handler.metadata_model.model_validate(data) if handler else None
+
+    def _handler(self, doc_type: Any) -> DocumentHandler | None:
+        # doc_type comes from untrusted JSON and may be unhashable.
+        return self._handlers.get(doc_type) if isinstance(doc_type, str) else None

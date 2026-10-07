@@ -23,6 +23,8 @@ import pytest
 
 from oso.framework.data.types import V1_3, V1_5
 from oso.framework.plugin import PluginProtocol, create_app, current_oso_plugin_app
+from oso.framework.plugin.document.mk_rotation import MkRotationMetadata
+from oso.framework.plugin.extension import current_oso_plugin
 
 
 class _BasePluginTests:
@@ -51,7 +53,7 @@ class _BasePluginTests:
         )
         monkeypatch.setenv(
             "AUTH__PARSERS__0__ALLOWLIST",
-            json.dumps({"component": ["VALID", "ALSO_VALID"]}),
+            json.dumps({"component": ["VALID", "ALSO_VALID"], "admin": ["ADMIN"]}),
         )
 
         def _fn():
@@ -395,41 +397,46 @@ class TestModule(_BasePluginTests):
         own = "mk_rotation"
 
         response = client.post(url, json={"doc_type": own}, headers=headers)
+        if mode == "backend":
+            # Only the frontend starts framework documents
+            assert response.status_code == 404
+            return
         assert response.status_code == 200
         doc_id = response.get_json()["id"]
         assert str(uuid.UUID(doc_id)) == doc_id
         assert response.get_json()["metadata"]["doc_type"] == own
 
-        docs = V1_3.DocumentList.model_validate_json(
-            client.get(docs_url, headers=headers).data
-        )
-        assert docs.documents[0].id == doc_id
-        docs = V1_3.DocumentList.model_validate_json(
-            client.get(docs_url, headers=headers).data
-        )
-        # The frontend request is re-sent until acknowledged; the result once
-        assert (doc_id in [d.id for d in docs.documents]) == (mode == "frontend")
+        # The frontend request is re-sent until acknowledged
+        for _ in range(2):
+            docs = V1_3.DocumentList.model_validate_json(
+                client.get(docs_url, headers=headers).data
+            )
+            assert docs.documents[0].id == doc_id
 
         # An unknown type, a non-object → 400
         for body in ({"doc_type": "nope"}, ["x"]):
             assert client.post(url, json=body, headers=headers).status_code == 400
         assert client.post(url, json={"doc_type": own}, headers={}).status_code == 403
 
-        if mode == "frontend":
-            # Pending rotation blocks another until acknowledged or cleared
-            response = client.post(url, json={"doc_type": own}, headers=headers)
-            assert response.status_code == 409
+        # Pending rotation blocks another until acknowledged or cleared
+        response = client.post(url, json={"doc_type": own}, headers=headers)
+        assert response.status_code == 409
+        client.delete(docs_url, headers=headers)
+
+        # Admins may generate, but not read documents
+        admin = {**headers, "X-TEST-SSL-FINGERPRINT": "ADMIN"}
+        assert (
+            client.post(url, json={"doc_type": own}, headers=admin).status_code == 200
+        )
+        assert client.get(docs_url, headers=admin).status_code == 403
         client.delete(docs_url, headers=headers)
 
     def test_clear_documents(self, mode, client):
         headers = {"X-TEST-SSL-VERIFY": "True", "X-TEST-SSL-FINGERPRINT": "VALID"}
         url = f"/api/{mode}/v1alpha1/documents"
-        doc_type = "mk_rotation"
-        doc_id = client.post(
-            f"/api/{mode}/v1alpha1/generate",
-            json={"doc_type": doc_type},
-            headers=headers,
-        ).get_json()["id"]
+        doc_id = "r1"
+        with client.application.app_context():
+            current_oso_plugin().doc_generator.add(doc_id, MkRotationMetadata())
 
         response = client.delete(url, query_string={"id": "missing"}, headers=headers)
         assert response.status_code == 404

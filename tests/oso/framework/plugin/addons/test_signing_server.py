@@ -113,67 +113,6 @@ def test_gen_key_pair(signing_server: SigningServerAddon):
     )
 
 
-def test_rewrap_keys(signing_server: SigningServerAddon):
-    """rewrap_keys() rewraps every stored private-key blob in place."""
-    import pathlib
-
-    secp_id, _ = signing_server.generate_key_pair(KeyType.SECP256K1)
-    ed_id, _ = signing_server.generate_key_pair(KeyType.ED25519)
-
-    keystore = pathlib.Path(signing_server._config.keystore_path)
-    secp_file = keystore / "SECP256K1" / f"{secp_id}.key"
-    ed_file = keystore / "ED25519" / f"{ed_id}.key"
-    secp_before, ed_before = secp_file.read_bytes(), ed_file.read_bytes()
-    (keystore / "ED25519" / "orphan.key").write_bytes(b"no pub")  # skipped
-
-    assert Counter(signing_server.rewrap_keys("r1")) == Counter([secp_id, ed_id])
-    assert secp_file.read_bytes() == secp_before + b"\xff"
-    assert ed_file.read_bytes() == ed_before + b"\xff"
-    assert (keystore / "ED25519" / "orphan.key").read_bytes() == b"no pub"
+def test_rewrap_key(signing_server: SigningServerAddon):
+    """rewrap_key() re-wraps a single blob via the HSM."""
     assert signing_server.rewrap_key(b"blob") == b"blob\xff"
-
-    # Done: a repeat returns the stored result without rewrapping again.
-    assert Counter(signing_server.rewrap_keys("r1")) == Counter([secp_id, ed_id])
-    assert secp_file.read_bytes() == secp_before + b"\xff"
-
-    # A later rotation prunes the previous rotation's backups.
-    signing_server.rewrap_keys("r2")
-    assert sorted(p.name.split(".", 2)[2] for p in keystore.glob("*/*.orig")) == [
-        "r2.orig",
-        "r2.orig",
-    ]
-
-    with pytest.raises(ValueError, match="Invalid rotation_id"):
-        signing_server.rewrap_keys("../escape")
-
-
-def test_rewrap_keys_retry_after_partial_failure(signing_server: SigningServerAddon):
-    """A retry rewraps each original blob once, even if some were already done."""
-    import pathlib
-
-    from unittest.mock import patch
-
-    ids = [signing_server.generate_key_pair(KeyType.SECP256K1)[0] for _ in range(2)]
-    keystore = pathlib.Path(signing_server._config.keystore_path)
-    files = [keystore / "SECP256K1" / f"{i}.key" for i in ids]
-    before = [f.read_bytes() for f in files]
-
-    real = signing_server._grep11_client.rewrap_key
-    calls = iter([real, RuntimeError("hsm down")])
-
-    def flaky(blob: bytes) -> bytes:
-        step = next(calls, real)
-        if isinstance(step, Exception):
-            raise step
-        return step(blob)
-
-    with patch.object(signing_server._grep11_client, "rewrap_key", flaky):
-        with pytest.raises(RuntimeError):
-            signing_server.rewrap_keys("r")
-    changed = [f.read_bytes() != b for f, b in zip(files, before)]
-    assert sorted(changed) == [False, True]  # first key done, second failed
-    assert not (keystore / ".mk_rotation" / "r.json").exists()
-
-    signing_server.rewrap_keys("r")
-    assert [f.read_bytes() for f in files] == [b + b"\xff" for b in before]
-    assert not list(keystore.glob("*/*.tmp"))

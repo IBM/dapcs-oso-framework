@@ -7,185 +7,134 @@ Copyright IBM Corp. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 """
 
-import abc
-import collections.abc
-import grpc
-import grpc.aio
-import server_pb2
-import typing
+from collections import abc as _abc
+from grpc import aio as _aio
+import abc as _abc_1
+import grpc as _grpc
+import server_pb2 as _server_pb2
+import sys
+import typing as _typing
 
-_T = typing.TypeVar("_T")
+if sys.version_info >= (3, 11):
+    from typing import Self as _Self
+else:
+    from typing_extensions import Self as _Self
 
-class _MaybeAsyncIterator(collections.abc.AsyncIterator[_T], collections.abc.Iterator[_T], metaclass=abc.ABCMeta): ...
+_T = _typing.TypeVar("_T")
 
-class _ServicerContext(grpc.ServicerContext, grpc.aio.ServicerContext):  # type: ignore[misc, type-arg]
+class _MaybeAsyncIterator(_abc.AsyncIterator[_T], _abc.Iterator[_T], metaclass=_abc_1.ABCMeta): ...
+
+class _ServicerContext(_grpc.ServicerContext, _aio.ServicerContext):  # type: ignore[misc, type-arg]
     ...
+
+GRPC_GENERATED_VERSION: str
+GRPC_VERSION: str
 
 class CryptoStub:
     """See ep11-structure.pdf from support program zip file for further documentation"""
 
-    def __init__(self, channel: typing.Union[grpc.Channel, grpc.aio.Channel]) -> None: ...
-    GenerateRandom: grpc.UnaryUnaryMultiCallable[
-        server_pb2.GenerateRandomRequest,
-        server_pb2.GenerateRandomResponse,
-    ]
+    @_typing.overload
+    def __new__(cls, channel: _grpc.Channel) -> _Self: ...
+    @_typing.overload
+    def __new__(cls, channel: _aio.Channel) -> CryptoAsyncStub: ...
+    GenerateRandom: _grpc.UnaryUnaryMultiCallable[_server_pb2.GenerateRandomRequest, _server_pb2.GenerateRandomResponse]
     """CK_RV m_GenerateRandom (
     CK_BYTE_PTR rnd, CK_ULONG rndlen,
     target_t target) ;
     """
-
-    DigestInit: grpc.UnaryUnaryMultiCallable[
-        server_pb2.DigestInitRequest,
-        server_pb2.DigestInitResponse,
-    ]
+    DigestInit: _grpc.UnaryUnaryMultiCallable[_server_pb2.DigestInitRequest, _server_pb2.DigestInitResponse]
     """CK_RV m_DigestInit (
     unsigned char *state, size_t *statelen,
     const CK_MECHANISM_PTR mech,
     target_t target) ;
     """
-
-    Digest: grpc.UnaryUnaryMultiCallable[
-        server_pb2.DigestRequest,
-        server_pb2.DigestResponse,
-    ]
+    Digest: _grpc.UnaryUnaryMultiCallable[_server_pb2.DigestRequest, _server_pb2.DigestResponse]
     """CK_RV m_Digest (
     const unsigned char *state, size_t statelen,
     CK_BYTE_PTR data, CK_ULONG datalen,
     CK_BYTE_PTR digest, CK_ULONG_PTR digestlen,
     target_t target) ;
     """
-
-    DigestUpdate: grpc.UnaryUnaryMultiCallable[
-        server_pb2.DigestUpdateRequest,
-        server_pb2.DigestUpdateResponse,
-    ]
+    DigestUpdate: _grpc.UnaryUnaryMultiCallable[_server_pb2.DigestUpdateRequest, _server_pb2.DigestUpdateResponse]
     """CK_RV m_DigestUpdate (
     unsigned char *state, size_t statelen,
     CK_BYTE_PTR data, CK_ULONG datalen,
     target_t target) ;
     """
-
-    DigestKey: grpc.UnaryUnaryMultiCallable[
-        server_pb2.DigestKeyRequest,
-        server_pb2.DigestKeyResponse,
-    ]
+    DigestKey: _grpc.UnaryUnaryMultiCallable[_server_pb2.DigestKeyRequest, _server_pb2.DigestKeyResponse]
     """CK_RV m_DigestKey (
     unsigned char *state, size_t statelen,
     const unsigned char *keyBytes, size_t keyByteslen,
     target_t target) ;
     """
-
-    DigestFinal: grpc.UnaryUnaryMultiCallable[
-        server_pb2.DigestFinalRequest,
-        server_pb2.DigestFinalResponse,
-    ]
+    DigestFinal: _grpc.UnaryUnaryMultiCallable[_server_pb2.DigestFinalRequest, _server_pb2.DigestFinalResponse]
     """CK_RV m_DigestFinal (
     const unsigned char *state, size_t statelen,
     CK_BYTE_PTR digest, CK_ULONG_PTR digestlen,
     target_t target) ;
     """
-
-    DigestSingle: grpc.UnaryUnaryMultiCallable[
-        server_pb2.DigestSingleRequest,
-        server_pb2.DigestSingleResponse,
-    ]
+    DigestSingle: _grpc.UnaryUnaryMultiCallable[_server_pb2.DigestSingleRequest, _server_pb2.DigestSingleResponse]
     """CK_RV m_DigestSingle (
     CK_MECHANISM_PTR mech,
     CK_BYTE_PTR data, CK_ULONG datalen,
     CK_BYTE_PTR digest, CK_ULONG_PTR digestlen,
     target_t target) ;
     """
-
-    EncryptInit: grpc.UnaryUnaryMultiCallable[
-        server_pb2.EncryptInitRequest,
-        server_pb2.EncryptInitResponse,
-    ]
+    EncryptInit: _grpc.UnaryUnaryMultiCallable[_server_pb2.EncryptInitRequest, _server_pb2.EncryptInitResponse]
     """CK_RV m_EncryptInit (
     unsigned char *state, size_t *statelen,
     CK_MECHANISM_PTR mech,
     const unsigned char *keyBytes, size_t keyByteslen,
     target_t target) ;
     """
-
-    DecryptInit: grpc.UnaryUnaryMultiCallable[
-        server_pb2.DecryptInitRequest,
-        server_pb2.DecryptInitResponse,
-    ]
+    DecryptInit: _grpc.UnaryUnaryMultiCallable[_server_pb2.DecryptInitRequest, _server_pb2.DecryptInitResponse]
     """CK_RV m_DecryptInit (
     unsigned char *state, size_t *statelen,
     CK_MECHANISM_PTR mech,
     const unsigned char *keyBytes, size_t keyByteslen,
     target_t target) ;
     """
-
-    EncryptUpdate: grpc.UnaryUnaryMultiCallable[
-        server_pb2.EncryptUpdateRequest,
-        server_pb2.EncryptUpdateResponse,
-    ]
+    EncryptUpdate: _grpc.UnaryUnaryMultiCallable[_server_pb2.EncryptUpdateRequest, _server_pb2.EncryptUpdateResponse]
     """CK_RV m_EncryptUpdate (
     unsigned char *state, size_t statelen,
     CK_BYTE_PTR plain, CK_ULONG plainlen,
     CK_BYTE_PTR ciphered, CK_ULONG_PTR cipheredlen,
     target_t target) ;
     """
-
-    DecryptUpdate: grpc.UnaryUnaryMultiCallable[
-        server_pb2.DecryptUpdateRequest,
-        server_pb2.DecryptUpdateResponse,
-    ]
+    DecryptUpdate: _grpc.UnaryUnaryMultiCallable[_server_pb2.DecryptUpdateRequest, _server_pb2.DecryptUpdateResponse]
     """CK_RV m_DecryptUpdate (
     unsigned char *state, size_t statelen,
     CK_BYTE_PTR ciphered, CK_ULONG cipheredlen,
     CK_BYTE_PTR plain, CK_ULONG_PTR plainlen,
     target_t target) ;
     """
-
-    Encrypt: grpc.UnaryUnaryMultiCallable[
-        server_pb2.EncryptRequest,
-        server_pb2.EncryptResponse,
-    ]
+    Encrypt: _grpc.UnaryUnaryMultiCallable[_server_pb2.EncryptRequest, _server_pb2.EncryptResponse]
     """CK_RV m_Encrypt (
     const unsigned char *state, size_t statelen,
     CK_BYTE_PTR plain, CK_ULONG plainlen,
     CK_BYTE_PTR ciphered, CK_ULONG_PTR cipheredlen,
     target_t target) ;
     """
-
-    Decrypt: grpc.UnaryUnaryMultiCallable[
-        server_pb2.DecryptRequest,
-        server_pb2.DecryptResponse,
-    ]
+    Decrypt: _grpc.UnaryUnaryMultiCallable[_server_pb2.DecryptRequest, _server_pb2.DecryptResponse]
     """CK_RV m_Decrypt (
     const unsigned char *state, size_t statelen,
     CK_BYTE_PTR ciphered, CK_ULONG cipheredlen,
     CK_BYTE_PTR plain, CK_ULONG_PTR plainlen,
     target_t target) ;
     """
-
-    EncryptFinal: grpc.UnaryUnaryMultiCallable[
-        server_pb2.EncryptFinalRequest,
-        server_pb2.EncryptFinalResponse,
-    ]
+    EncryptFinal: _grpc.UnaryUnaryMultiCallable[_server_pb2.EncryptFinalRequest, _server_pb2.EncryptFinalResponse]
     """CK_RV m_EncryptFinal (
     const unsigned char *state, size_t statelen,
     CK_BYTE_PTR ciphered, CK_ULONG_PTR cipheredlen,
     target_t target) ;
     """
-
-    DecryptFinal: grpc.UnaryUnaryMultiCallable[
-        server_pb2.DecryptFinalRequest,
-        server_pb2.DecryptFinalResponse,
-    ]
+    DecryptFinal: _grpc.UnaryUnaryMultiCallable[_server_pb2.DecryptFinalRequest, _server_pb2.DecryptFinalResponse]
     """CK_RV m_DecryptFinal (
     const unsigned char *state, size_t statelen,
     CK_BYTE_PTR plain, CK_ULONG_PTR plainlen,
     target_t target) ;
     """
-
-    EncryptSingle: grpc.UnaryUnaryMultiCallable[
-        server_pb2.EncryptSingleRequest,
-        server_pb2.EncryptSingleResponse,
-    ]
+    EncryptSingle: _grpc.UnaryUnaryMultiCallable[_server_pb2.EncryptSingleRequest, _server_pb2.EncryptSingleResponse]
     """CK_RV m_EncryptSingle (
     const unsigned char *keyBytes, size_t keyByteslen,
     CK_MECHANISM_PTR mech,
@@ -193,11 +142,7 @@ class CryptoStub:
     CK_BYTE_PTR ciphered, CK_ULONG_PTR cipheredlen,
     target_t target) ;
     """
-
-    DecryptSingle: grpc.UnaryUnaryMultiCallable[
-        server_pb2.DecryptSingleRequest,
-        server_pb2.DecryptSingleResponse,
-    ]
+    DecryptSingle: _grpc.UnaryUnaryMultiCallable[_server_pb2.DecryptSingleRequest, _server_pb2.DecryptSingleResponse]
     """CK_RV m_DecryptSingle (
     const unsigned char *keyBytes, size_t keyByteslen,
     CK_MECHANISM_PTR mech,
@@ -205,95 +150,59 @@ class CryptoStub:
     CK_BYTE_PTR plain, CK_ULONG_PTR plainlen,
     target_t target) ;
     """
-
-    SignInit: grpc.UnaryUnaryMultiCallable[
-        server_pb2.SignInitRequest,
-        server_pb2.SignInitResponse,
-    ]
+    SignInit: _grpc.UnaryUnaryMultiCallable[_server_pb2.SignInitRequest, _server_pb2.SignInitResponse]
     """CK_RV m_SignInit (
     unsigned char *state, size_t *statelen,
     CK_MECHANISM_PTR mech,
     const unsigned char *privKeyBytes, size_t privKeyByteslen,
     target_t target) ;
     """
-
-    VerifyInit: grpc.UnaryUnaryMultiCallable[
-        server_pb2.VerifyInitRequest,
-        server_pb2.VerifyInitResponse,
-    ]
+    VerifyInit: _grpc.UnaryUnaryMultiCallable[_server_pb2.VerifyInitRequest, _server_pb2.VerifyInitResponse]
     """CK_RV m_VerifyInit (
     unsigned char *state, size_t *statelen,
     CK_MECHANISM_PTR mech,
     const unsigned char *pubKeyBytes, size_t pubKeyByteslen,
     target_t target) ;
     """
-
-    SignUpdate: grpc.UnaryUnaryMultiCallable[
-        server_pb2.SignUpdateRequest,
-        server_pb2.SignUpdateResponse,
-    ]
+    SignUpdate: _grpc.UnaryUnaryMultiCallable[_server_pb2.SignUpdateRequest, _server_pb2.SignUpdateResponse]
     """CK_RV m_SignUpdate (
     unsigned char *state, size_t statelen,
     CK_BYTE_PTR data, CK_ULONG datalen,
     target_t target) ;
     """
-
-    VerifyUpdate: grpc.UnaryUnaryMultiCallable[
-        server_pb2.VerifyUpdateRequest,
-        server_pb2.VerifyUpdateResponse,
-    ]
+    VerifyUpdate: _grpc.UnaryUnaryMultiCallable[_server_pb2.VerifyUpdateRequest, _server_pb2.VerifyUpdateResponse]
     """CK_RV m_VerifyUpdate (
     unsigned char *state, size_t statelen,
     CK_BYTE_PTR data, CK_ULONG datalen,
     target_t target) ;
     """
-
-    SignFinal: grpc.UnaryUnaryMultiCallable[
-        server_pb2.SignFinalRequest,
-        server_pb2.SignFinalResponse,
-    ]
+    SignFinal: _grpc.UnaryUnaryMultiCallable[_server_pb2.SignFinalRequest, _server_pb2.SignFinalResponse]
     """CK_RV m_SignFinal (
     const unsigned char *state, size_t statelen,
     CK_BYTE_PTR signature, CK_ULONG_PTR signaturelen,
     target_t target) ;
     """
-
-    VerifyFinal: grpc.UnaryUnaryMultiCallable[
-        server_pb2.VerifyFinalRequest,
-        server_pb2.VerifyFinalResponse,
-    ]
+    VerifyFinal: _grpc.UnaryUnaryMultiCallable[_server_pb2.VerifyFinalRequest, _server_pb2.VerifyFinalResponse]
     """CK_RV m_VerifyFinal (
     const unsigned char *state, size_t statelen,
     CK_BYTE_PTR signature, CK_ULONG signaturelen,
     target_t target) ;
     """
-
-    Sign: grpc.UnaryUnaryMultiCallable[
-        server_pb2.SignRequest,
-        server_pb2.SignResponse,
-    ]
+    Sign: _grpc.UnaryUnaryMultiCallable[_server_pb2.SignRequest, _server_pb2.SignResponse]
     """CK_RV m_Sign (
     const unsigned char *state, size_t statelen,
     CK_BYTE_PTR data, CK_ULONG datalen,
     CK_BYTE_PTR signature, CK_ULONG_PTR signaturelen,
     target_t target) ;
     """
-
-    Verify: grpc.UnaryUnaryMultiCallable[
-        server_pb2.VerifyRequest,
-        server_pb2.VerifyResponse,
-    ]
+    Verify: _grpc.UnaryUnaryMultiCallable[_server_pb2.VerifyRequest, _server_pb2.VerifyResponse]
     """CK_RV m_Verify (
     const unsigned char *state, size_t statelen,
     CK_BYTE_PTR data, CK_ULONG datalen,
     CK_BYTE_PTR signature, CK_ULONG signaturelen,
     target_t target) ;
     """
-
-    SignSingle: grpc.UnaryUnaryMultiCallable[
-        server_pb2.SignSingleRequest,
-        server_pb2.SignSingleResponse,
-    ]
+    SignSingle: _grpc.UnaryUnaryMultiCallable[_server_pb2.SignSingleRequest, _server_pb2.SignSingleResponse]
     """CK_RV m_SignSingle (
     const unsigned char *privKeyBytes, size_t privKeyByteslen,
     CK_MECHANISM_PTR mech,
@@ -301,11 +210,7 @@ class CryptoStub:
     CK_BYTE_PTR signature, CK_ULONG_PTR signaturelen,
     target_t target) ;
     """
-
-    VerifySingle: grpc.UnaryUnaryMultiCallable[
-        server_pb2.VerifySingleRequest,
-        server_pb2.VerifySingleResponse,
-    ]
+    VerifySingle: _grpc.UnaryUnaryMultiCallable[_server_pb2.VerifySingleRequest, _server_pb2.VerifySingleResponse]
     """CK_RV m_VerifySingle (
     const unsigned char *pubKeyBytes, size_t pubKeyByteslen,
     CK_MECHANISM_PTR mech,
@@ -313,11 +218,7 @@ class CryptoStub:
     CK_BYTE_PTR signature, CK_ULONG signaturelen,
     target_t target) ;
     """
-
-    ReencryptSingle: grpc.UnaryUnaryMultiCallable[
-        server_pb2.ReencryptSingleRequest,
-        server_pb2.ReencryptSingleResponse,
-    ]
+    ReencryptSingle: _grpc.UnaryUnaryMultiCallable[_server_pb2.ReencryptSingleRequest, _server_pb2.ReencryptSingleResponse]
     """CK_RV m_ReencryptSingle (
     const unsigned char *decKeyBytes, size_t decKeyByteslen,
     const unsigned char *encKeyBytes, size_t encKeyByteslen,
@@ -327,11 +228,7 @@ class CryptoStub:
     CK_BYTE_PTR reciphered, CK_ULONG_PTR recipheredlen,
     target_t target) ;
     """
-
-    GenerateKey: grpc.UnaryUnaryMultiCallable[
-        server_pb2.GenerateKeyRequest,
-        server_pb2.GenerateKeyResponse,
-    ]
+    GenerateKey: _grpc.UnaryUnaryMultiCallable[_server_pb2.GenerateKeyRequest, _server_pb2.GenerateKeyResponse]
     """CK_RV m_GenerateKey (
     CK_MECHANISM_PTR mech,
     CK_ATTRIBUTE_PTR templateBytes, CK_ULONG templateByteslen,
@@ -340,11 +237,7 @@ class CryptoStub:
     unsigned char *checkSum, size_t *checkSumlen,
     target_t target) ;
     """
-
-    GenerateKeyPair: grpc.UnaryUnaryMultiCallable[
-        server_pb2.GenerateKeyPairRequest,
-        server_pb2.GenerateKeyPairResponse,
-    ]
+    GenerateKeyPair: _grpc.UnaryUnaryMultiCallable[_server_pb2.GenerateKeyPairRequest, _server_pb2.GenerateKeyPairResponse]
     """CK_RV m_GenerateKeyPair (
     CK_MECHANISM_PTR mech,
     CK_ATTRIBUTE_PTR pubKeyTemplateBytes, CK_ULONG pubKeyTemplateByteslen,
@@ -354,11 +247,7 @@ class CryptoStub:
     unsigned char *pubKeyBytes, size_t *pubKeyByteslen,
     target_t target) ;
     """
-
-    WrapKey: grpc.UnaryUnaryMultiCallable[
-        server_pb2.WrapKeyRequest,
-        server_pb2.WrapKeyResponse,
-    ]
+    WrapKey: _grpc.UnaryUnaryMultiCallable[_server_pb2.WrapKeyRequest, _server_pb2.WrapKeyResponse]
     """CK_RV m_WrapKey (
     const unsigned char *keyBytes, size_t keyByteslen,
     const unsigned char *keKBytes, size_t keKByteslen,
@@ -367,11 +256,7 @@ class CryptoStub:
     CK_BYTE_PTR wrapped, CK_ULONG_PTR wrappedlen,
     target_t target) ;
     """
-
-    UnwrapKey: grpc.UnaryUnaryMultiCallable[
-        server_pb2.UnwrapKeyRequest,
-        server_pb2.UnwrapKeyResponse,
-    ]
+    UnwrapKey: _grpc.UnaryUnaryMultiCallable[_server_pb2.UnwrapKeyRequest, _server_pb2.UnwrapKeyResponse]
     """CK_RV m_UnwrapKey (
     const CK_BYTE_PTR wrapped, CK_ULONG wrappedlen,
     const unsigned char *keKBytes, size_t keKByteslen,
@@ -383,11 +268,7 @@ class CryptoStub:
     CK_BYTE_PTR checkSum, CK_ULONG *checkSumlen,
     target_t target) ;
     """
-
-    DeriveKey: grpc.UnaryUnaryMultiCallable[
-        server_pb2.DeriveKeyRequest,
-        server_pb2.DeriveKeyResponse,
-    ]
+    DeriveKey: _grpc.UnaryUnaryMultiCallable[_server_pb2.DeriveKeyRequest, _server_pb2.DeriveKeyResponse]
     """CK_RV m_DeriveKey (
     CK_MECHANISM_PTR mech,
     CK_ATTRIBUTE_PTR templateBytes, CK_ULONG templateByteslen,
@@ -398,237 +279,148 @@ class CryptoStub:
     unsigned char *checkSum, size_t *checkSumlen,
     target_t target) ;
     """
-
-    GetMechanismList: grpc.UnaryUnaryMultiCallable[
-        server_pb2.GetMechanismListRequest,
-        server_pb2.GetMechanismListResponse,
-    ]
+    GetMechanismList: _grpc.UnaryUnaryMultiCallable[_server_pb2.GetMechanismListRequest, _server_pb2.GetMechanismListResponse]
     """CK_RV m_GetMechanismList (
     CK_SLOT_ID slot,
     CK_MECHANISM_TYPE_PTR mechs, CK_ULONG_PTR mechslen,
     target_t target) ;
     """
-
-    GetMechanismInfo: grpc.UnaryUnaryMultiCallable[
-        server_pb2.GetMechanismInfoRequest,
-        server_pb2.GetMechanismInfoResponse,
-    ]
+    GetMechanismInfo: _grpc.UnaryUnaryMultiCallable[_server_pb2.GetMechanismInfoRequest, _server_pb2.GetMechanismInfoResponse]
     """CK_RV m_GetMechanismInfo (
     CK_SLOT_ID slot,
     CK_MECHANISM_TYPE mech,
     CK_MECHANISM_INFO_PTR mechInfo,
     target_t target) ;
     """
-
-    GetAttributeValue: grpc.UnaryUnaryMultiCallable[
-        server_pb2.GetAttributeValueRequest,
-        server_pb2.GetAttributeValueResponse,
-    ]
+    GetAttributeValue: _grpc.UnaryUnaryMultiCallable[_server_pb2.GetAttributeValueRequest, _server_pb2.GetAttributeValueResponse]
     """CK_RV m_GetAttributeValue (
     const unsigned char *object, size_t objectlen,
     CK_ATTRIBUTE_PTR attributesBytes, CK_ULONG attributesByteslen,
     target_t target) ;
     """
-
-    SetAttributeValue: grpc.UnaryUnaryMultiCallable[
-        server_pb2.SetAttributeValueRequest,
-        server_pb2.SetAttributeValueResponse,
-    ]
+    SetAttributeValue: _grpc.UnaryUnaryMultiCallable[_server_pb2.SetAttributeValueRequest, _server_pb2.SetAttributeValueResponse]
     """CK_RV m_SetAttributeValue (
     unsigned char *object, size_t objectlen,
     CK_ATTRIBUTE_PTR attributesBytes, CK_ULONG attributesByteslen,
     target_t target) ;
     """
-
-    Login: grpc.UnaryUnaryMultiCallable[
-        server_pb2.LoginRequest,
-        server_pb2.LoginResponse,
-    ]
+    Login: _grpc.UnaryUnaryMultiCallable[_server_pb2.LoginRequest, _server_pb2.LoginResponse]
     """CK_RV m_Login (
     CK_UTF8CHAR_PTR pin, CK_ULONG pinLen,
     const unsigned char *nonce, size_t noncelen,
     unsigned char *pinblob, size_t *pinbloblen,
     target_t target) ;
     """
-
-    Logout: grpc.UnaryUnaryMultiCallable[
-        server_pb2.LogoutRequest,
-        server_pb2.LogoutResponse,
-    ]
+    Logout: _grpc.UnaryUnaryMultiCallable[_server_pb2.LogoutRequest, _server_pb2.LogoutResponse]
     """CK_RV m_Logout (
     const unsigned char *pinblob, size_t pinbloblen,
     target_t target) ;
     """
+    RewrapKeyBlob: _grpc.UnaryUnaryMultiCallable[_server_pb2.RewrapKeyBlobRequest, _server_pb2.RewrapKeyBlobResponse]
 
-    RewrapKeyBlob: grpc.UnaryUnaryMultiCallable[
-        server_pb2.RewrapKeyBlobRequest,
-        server_pb2.RewrapKeyBlobResponse,
-    ]
-
-class CryptoAsyncStub:
+@_typing.type_check_only
+class CryptoAsyncStub(CryptoStub):
     """See ep11-structure.pdf from support program zip file for further documentation"""
 
-    GenerateRandom: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.GenerateRandomRequest,
-        server_pb2.GenerateRandomResponse,
-    ]
+    def __init__(self, channel: _aio.Channel) -> None: ...
+    GenerateRandom: _aio.UnaryUnaryMultiCallable[_server_pb2.GenerateRandomRequest, _server_pb2.GenerateRandomResponse]  # type: ignore[assignment]
     """CK_RV m_GenerateRandom (
     CK_BYTE_PTR rnd, CK_ULONG rndlen,
     target_t target) ;
     """
-
-    DigestInit: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.DigestInitRequest,
-        server_pb2.DigestInitResponse,
-    ]
+    DigestInit: _aio.UnaryUnaryMultiCallable[_server_pb2.DigestInitRequest, _server_pb2.DigestInitResponse]  # type: ignore[assignment]
     """CK_RV m_DigestInit (
     unsigned char *state, size_t *statelen,
     const CK_MECHANISM_PTR mech,
     target_t target) ;
     """
-
-    Digest: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.DigestRequest,
-        server_pb2.DigestResponse,
-    ]
+    Digest: _aio.UnaryUnaryMultiCallable[_server_pb2.DigestRequest, _server_pb2.DigestResponse]  # type: ignore[assignment]
     """CK_RV m_Digest (
     const unsigned char *state, size_t statelen,
     CK_BYTE_PTR data, CK_ULONG datalen,
     CK_BYTE_PTR digest, CK_ULONG_PTR digestlen,
     target_t target) ;
     """
-
-    DigestUpdate: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.DigestUpdateRequest,
-        server_pb2.DigestUpdateResponse,
-    ]
+    DigestUpdate: _aio.UnaryUnaryMultiCallable[_server_pb2.DigestUpdateRequest, _server_pb2.DigestUpdateResponse]  # type: ignore[assignment]
     """CK_RV m_DigestUpdate (
     unsigned char *state, size_t statelen,
     CK_BYTE_PTR data, CK_ULONG datalen,
     target_t target) ;
     """
-
-    DigestKey: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.DigestKeyRequest,
-        server_pb2.DigestKeyResponse,
-    ]
+    DigestKey: _aio.UnaryUnaryMultiCallable[_server_pb2.DigestKeyRequest, _server_pb2.DigestKeyResponse]  # type: ignore[assignment]
     """CK_RV m_DigestKey (
     unsigned char *state, size_t statelen,
     const unsigned char *keyBytes, size_t keyByteslen,
     target_t target) ;
     """
-
-    DigestFinal: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.DigestFinalRequest,
-        server_pb2.DigestFinalResponse,
-    ]
+    DigestFinal: _aio.UnaryUnaryMultiCallable[_server_pb2.DigestFinalRequest, _server_pb2.DigestFinalResponse]  # type: ignore[assignment]
     """CK_RV m_DigestFinal (
     const unsigned char *state, size_t statelen,
     CK_BYTE_PTR digest, CK_ULONG_PTR digestlen,
     target_t target) ;
     """
-
-    DigestSingle: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.DigestSingleRequest,
-        server_pb2.DigestSingleResponse,
-    ]
+    DigestSingle: _aio.UnaryUnaryMultiCallable[_server_pb2.DigestSingleRequest, _server_pb2.DigestSingleResponse]  # type: ignore[assignment]
     """CK_RV m_DigestSingle (
     CK_MECHANISM_PTR mech,
     CK_BYTE_PTR data, CK_ULONG datalen,
     CK_BYTE_PTR digest, CK_ULONG_PTR digestlen,
     target_t target) ;
     """
-
-    EncryptInit: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.EncryptInitRequest,
-        server_pb2.EncryptInitResponse,
-    ]
+    EncryptInit: _aio.UnaryUnaryMultiCallable[_server_pb2.EncryptInitRequest, _server_pb2.EncryptInitResponse]  # type: ignore[assignment]
     """CK_RV m_EncryptInit (
     unsigned char *state, size_t *statelen,
     CK_MECHANISM_PTR mech,
     const unsigned char *keyBytes, size_t keyByteslen,
     target_t target) ;
     """
-
-    DecryptInit: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.DecryptInitRequest,
-        server_pb2.DecryptInitResponse,
-    ]
+    DecryptInit: _aio.UnaryUnaryMultiCallable[_server_pb2.DecryptInitRequest, _server_pb2.DecryptInitResponse]  # type: ignore[assignment]
     """CK_RV m_DecryptInit (
     unsigned char *state, size_t *statelen,
     CK_MECHANISM_PTR mech,
     const unsigned char *keyBytes, size_t keyByteslen,
     target_t target) ;
     """
-
-    EncryptUpdate: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.EncryptUpdateRequest,
-        server_pb2.EncryptUpdateResponse,
-    ]
+    EncryptUpdate: _aio.UnaryUnaryMultiCallable[_server_pb2.EncryptUpdateRequest, _server_pb2.EncryptUpdateResponse]  # type: ignore[assignment]
     """CK_RV m_EncryptUpdate (
     unsigned char *state, size_t statelen,
     CK_BYTE_PTR plain, CK_ULONG plainlen,
     CK_BYTE_PTR ciphered, CK_ULONG_PTR cipheredlen,
     target_t target) ;
     """
-
-    DecryptUpdate: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.DecryptUpdateRequest,
-        server_pb2.DecryptUpdateResponse,
-    ]
+    DecryptUpdate: _aio.UnaryUnaryMultiCallable[_server_pb2.DecryptUpdateRequest, _server_pb2.DecryptUpdateResponse]  # type: ignore[assignment]
     """CK_RV m_DecryptUpdate (
     unsigned char *state, size_t statelen,
     CK_BYTE_PTR ciphered, CK_ULONG cipheredlen,
     CK_BYTE_PTR plain, CK_ULONG_PTR plainlen,
     target_t target) ;
     """
-
-    Encrypt: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.EncryptRequest,
-        server_pb2.EncryptResponse,
-    ]
+    Encrypt: _aio.UnaryUnaryMultiCallable[_server_pb2.EncryptRequest, _server_pb2.EncryptResponse]  # type: ignore[assignment]
     """CK_RV m_Encrypt (
     const unsigned char *state, size_t statelen,
     CK_BYTE_PTR plain, CK_ULONG plainlen,
     CK_BYTE_PTR ciphered, CK_ULONG_PTR cipheredlen,
     target_t target) ;
     """
-
-    Decrypt: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.DecryptRequest,
-        server_pb2.DecryptResponse,
-    ]
+    Decrypt: _aio.UnaryUnaryMultiCallable[_server_pb2.DecryptRequest, _server_pb2.DecryptResponse]  # type: ignore[assignment]
     """CK_RV m_Decrypt (
     const unsigned char *state, size_t statelen,
     CK_BYTE_PTR ciphered, CK_ULONG cipheredlen,
     CK_BYTE_PTR plain, CK_ULONG_PTR plainlen,
     target_t target) ;
     """
-
-    EncryptFinal: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.EncryptFinalRequest,
-        server_pb2.EncryptFinalResponse,
-    ]
+    EncryptFinal: _aio.UnaryUnaryMultiCallable[_server_pb2.EncryptFinalRequest, _server_pb2.EncryptFinalResponse]  # type: ignore[assignment]
     """CK_RV m_EncryptFinal (
     const unsigned char *state, size_t statelen,
     CK_BYTE_PTR ciphered, CK_ULONG_PTR cipheredlen,
     target_t target) ;
     """
-
-    DecryptFinal: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.DecryptFinalRequest,
-        server_pb2.DecryptFinalResponse,
-    ]
+    DecryptFinal: _aio.UnaryUnaryMultiCallable[_server_pb2.DecryptFinalRequest, _server_pb2.DecryptFinalResponse]  # type: ignore[assignment]
     """CK_RV m_DecryptFinal (
     const unsigned char *state, size_t statelen,
     CK_BYTE_PTR plain, CK_ULONG_PTR plainlen,
     target_t target) ;
     """
-
-    EncryptSingle: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.EncryptSingleRequest,
-        server_pb2.EncryptSingleResponse,
-    ]
+    EncryptSingle: _aio.UnaryUnaryMultiCallable[_server_pb2.EncryptSingleRequest, _server_pb2.EncryptSingleResponse]  # type: ignore[assignment]
     """CK_RV m_EncryptSingle (
     const unsigned char *keyBytes, size_t keyByteslen,
     CK_MECHANISM_PTR mech,
@@ -636,11 +428,7 @@ class CryptoAsyncStub:
     CK_BYTE_PTR ciphered, CK_ULONG_PTR cipheredlen,
     target_t target) ;
     """
-
-    DecryptSingle: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.DecryptSingleRequest,
-        server_pb2.DecryptSingleResponse,
-    ]
+    DecryptSingle: _aio.UnaryUnaryMultiCallable[_server_pb2.DecryptSingleRequest, _server_pb2.DecryptSingleResponse]  # type: ignore[assignment]
     """CK_RV m_DecryptSingle (
     const unsigned char *keyBytes, size_t keyByteslen,
     CK_MECHANISM_PTR mech,
@@ -648,95 +436,59 @@ class CryptoAsyncStub:
     CK_BYTE_PTR plain, CK_ULONG_PTR plainlen,
     target_t target) ;
     """
-
-    SignInit: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.SignInitRequest,
-        server_pb2.SignInitResponse,
-    ]
+    SignInit: _aio.UnaryUnaryMultiCallable[_server_pb2.SignInitRequest, _server_pb2.SignInitResponse]  # type: ignore[assignment]
     """CK_RV m_SignInit (
     unsigned char *state, size_t *statelen,
     CK_MECHANISM_PTR mech,
     const unsigned char *privKeyBytes, size_t privKeyByteslen,
     target_t target) ;
     """
-
-    VerifyInit: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.VerifyInitRequest,
-        server_pb2.VerifyInitResponse,
-    ]
+    VerifyInit: _aio.UnaryUnaryMultiCallable[_server_pb2.VerifyInitRequest, _server_pb2.VerifyInitResponse]  # type: ignore[assignment]
     """CK_RV m_VerifyInit (
     unsigned char *state, size_t *statelen,
     CK_MECHANISM_PTR mech,
     const unsigned char *pubKeyBytes, size_t pubKeyByteslen,
     target_t target) ;
     """
-
-    SignUpdate: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.SignUpdateRequest,
-        server_pb2.SignUpdateResponse,
-    ]
+    SignUpdate: _aio.UnaryUnaryMultiCallable[_server_pb2.SignUpdateRequest, _server_pb2.SignUpdateResponse]  # type: ignore[assignment]
     """CK_RV m_SignUpdate (
     unsigned char *state, size_t statelen,
     CK_BYTE_PTR data, CK_ULONG datalen,
     target_t target) ;
     """
-
-    VerifyUpdate: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.VerifyUpdateRequest,
-        server_pb2.VerifyUpdateResponse,
-    ]
+    VerifyUpdate: _aio.UnaryUnaryMultiCallable[_server_pb2.VerifyUpdateRequest, _server_pb2.VerifyUpdateResponse]  # type: ignore[assignment]
     """CK_RV m_VerifyUpdate (
     unsigned char *state, size_t statelen,
     CK_BYTE_PTR data, CK_ULONG datalen,
     target_t target) ;
     """
-
-    SignFinal: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.SignFinalRequest,
-        server_pb2.SignFinalResponse,
-    ]
+    SignFinal: _aio.UnaryUnaryMultiCallable[_server_pb2.SignFinalRequest, _server_pb2.SignFinalResponse]  # type: ignore[assignment]
     """CK_RV m_SignFinal (
     const unsigned char *state, size_t statelen,
     CK_BYTE_PTR signature, CK_ULONG_PTR signaturelen,
     target_t target) ;
     """
-
-    VerifyFinal: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.VerifyFinalRequest,
-        server_pb2.VerifyFinalResponse,
-    ]
+    VerifyFinal: _aio.UnaryUnaryMultiCallable[_server_pb2.VerifyFinalRequest, _server_pb2.VerifyFinalResponse]  # type: ignore[assignment]
     """CK_RV m_VerifyFinal (
     const unsigned char *state, size_t statelen,
     CK_BYTE_PTR signature, CK_ULONG signaturelen,
     target_t target) ;
     """
-
-    Sign: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.SignRequest,
-        server_pb2.SignResponse,
-    ]
+    Sign: _aio.UnaryUnaryMultiCallable[_server_pb2.SignRequest, _server_pb2.SignResponse]  # type: ignore[assignment]
     """CK_RV m_Sign (
     const unsigned char *state, size_t statelen,
     CK_BYTE_PTR data, CK_ULONG datalen,
     CK_BYTE_PTR signature, CK_ULONG_PTR signaturelen,
     target_t target) ;
     """
-
-    Verify: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.VerifyRequest,
-        server_pb2.VerifyResponse,
-    ]
+    Verify: _aio.UnaryUnaryMultiCallable[_server_pb2.VerifyRequest, _server_pb2.VerifyResponse]  # type: ignore[assignment]
     """CK_RV m_Verify (
     const unsigned char *state, size_t statelen,
     CK_BYTE_PTR data, CK_ULONG datalen,
     CK_BYTE_PTR signature, CK_ULONG signaturelen,
     target_t target) ;
     """
-
-    SignSingle: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.SignSingleRequest,
-        server_pb2.SignSingleResponse,
-    ]
+    SignSingle: _aio.UnaryUnaryMultiCallable[_server_pb2.SignSingleRequest, _server_pb2.SignSingleResponse]  # type: ignore[assignment]
     """CK_RV m_SignSingle (
     const unsigned char *privKeyBytes, size_t privKeyByteslen,
     CK_MECHANISM_PTR mech,
@@ -744,11 +496,7 @@ class CryptoAsyncStub:
     CK_BYTE_PTR signature, CK_ULONG_PTR signaturelen,
     target_t target) ;
     """
-
-    VerifySingle: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.VerifySingleRequest,
-        server_pb2.VerifySingleResponse,
-    ]
+    VerifySingle: _aio.UnaryUnaryMultiCallable[_server_pb2.VerifySingleRequest, _server_pb2.VerifySingleResponse]  # type: ignore[assignment]
     """CK_RV m_VerifySingle (
     const unsigned char *pubKeyBytes, size_t pubKeyByteslen,
     CK_MECHANISM_PTR mech,
@@ -756,11 +504,7 @@ class CryptoAsyncStub:
     CK_BYTE_PTR signature, CK_ULONG signaturelen,
     target_t target) ;
     """
-
-    ReencryptSingle: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.ReencryptSingleRequest,
-        server_pb2.ReencryptSingleResponse,
-    ]
+    ReencryptSingle: _aio.UnaryUnaryMultiCallable[_server_pb2.ReencryptSingleRequest, _server_pb2.ReencryptSingleResponse]  # type: ignore[assignment]
     """CK_RV m_ReencryptSingle (
     const unsigned char *decKeyBytes, size_t decKeyByteslen,
     const unsigned char *encKeyBytes, size_t encKeyByteslen,
@@ -770,11 +514,7 @@ class CryptoAsyncStub:
     CK_BYTE_PTR reciphered, CK_ULONG_PTR recipheredlen,
     target_t target) ;
     """
-
-    GenerateKey: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.GenerateKeyRequest,
-        server_pb2.GenerateKeyResponse,
-    ]
+    GenerateKey: _aio.UnaryUnaryMultiCallable[_server_pb2.GenerateKeyRequest, _server_pb2.GenerateKeyResponse]  # type: ignore[assignment]
     """CK_RV m_GenerateKey (
     CK_MECHANISM_PTR mech,
     CK_ATTRIBUTE_PTR templateBytes, CK_ULONG templateByteslen,
@@ -783,11 +523,7 @@ class CryptoAsyncStub:
     unsigned char *checkSum, size_t *checkSumlen,
     target_t target) ;
     """
-
-    GenerateKeyPair: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.GenerateKeyPairRequest,
-        server_pb2.GenerateKeyPairResponse,
-    ]
+    GenerateKeyPair: _aio.UnaryUnaryMultiCallable[_server_pb2.GenerateKeyPairRequest, _server_pb2.GenerateKeyPairResponse]  # type: ignore[assignment]
     """CK_RV m_GenerateKeyPair (
     CK_MECHANISM_PTR mech,
     CK_ATTRIBUTE_PTR pubKeyTemplateBytes, CK_ULONG pubKeyTemplateByteslen,
@@ -797,11 +533,7 @@ class CryptoAsyncStub:
     unsigned char *pubKeyBytes, size_t *pubKeyByteslen,
     target_t target) ;
     """
-
-    WrapKey: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.WrapKeyRequest,
-        server_pb2.WrapKeyResponse,
-    ]
+    WrapKey: _aio.UnaryUnaryMultiCallable[_server_pb2.WrapKeyRequest, _server_pb2.WrapKeyResponse]  # type: ignore[assignment]
     """CK_RV m_WrapKey (
     const unsigned char *keyBytes, size_t keyByteslen,
     const unsigned char *keKBytes, size_t keKByteslen,
@@ -810,11 +542,7 @@ class CryptoAsyncStub:
     CK_BYTE_PTR wrapped, CK_ULONG_PTR wrappedlen,
     target_t target) ;
     """
-
-    UnwrapKey: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.UnwrapKeyRequest,
-        server_pb2.UnwrapKeyResponse,
-    ]
+    UnwrapKey: _aio.UnaryUnaryMultiCallable[_server_pb2.UnwrapKeyRequest, _server_pb2.UnwrapKeyResponse]  # type: ignore[assignment]
     """CK_RV m_UnwrapKey (
     const CK_BYTE_PTR wrapped, CK_ULONG wrappedlen,
     const unsigned char *keKBytes, size_t keKByteslen,
@@ -826,11 +554,7 @@ class CryptoAsyncStub:
     CK_BYTE_PTR checkSum, CK_ULONG *checkSumlen,
     target_t target) ;
     """
-
-    DeriveKey: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.DeriveKeyRequest,
-        server_pb2.DeriveKeyResponse,
-    ]
+    DeriveKey: _aio.UnaryUnaryMultiCallable[_server_pb2.DeriveKeyRequest, _server_pb2.DeriveKeyResponse]  # type: ignore[assignment]
     """CK_RV m_DeriveKey (
     CK_MECHANISM_PTR mech,
     CK_ATTRIBUTE_PTR templateBytes, CK_ULONG templateByteslen,
@@ -841,105 +565,77 @@ class CryptoAsyncStub:
     unsigned char *checkSum, size_t *checkSumlen,
     target_t target) ;
     """
-
-    GetMechanismList: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.GetMechanismListRequest,
-        server_pb2.GetMechanismListResponse,
-    ]
+    GetMechanismList: _aio.UnaryUnaryMultiCallable[_server_pb2.GetMechanismListRequest, _server_pb2.GetMechanismListResponse]  # type: ignore[assignment]
     """CK_RV m_GetMechanismList (
     CK_SLOT_ID slot,
     CK_MECHANISM_TYPE_PTR mechs, CK_ULONG_PTR mechslen,
     target_t target) ;
     """
-
-    GetMechanismInfo: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.GetMechanismInfoRequest,
-        server_pb2.GetMechanismInfoResponse,
-    ]
+    GetMechanismInfo: _aio.UnaryUnaryMultiCallable[_server_pb2.GetMechanismInfoRequest, _server_pb2.GetMechanismInfoResponse]  # type: ignore[assignment]
     """CK_RV m_GetMechanismInfo (
     CK_SLOT_ID slot,
     CK_MECHANISM_TYPE mech,
     CK_MECHANISM_INFO_PTR mechInfo,
     target_t target) ;
     """
-
-    GetAttributeValue: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.GetAttributeValueRequest,
-        server_pb2.GetAttributeValueResponse,
-    ]
+    GetAttributeValue: _aio.UnaryUnaryMultiCallable[_server_pb2.GetAttributeValueRequest, _server_pb2.GetAttributeValueResponse]  # type: ignore[assignment]
     """CK_RV m_GetAttributeValue (
     const unsigned char *object, size_t objectlen,
     CK_ATTRIBUTE_PTR attributesBytes, CK_ULONG attributesByteslen,
     target_t target) ;
     """
-
-    SetAttributeValue: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.SetAttributeValueRequest,
-        server_pb2.SetAttributeValueResponse,
-    ]
+    SetAttributeValue: _aio.UnaryUnaryMultiCallable[_server_pb2.SetAttributeValueRequest, _server_pb2.SetAttributeValueResponse]  # type: ignore[assignment]
     """CK_RV m_SetAttributeValue (
     unsigned char *object, size_t objectlen,
     CK_ATTRIBUTE_PTR attributesBytes, CK_ULONG attributesByteslen,
     target_t target) ;
     """
-
-    Login: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.LoginRequest,
-        server_pb2.LoginResponse,
-    ]
+    Login: _aio.UnaryUnaryMultiCallable[_server_pb2.LoginRequest, _server_pb2.LoginResponse]  # type: ignore[assignment]
     """CK_RV m_Login (
     CK_UTF8CHAR_PTR pin, CK_ULONG pinLen,
     const unsigned char *nonce, size_t noncelen,
     unsigned char *pinblob, size_t *pinbloblen,
     target_t target) ;
     """
-
-    Logout: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.LogoutRequest,
-        server_pb2.LogoutResponse,
-    ]
+    Logout: _aio.UnaryUnaryMultiCallable[_server_pb2.LogoutRequest, _server_pb2.LogoutResponse]  # type: ignore[assignment]
     """CK_RV m_Logout (
     const unsigned char *pinblob, size_t pinbloblen,
     target_t target) ;
     """
+    RewrapKeyBlob: _aio.UnaryUnaryMultiCallable[_server_pb2.RewrapKeyBlobRequest, _server_pb2.RewrapKeyBlobResponse]  # type: ignore[assignment]
 
-    RewrapKeyBlob: grpc.aio.UnaryUnaryMultiCallable[
-        server_pb2.RewrapKeyBlobRequest,
-        server_pb2.RewrapKeyBlobResponse,
-    ]
-
-class CryptoServicer(metaclass=abc.ABCMeta):
+class CryptoServicer(metaclass=_abc_1.ABCMeta):
     """See ep11-structure.pdf from support program zip file for further documentation"""
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def GenerateRandom(
         self,
-        request: server_pb2.GenerateRandomRequest,
+        request: _server_pb2.GenerateRandomRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.GenerateRandomResponse, collections.abc.Awaitable[server_pb2.GenerateRandomResponse]]:
+    ) -> _typing.Union[_server_pb2.GenerateRandomResponse, _abc.Awaitable[_server_pb2.GenerateRandomResponse]]:
         """CK_RV m_GenerateRandom (
         CK_BYTE_PTR rnd, CK_ULONG rndlen,
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def DigestInit(
         self,
-        request: server_pb2.DigestInitRequest,
+        request: _server_pb2.DigestInitRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.DigestInitResponse, collections.abc.Awaitable[server_pb2.DigestInitResponse]]:
+    ) -> _typing.Union[_server_pb2.DigestInitResponse, _abc.Awaitable[_server_pb2.DigestInitResponse]]:
         """CK_RV m_DigestInit (
         unsigned char *state, size_t *statelen,
         const CK_MECHANISM_PTR mech,
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def Digest(
         self,
-        request: server_pb2.DigestRequest,
+        request: _server_pb2.DigestRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.DigestResponse, collections.abc.Awaitable[server_pb2.DigestResponse]]:
+    ) -> _typing.Union[_server_pb2.DigestResponse, _abc.Awaitable[_server_pb2.DigestResponse]]:
         """CK_RV m_Digest (
         const unsigned char *state, size_t statelen,
         CK_BYTE_PTR data, CK_ULONG datalen,
@@ -947,48 +643,48 @@ class CryptoServicer(metaclass=abc.ABCMeta):
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def DigestUpdate(
         self,
-        request: server_pb2.DigestUpdateRequest,
+        request: _server_pb2.DigestUpdateRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.DigestUpdateResponse, collections.abc.Awaitable[server_pb2.DigestUpdateResponse]]:
+    ) -> _typing.Union[_server_pb2.DigestUpdateResponse, _abc.Awaitable[_server_pb2.DigestUpdateResponse]]:
         """CK_RV m_DigestUpdate (
         unsigned char *state, size_t statelen,
         CK_BYTE_PTR data, CK_ULONG datalen,
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def DigestKey(
         self,
-        request: server_pb2.DigestKeyRequest,
+        request: _server_pb2.DigestKeyRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.DigestKeyResponse, collections.abc.Awaitable[server_pb2.DigestKeyResponse]]:
+    ) -> _typing.Union[_server_pb2.DigestKeyResponse, _abc.Awaitable[_server_pb2.DigestKeyResponse]]:
         """CK_RV m_DigestKey (
         unsigned char *state, size_t statelen,
         const unsigned char *keyBytes, size_t keyByteslen,
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def DigestFinal(
         self,
-        request: server_pb2.DigestFinalRequest,
+        request: _server_pb2.DigestFinalRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.DigestFinalResponse, collections.abc.Awaitable[server_pb2.DigestFinalResponse]]:
+    ) -> _typing.Union[_server_pb2.DigestFinalResponse, _abc.Awaitable[_server_pb2.DigestFinalResponse]]:
         """CK_RV m_DigestFinal (
         const unsigned char *state, size_t statelen,
         CK_BYTE_PTR digest, CK_ULONG_PTR digestlen,
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def DigestSingle(
         self,
-        request: server_pb2.DigestSingleRequest,
+        request: _server_pb2.DigestSingleRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.DigestSingleResponse, collections.abc.Awaitable[server_pb2.DigestSingleResponse]]:
+    ) -> _typing.Union[_server_pb2.DigestSingleResponse, _abc.Awaitable[_server_pb2.DigestSingleResponse]]:
         """CK_RV m_DigestSingle (
         CK_MECHANISM_PTR mech,
         CK_BYTE_PTR data, CK_ULONG datalen,
@@ -996,12 +692,12 @@ class CryptoServicer(metaclass=abc.ABCMeta):
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def EncryptInit(
         self,
-        request: server_pb2.EncryptInitRequest,
+        request: _server_pb2.EncryptInitRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.EncryptInitResponse, collections.abc.Awaitable[server_pb2.EncryptInitResponse]]:
+    ) -> _typing.Union[_server_pb2.EncryptInitResponse, _abc.Awaitable[_server_pb2.EncryptInitResponse]]:
         """CK_RV m_EncryptInit (
         unsigned char *state, size_t *statelen,
         CK_MECHANISM_PTR mech,
@@ -1009,12 +705,12 @@ class CryptoServicer(metaclass=abc.ABCMeta):
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def DecryptInit(
         self,
-        request: server_pb2.DecryptInitRequest,
+        request: _server_pb2.DecryptInitRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.DecryptInitResponse, collections.abc.Awaitable[server_pb2.DecryptInitResponse]]:
+    ) -> _typing.Union[_server_pb2.DecryptInitResponse, _abc.Awaitable[_server_pb2.DecryptInitResponse]]:
         """CK_RV m_DecryptInit (
         unsigned char *state, size_t *statelen,
         CK_MECHANISM_PTR mech,
@@ -1022,12 +718,12 @@ class CryptoServicer(metaclass=abc.ABCMeta):
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def EncryptUpdate(
         self,
-        request: server_pb2.EncryptUpdateRequest,
+        request: _server_pb2.EncryptUpdateRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.EncryptUpdateResponse, collections.abc.Awaitable[server_pb2.EncryptUpdateResponse]]:
+    ) -> _typing.Union[_server_pb2.EncryptUpdateResponse, _abc.Awaitable[_server_pb2.EncryptUpdateResponse]]:
         """CK_RV m_EncryptUpdate (
         unsigned char *state, size_t statelen,
         CK_BYTE_PTR plain, CK_ULONG plainlen,
@@ -1035,12 +731,12 @@ class CryptoServicer(metaclass=abc.ABCMeta):
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def DecryptUpdate(
         self,
-        request: server_pb2.DecryptUpdateRequest,
+        request: _server_pb2.DecryptUpdateRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.DecryptUpdateResponse, collections.abc.Awaitable[server_pb2.DecryptUpdateResponse]]:
+    ) -> _typing.Union[_server_pb2.DecryptUpdateResponse, _abc.Awaitable[_server_pb2.DecryptUpdateResponse]]:
         """CK_RV m_DecryptUpdate (
         unsigned char *state, size_t statelen,
         CK_BYTE_PTR ciphered, CK_ULONG cipheredlen,
@@ -1048,12 +744,12 @@ class CryptoServicer(metaclass=abc.ABCMeta):
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def Encrypt(
         self,
-        request: server_pb2.EncryptRequest,
+        request: _server_pb2.EncryptRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.EncryptResponse, collections.abc.Awaitable[server_pb2.EncryptResponse]]:
+    ) -> _typing.Union[_server_pb2.EncryptResponse, _abc.Awaitable[_server_pb2.EncryptResponse]]:
         """CK_RV m_Encrypt (
         const unsigned char *state, size_t statelen,
         CK_BYTE_PTR plain, CK_ULONG plainlen,
@@ -1061,12 +757,12 @@ class CryptoServicer(metaclass=abc.ABCMeta):
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def Decrypt(
         self,
-        request: server_pb2.DecryptRequest,
+        request: _server_pb2.DecryptRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.DecryptResponse, collections.abc.Awaitable[server_pb2.DecryptResponse]]:
+    ) -> _typing.Union[_server_pb2.DecryptResponse, _abc.Awaitable[_server_pb2.DecryptResponse]]:
         """CK_RV m_Decrypt (
         const unsigned char *state, size_t statelen,
         CK_BYTE_PTR ciphered, CK_ULONG cipheredlen,
@@ -1074,36 +770,36 @@ class CryptoServicer(metaclass=abc.ABCMeta):
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def EncryptFinal(
         self,
-        request: server_pb2.EncryptFinalRequest,
+        request: _server_pb2.EncryptFinalRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.EncryptFinalResponse, collections.abc.Awaitable[server_pb2.EncryptFinalResponse]]:
+    ) -> _typing.Union[_server_pb2.EncryptFinalResponse, _abc.Awaitable[_server_pb2.EncryptFinalResponse]]:
         """CK_RV m_EncryptFinal (
         const unsigned char *state, size_t statelen,
         CK_BYTE_PTR ciphered, CK_ULONG_PTR cipheredlen,
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def DecryptFinal(
         self,
-        request: server_pb2.DecryptFinalRequest,
+        request: _server_pb2.DecryptFinalRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.DecryptFinalResponse, collections.abc.Awaitable[server_pb2.DecryptFinalResponse]]:
+    ) -> _typing.Union[_server_pb2.DecryptFinalResponse, _abc.Awaitable[_server_pb2.DecryptFinalResponse]]:
         """CK_RV m_DecryptFinal (
         const unsigned char *state, size_t statelen,
         CK_BYTE_PTR plain, CK_ULONG_PTR plainlen,
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def EncryptSingle(
         self,
-        request: server_pb2.EncryptSingleRequest,
+        request: _server_pb2.EncryptSingleRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.EncryptSingleResponse, collections.abc.Awaitable[server_pb2.EncryptSingleResponse]]:
+    ) -> _typing.Union[_server_pb2.EncryptSingleResponse, _abc.Awaitable[_server_pb2.EncryptSingleResponse]]:
         """CK_RV m_EncryptSingle (
         const unsigned char *keyBytes, size_t keyByteslen,
         CK_MECHANISM_PTR mech,
@@ -1112,12 +808,12 @@ class CryptoServicer(metaclass=abc.ABCMeta):
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def DecryptSingle(
         self,
-        request: server_pb2.DecryptSingleRequest,
+        request: _server_pb2.DecryptSingleRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.DecryptSingleResponse, collections.abc.Awaitable[server_pb2.DecryptSingleResponse]]:
+    ) -> _typing.Union[_server_pb2.DecryptSingleResponse, _abc.Awaitable[_server_pb2.DecryptSingleResponse]]:
         """CK_RV m_DecryptSingle (
         const unsigned char *keyBytes, size_t keyByteslen,
         CK_MECHANISM_PTR mech,
@@ -1126,12 +822,12 @@ class CryptoServicer(metaclass=abc.ABCMeta):
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def SignInit(
         self,
-        request: server_pb2.SignInitRequest,
+        request: _server_pb2.SignInitRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.SignInitResponse, collections.abc.Awaitable[server_pb2.SignInitResponse]]:
+    ) -> _typing.Union[_server_pb2.SignInitResponse, _abc.Awaitable[_server_pb2.SignInitResponse]]:
         """CK_RV m_SignInit (
         unsigned char *state, size_t *statelen,
         CK_MECHANISM_PTR mech,
@@ -1139,12 +835,12 @@ class CryptoServicer(metaclass=abc.ABCMeta):
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def VerifyInit(
         self,
-        request: server_pb2.VerifyInitRequest,
+        request: _server_pb2.VerifyInitRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.VerifyInitResponse, collections.abc.Awaitable[server_pb2.VerifyInitResponse]]:
+    ) -> _typing.Union[_server_pb2.VerifyInitResponse, _abc.Awaitable[_server_pb2.VerifyInitResponse]]:
         """CK_RV m_VerifyInit (
         unsigned char *state, size_t *statelen,
         CK_MECHANISM_PTR mech,
@@ -1152,60 +848,60 @@ class CryptoServicer(metaclass=abc.ABCMeta):
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def SignUpdate(
         self,
-        request: server_pb2.SignUpdateRequest,
+        request: _server_pb2.SignUpdateRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.SignUpdateResponse, collections.abc.Awaitable[server_pb2.SignUpdateResponse]]:
+    ) -> _typing.Union[_server_pb2.SignUpdateResponse, _abc.Awaitable[_server_pb2.SignUpdateResponse]]:
         """CK_RV m_SignUpdate (
         unsigned char *state, size_t statelen,
         CK_BYTE_PTR data, CK_ULONG datalen,
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def VerifyUpdate(
         self,
-        request: server_pb2.VerifyUpdateRequest,
+        request: _server_pb2.VerifyUpdateRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.VerifyUpdateResponse, collections.abc.Awaitable[server_pb2.VerifyUpdateResponse]]:
+    ) -> _typing.Union[_server_pb2.VerifyUpdateResponse, _abc.Awaitable[_server_pb2.VerifyUpdateResponse]]:
         """CK_RV m_VerifyUpdate (
         unsigned char *state, size_t statelen,
         CK_BYTE_PTR data, CK_ULONG datalen,
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def SignFinal(
         self,
-        request: server_pb2.SignFinalRequest,
+        request: _server_pb2.SignFinalRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.SignFinalResponse, collections.abc.Awaitable[server_pb2.SignFinalResponse]]:
+    ) -> _typing.Union[_server_pb2.SignFinalResponse, _abc.Awaitable[_server_pb2.SignFinalResponse]]:
         """CK_RV m_SignFinal (
         const unsigned char *state, size_t statelen,
         CK_BYTE_PTR signature, CK_ULONG_PTR signaturelen,
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def VerifyFinal(
         self,
-        request: server_pb2.VerifyFinalRequest,
+        request: _server_pb2.VerifyFinalRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.VerifyFinalResponse, collections.abc.Awaitable[server_pb2.VerifyFinalResponse]]:
+    ) -> _typing.Union[_server_pb2.VerifyFinalResponse, _abc.Awaitable[_server_pb2.VerifyFinalResponse]]:
         """CK_RV m_VerifyFinal (
         const unsigned char *state, size_t statelen,
         CK_BYTE_PTR signature, CK_ULONG signaturelen,
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def Sign(
         self,
-        request: server_pb2.SignRequest,
+        request: _server_pb2.SignRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.SignResponse, collections.abc.Awaitable[server_pb2.SignResponse]]:
+    ) -> _typing.Union[_server_pb2.SignResponse, _abc.Awaitable[_server_pb2.SignResponse]]:
         """CK_RV m_Sign (
         const unsigned char *state, size_t statelen,
         CK_BYTE_PTR data, CK_ULONG datalen,
@@ -1213,12 +909,12 @@ class CryptoServicer(metaclass=abc.ABCMeta):
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def Verify(
         self,
-        request: server_pb2.VerifyRequest,
+        request: _server_pb2.VerifyRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.VerifyResponse, collections.abc.Awaitable[server_pb2.VerifyResponse]]:
+    ) -> _typing.Union[_server_pb2.VerifyResponse, _abc.Awaitable[_server_pb2.VerifyResponse]]:
         """CK_RV m_Verify (
         const unsigned char *state, size_t statelen,
         CK_BYTE_PTR data, CK_ULONG datalen,
@@ -1226,12 +922,12 @@ class CryptoServicer(metaclass=abc.ABCMeta):
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def SignSingle(
         self,
-        request: server_pb2.SignSingleRequest,
+        request: _server_pb2.SignSingleRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.SignSingleResponse, collections.abc.Awaitable[server_pb2.SignSingleResponse]]:
+    ) -> _typing.Union[_server_pb2.SignSingleResponse, _abc.Awaitable[_server_pb2.SignSingleResponse]]:
         """CK_RV m_SignSingle (
         const unsigned char *privKeyBytes, size_t privKeyByteslen,
         CK_MECHANISM_PTR mech,
@@ -1240,12 +936,12 @@ class CryptoServicer(metaclass=abc.ABCMeta):
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def VerifySingle(
         self,
-        request: server_pb2.VerifySingleRequest,
+        request: _server_pb2.VerifySingleRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.VerifySingleResponse, collections.abc.Awaitable[server_pb2.VerifySingleResponse]]:
+    ) -> _typing.Union[_server_pb2.VerifySingleResponse, _abc.Awaitable[_server_pb2.VerifySingleResponse]]:
         """CK_RV m_VerifySingle (
         const unsigned char *pubKeyBytes, size_t pubKeyByteslen,
         CK_MECHANISM_PTR mech,
@@ -1254,12 +950,12 @@ class CryptoServicer(metaclass=abc.ABCMeta):
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def ReencryptSingle(
         self,
-        request: server_pb2.ReencryptSingleRequest,
+        request: _server_pb2.ReencryptSingleRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.ReencryptSingleResponse, collections.abc.Awaitable[server_pb2.ReencryptSingleResponse]]:
+    ) -> _typing.Union[_server_pb2.ReencryptSingleResponse, _abc.Awaitable[_server_pb2.ReencryptSingleResponse]]:
         """CK_RV m_ReencryptSingle (
         const unsigned char *decKeyBytes, size_t decKeyByteslen,
         const unsigned char *encKeyBytes, size_t encKeyByteslen,
@@ -1270,12 +966,12 @@ class CryptoServicer(metaclass=abc.ABCMeta):
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def GenerateKey(
         self,
-        request: server_pb2.GenerateKeyRequest,
+        request: _server_pb2.GenerateKeyRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.GenerateKeyResponse, collections.abc.Awaitable[server_pb2.GenerateKeyResponse]]:
+    ) -> _typing.Union[_server_pb2.GenerateKeyResponse, _abc.Awaitable[_server_pb2.GenerateKeyResponse]]:
         """CK_RV m_GenerateKey (
         CK_MECHANISM_PTR mech,
         CK_ATTRIBUTE_PTR templateBytes, CK_ULONG templateByteslen,
@@ -1285,12 +981,12 @@ class CryptoServicer(metaclass=abc.ABCMeta):
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def GenerateKeyPair(
         self,
-        request: server_pb2.GenerateKeyPairRequest,
+        request: _server_pb2.GenerateKeyPairRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.GenerateKeyPairResponse, collections.abc.Awaitable[server_pb2.GenerateKeyPairResponse]]:
+    ) -> _typing.Union[_server_pb2.GenerateKeyPairResponse, _abc.Awaitable[_server_pb2.GenerateKeyPairResponse]]:
         """CK_RV m_GenerateKeyPair (
         CK_MECHANISM_PTR mech,
         CK_ATTRIBUTE_PTR pubKeyTemplateBytes, CK_ULONG pubKeyTemplateByteslen,
@@ -1301,12 +997,12 @@ class CryptoServicer(metaclass=abc.ABCMeta):
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def WrapKey(
         self,
-        request: server_pb2.WrapKeyRequest,
+        request: _server_pb2.WrapKeyRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.WrapKeyResponse, collections.abc.Awaitable[server_pb2.WrapKeyResponse]]:
+    ) -> _typing.Union[_server_pb2.WrapKeyResponse, _abc.Awaitable[_server_pb2.WrapKeyResponse]]:
         """CK_RV m_WrapKey (
         const unsigned char *keyBytes, size_t keyByteslen,
         const unsigned char *keKBytes, size_t keKByteslen,
@@ -1316,12 +1012,12 @@ class CryptoServicer(metaclass=abc.ABCMeta):
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def UnwrapKey(
         self,
-        request: server_pb2.UnwrapKeyRequest,
+        request: _server_pb2.UnwrapKeyRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.UnwrapKeyResponse, collections.abc.Awaitable[server_pb2.UnwrapKeyResponse]]:
+    ) -> _typing.Union[_server_pb2.UnwrapKeyResponse, _abc.Awaitable[_server_pb2.UnwrapKeyResponse]]:
         """CK_RV m_UnwrapKey (
         const CK_BYTE_PTR wrapped, CK_ULONG wrappedlen,
         const unsigned char *keKBytes, size_t keKByteslen,
@@ -1334,12 +1030,12 @@ class CryptoServicer(metaclass=abc.ABCMeta):
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def DeriveKey(
         self,
-        request: server_pb2.DeriveKeyRequest,
+        request: _server_pb2.DeriveKeyRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.DeriveKeyResponse, collections.abc.Awaitable[server_pb2.DeriveKeyResponse]]:
+    ) -> _typing.Union[_server_pb2.DeriveKeyResponse, _abc.Awaitable[_server_pb2.DeriveKeyResponse]]:
         """CK_RV m_DeriveKey (
         CK_MECHANISM_PTR mech,
         CK_ATTRIBUTE_PTR templateBytes, CK_ULONG templateByteslen,
@@ -1351,24 +1047,24 @@ class CryptoServicer(metaclass=abc.ABCMeta):
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def GetMechanismList(
         self,
-        request: server_pb2.GetMechanismListRequest,
+        request: _server_pb2.GetMechanismListRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.GetMechanismListResponse, collections.abc.Awaitable[server_pb2.GetMechanismListResponse]]:
+    ) -> _typing.Union[_server_pb2.GetMechanismListResponse, _abc.Awaitable[_server_pb2.GetMechanismListResponse]]:
         """CK_RV m_GetMechanismList (
         CK_SLOT_ID slot,
         CK_MECHANISM_TYPE_PTR mechs, CK_ULONG_PTR mechslen,
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def GetMechanismInfo(
         self,
-        request: server_pb2.GetMechanismInfoRequest,
+        request: _server_pb2.GetMechanismInfoRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.GetMechanismInfoResponse, collections.abc.Awaitable[server_pb2.GetMechanismInfoResponse]]:
+    ) -> _typing.Union[_server_pb2.GetMechanismInfoResponse, _abc.Awaitable[_server_pb2.GetMechanismInfoResponse]]:
         """CK_RV m_GetMechanismInfo (
         CK_SLOT_ID slot,
         CK_MECHANISM_TYPE mech,
@@ -1376,36 +1072,36 @@ class CryptoServicer(metaclass=abc.ABCMeta):
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def GetAttributeValue(
         self,
-        request: server_pb2.GetAttributeValueRequest,
+        request: _server_pb2.GetAttributeValueRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.GetAttributeValueResponse, collections.abc.Awaitable[server_pb2.GetAttributeValueResponse]]:
+    ) -> _typing.Union[_server_pb2.GetAttributeValueResponse, _abc.Awaitable[_server_pb2.GetAttributeValueResponse]]:
         """CK_RV m_GetAttributeValue (
         const unsigned char *object, size_t objectlen,
         CK_ATTRIBUTE_PTR attributesBytes, CK_ULONG attributesByteslen,
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def SetAttributeValue(
         self,
-        request: server_pb2.SetAttributeValueRequest,
+        request: _server_pb2.SetAttributeValueRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.SetAttributeValueResponse, collections.abc.Awaitable[server_pb2.SetAttributeValueResponse]]:
+    ) -> _typing.Union[_server_pb2.SetAttributeValueResponse, _abc.Awaitable[_server_pb2.SetAttributeValueResponse]]:
         """CK_RV m_SetAttributeValue (
         unsigned char *object, size_t objectlen,
         CK_ATTRIBUTE_PTR attributesBytes, CK_ULONG attributesByteslen,
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def Login(
         self,
-        request: server_pb2.LoginRequest,
+        request: _server_pb2.LoginRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.LoginResponse, collections.abc.Awaitable[server_pb2.LoginResponse]]:
+    ) -> _typing.Union[_server_pb2.LoginResponse, _abc.Awaitable[_server_pb2.LoginResponse]]:
         """CK_RV m_Login (
         CK_UTF8CHAR_PTR pin, CK_ULONG pinLen,
         const unsigned char *nonce, size_t noncelen,
@@ -1413,22 +1109,22 @@ class CryptoServicer(metaclass=abc.ABCMeta):
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def Logout(
         self,
-        request: server_pb2.LogoutRequest,
+        request: _server_pb2.LogoutRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.LogoutResponse, collections.abc.Awaitable[server_pb2.LogoutResponse]]:
+    ) -> _typing.Union[_server_pb2.LogoutResponse, _abc.Awaitable[_server_pb2.LogoutResponse]]:
         """CK_RV m_Logout (
         const unsigned char *pinblob, size_t pinbloblen,
         target_t target) ;
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def RewrapKeyBlob(
         self,
-        request: server_pb2.RewrapKeyBlobRequest,
+        request: _server_pb2.RewrapKeyBlobRequest,
         context: _ServicerContext,
-    ) -> typing.Union[server_pb2.RewrapKeyBlobResponse, collections.abc.Awaitable[server_pb2.RewrapKeyBlobResponse]]: ...
+    ) -> _typing.Union[_server_pb2.RewrapKeyBlobResponse, _abc.Awaitable[_server_pb2.RewrapKeyBlobResponse]]: ...
 
-def add_CryptoServicer_to_server(servicer: CryptoServicer, server: typing.Union[grpc.Server, grpc.aio.Server]) -> None: ...
+def add_CryptoServicer_to_server(servicer: CryptoServicer, server: _typing.Union[_grpc.Server, _aio.Server]) -> None: ...

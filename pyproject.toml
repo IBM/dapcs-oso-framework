@@ -14,8 +14,8 @@ requires-python = ">= 3.11"
 dependencies = [
     "cryptography",
     "cffi",
-    "grpcio==1.81.0",
-    "protobuf>=6,<7",
+    "grpcio",
+    "protobuf>=7",
     "flask",
     "jsonschema",
     "structlog",
@@ -61,6 +61,8 @@ omit = [
 
 [dependency-groups]
 dev = [
+    "grpcio-tools>=1.84.0",
+    "mypy-protobuf>=5.1.0",
     "ruff>=0.9.10",
 ]
 

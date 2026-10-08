@@ -88,7 +88,7 @@ http {{
         listen 4000 ssl;
         server_name _;
 
-        ssl_client_certificate {home}/certificates/client-ca.crt;
+        ssl_client_certificate {home}/certificates/oso-ca.crt;
         ssl_verify_client optional;
         ssl_verify_depth 3;
 

@@ -101,8 +101,8 @@ def test_generate_unknown_type(fe: DocumentGenerator):
     for doc_type in ("nope", None):
         with pytest.raises(BadRequest):
             fe.generate(doc_type, "k", None)
-    with pytest.raises(NotImplementedError):
-        DocumentHandler().generate(fe, "k", None)
+    with pytest.raises(TypeError):
+        DocumentHandler()  # abstract
 
 
 def test_inject_keeps_queue_order(fe: DocumentGenerator):
@@ -173,6 +173,16 @@ def test_frontend_ignores_unknown_and_drops_malformed_done(fe: DocumentGenerator
     )
     assert _handle(fe, docs) == ["d"]
     assert fe.get("keep") is not None
+
+
+def test_frontend_handles_only_pending_ids(fe: DocumentGenerator, monkeypatch):
+    on_incoming = MagicMock()
+    monkeypatch.setattr(MkRotation, "on_incoming", on_incoming)
+    fe.generate(MK_ROTATION, "r1", None)
+    _handle(fe, _docs(_meta_doc("other", status="success")))
+    on_incoming.assert_not_called()
+    _handle(fe, _docs(_meta_doc("r1", status="success")))
+    on_incoming.assert_called_once()
 
 
 # ---------------------------------------------------------------------------

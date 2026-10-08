@@ -61,22 +61,16 @@ class CertificateConfig(AutoLoadConfig, _config_prefix="certs"):
         self._loc = root / "certificates"
         self._loc.mkdir(mode=0o700, exist_ok=True)
 
-        self.ca_filename.write_text(self.ca)
-        self.crt_filename.write_text(self.app_crt)
-        self.key_filename.write_text(self.app_key)
-        self.client_ca_filename.write_text(
+        self.ca_filename.write_text(
             "\n".join(ca.strip() for ca in (self.ca, self.admin_ca) if ca) + "\n"
         )
+        self.crt_filename.write_text(self.app_crt)
+        self.key_filename.write_text(self.app_key)
 
     @property
     def ca_filename(self) -> Path:
-        """CA filename."""
+        """CA bundle (CA plus admin CA)."""
         return self._loc / "oso-ca.crt"
-
-    @property
-    def client_ca_filename(self) -> Path:
-        """CA bundle trusted for client certificates (CA plus admin CA)."""
-        return self._loc / "client-ca.crt"
 
     @property
     def crt_filename(self) -> Path:

@@ -52,6 +52,7 @@ class DocumentHandler(ABC):
         self, gen: DocumentGenerator, doc_id: str, plugin_app: Any
     ) -> DocumentMetadata:
         """Create and queue a document of this type (POST /generate)."""
+        ...
 
     @abstractmethod
     def on_incoming(
@@ -62,6 +63,7 @@ class DocumentHandler(ABC):
         plugin_app: Any,
     ) -> None:
         """React to this type arriving on POST /documents."""
+        ...
 
 
 class DocumentGenerator:

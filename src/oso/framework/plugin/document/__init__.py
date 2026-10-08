@@ -22,6 +22,7 @@ register the handler in `oso.framework.plugin.extension.PluginExtension`.
 from __future__ import annotations
 
 import json
+from abc import ABC, abstractmethod
 from typing import Any, ClassVar, Iterable
 
 from pydantic import BaseModel, ConfigDict, ValidationError
@@ -40,18 +41,19 @@ class DocumentMetadata(BaseModel):
     doc_type: str
 
 
-class DocumentHandler:
-    """Base for a document type."""
+class DocumentHandler(ABC):
+    """Base for a document type; subclasses must implement every method."""
 
     doc_type: ClassVar[str]
     metadata_model: ClassVar[type[DocumentMetadata]]
 
+    @abstractmethod
     def generate(
         self, gen: DocumentGenerator, doc_id: str, plugin_app: Any
     ) -> DocumentMetadata:
         """Create and queue a document of this type (POST /generate)."""
-        raise NotImplementedError(f"{type(self).__name__} cannot generate documents")
 
+    @abstractmethod
     def on_incoming(
         self,
         gen: DocumentGenerator,
@@ -134,6 +136,13 @@ class DocumentGenerator:
                 continue
             if meta is None:
                 kept.append(doc)
+                continue
+            # The frontend only accepts replies to its own pending requests.
+            pending = self._docs.get(doc.id)
+            if self.mode == "frontend" and (
+                pending is None or pending.doc_type != meta.doc_type
+            ):
+                _logger.warning(f"Dropped unsolicited {meta.doc_type} id={doc.id!r}")
                 continue
             self._handlers[meta.doc_type].on_incoming(self, doc.id, meta, plugin_app)
         doc_list.documents = kept

@@ -18,10 +18,10 @@
 from oso.framework.config.models.certs import CertificateConfig
 
 
-def test_client_ca_bundle(tmp_path):
+def test_ca_bundle(tmp_path):
     certs = CertificateConfig(ca="OSO\n", app_crt="c", app_key="k")
     certs.export(tmp_path)
-    assert certs.client_ca_filename.read_text() == "OSO\n"
+    assert certs.ca_filename.read_text() == "OSO\n"
     certs = CertificateConfig(ca="OSO\n", app_crt="c", app_key="k", admin_ca="ADMIN")
     certs.export(tmp_path)
-    assert certs.client_ca_filename.read_text() == "OSO\nADMIN\n"
+    assert certs.ca_filename.read_text() == "OSO\nADMIN\n"

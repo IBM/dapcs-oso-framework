@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Tests for DocumentGenerator and the MK rotation flow."""
+"""Tests for DocumentGeneratorRegistry and the MK rotation flow."""
 
 import json
 
@@ -26,17 +26,17 @@ from werkzeug.exceptions import BadRequest, Conflict
 
 from oso.framework.data.types import V1_3
 from oso.framework.plugin.document import (
+    DocType,
     DocumentGenerator,
-    DocumentHandler,
+    DocumentGeneratorRegistry,
     DocumentMetadata,
 )
 from oso.framework.plugin.document.mk_rotation import (
-    MK_ROTATION,
-    MkRotation,
+    MkRotationGenerator,
     MkRotationMetadata,
 )
 
-HANDLERS = (MkRotation(),)
+GENERATORS = (MkRotationGenerator,)
 
 BAD = '{"doc_type": "mk_rotation", "rewrapped_key_ids": "x"}'
 
@@ -65,28 +65,28 @@ def _plugin(key_ids: list[str]) -> MagicMock:
     return plugin
 
 
-def _rotate(be: DocumentGenerator, rid: str, plugin) -> dict:
+def _rotate(be: DocumentGeneratorRegistry, rid: str, plugin) -> dict:
     """Deliver a rotation request to the backend; return the queued reply."""
     _handle(be, _docs(_meta_doc(rid)), plugin)
     return json.loads(be.inject(_docs()).documents[0].metadata)
 
 
 @pytest.fixture
-def fe() -> DocumentGenerator:
-    return DocumentGenerator("frontend", HANDLERS)
+def fe() -> DocumentGeneratorRegistry:
+    return DocumentGeneratorRegistry("frontend", GENERATORS)
 
 
 @pytest.fixture
-def be() -> DocumentGenerator:
-    return DocumentGenerator("backend", HANDLERS)
+def be() -> DocumentGeneratorRegistry:
+    return DocumentGeneratorRegistry("backend", GENERATORS)
 
 
 # ---------------------------------------------------------------------------
-# Generator
+# Registry / Generator
 # ---------------------------------------------------------------------------
 
 
-def test_metadata_parse(fe: DocumentGenerator):
+def test_metadata_parse(fe: DocumentGeneratorRegistry):
     parse = fe.parse
     assert parse(None) is None
     assert parse("") is None
@@ -97,17 +97,17 @@ def test_metadata_parse(fe: DocumentGenerator):
         parse(BAD)
 
 
-def test_generate_unknown_type(fe: DocumentGenerator):
+def test_generate_unknown_type(fe: DocumentGeneratorRegistry):
     for doc_type in ("nope", None):
         with pytest.raises(BadRequest):
             fe.generate(doc_type, "k", None)
     with pytest.raises(TypeError):
-        DocumentHandler()  # abstract
+        DocumentGenerator()  # abstract — cannot instantiate
 
 
-def test_inject_keeps_queue_order(fe: DocumentGenerator):
-    fe.add("a", MkRotationMetadata())
-    fe.add("b", DocumentMetadata(doc_type="other"))
+def test_inject_keeps_queue_order(fe: DocumentGeneratorRegistry):
+    fe._generators[DocType.MK_ROTATION].add("a", MkRotationMetadata())
+    fe._generators[DocType.MK_ROTATION].add("b", DocumentMetadata(doc_type="other"))
     assert _ids(fe.inject(_docs(V1_3.Document(id="d", content="x")))) == [
         "a",
         "b",
@@ -115,7 +115,7 @@ def test_inject_keeps_queue_order(fe: DocumentGenerator):
     ]
 
 
-def test_non_framework_docs_pass_through(be: DocumentGenerator):
+def test_non_framework_docs_pass_through(be: DocumentGeneratorRegistry):
     docs = _docs(
         V1_3.Document(id="a", content="1"),
         V1_3.Document(id="b", content="2", metadata='{"k": 1}'),
@@ -124,12 +124,12 @@ def test_non_framework_docs_pass_through(be: DocumentGenerator):
 
 
 # ---------------------------------------------------------------------------
-# MkRotation (frontend)
+# MkRotationGenerator (frontend)
 # ---------------------------------------------------------------------------
 
 
-def test_frontend_resends_until_acknowledged(fe: DocumentGenerator):
-    fe.generate(MK_ROTATION, "r1", None)
+def test_frontend_resends_until_acknowledged(fe: DocumentGeneratorRegistry):
+    fe.generate(DocType.MK_ROTATION, "r1", None)
     injected = fe.inject(_docs(V1_3.Document(id="d", content="x")))
     assert _ids(injected) == ["r1", "d"]
     assert json.loads(injected.documents[0].metadata) == {
@@ -142,55 +142,58 @@ def test_frontend_resends_until_acknowledged(fe: DocumentGenerator):
 
     done = _meta_doc("r1", status="success", rewrapped_key_ids=[])
     assert _handle(fe, _docs(done, V1_3.Document(id="d", content="x"))) == ["d"]
-    assert fe.get("r1") is None
+    assert fe._generators[DocType.MK_ROTATION].get("r1") is None
     assert fe.inject(_docs()).count == 0
 
 
-def test_frontend_failed_done_ends_rotation(fe: DocumentGenerator):
-    fe.generate(MK_ROTATION, "r1", None)
+def test_frontend_failed_result_keeps_request_pending(fe: DocumentGeneratorRegistry):
+    fe.generate(DocType.MK_ROTATION, "r1", None)
     failed = _meta_doc("r1", status="error", rewrapped_key_ids=[], error="hsm down")
     assert _handle(fe, _docs(failed)) == []
-    assert fe.inject(_docs()).count == 0
-    fe.generate(MK_ROTATION, "r2", None)  # operator retries
+    assert _ids(fe.inject(_docs())) == ["r1"]  # re-sent, backend retries
+    with pytest.raises(Conflict):
+        fe.generate(DocType.MK_ROTATION, "r2", None)
 
 
-def test_duplicate_rotation_blocked_until_acknowledged(fe: DocumentGenerator):
-    fe.generate(MK_ROTATION, "a", None)
+def test_duplicate_rotation_blocked_until_acknowledged(fe: DocumentGeneratorRegistry):
+    fe.generate(DocType.MK_ROTATION, "a", None)
     fe.inject(_docs())  # already sent, still blocks
-    fe.generate(MK_ROTATION, "a", None)  # same rotation is idempotent
+    fe.generate(DocType.MK_ROTATION, "a", None)  # same rotation is idempotent
     with pytest.raises(Conflict, match="already pending"):
-        fe.generate(MK_ROTATION, "b", None)
+        fe.generate(DocType.MK_ROTATION, "b", None)
     _handle(fe, _docs(_meta_doc("a", status="success")))
-    fe.generate(MK_ROTATION, "b", None)
+    fe.generate(DocType.MK_ROTATION, "b", None)
 
 
-def test_frontend_ignores_unknown_and_drops_malformed_done(fe: DocumentGenerator):
-    fe.generate(MK_ROTATION, "keep", None)
+def test_frontend_ignores_unknown_and_drops_malformed_done(
+    fe: DocumentGeneratorRegistry,
+):
+    fe.generate(DocType.MK_ROTATION, "keep", None)
     docs = _docs(
         _meta_doc("other", status="success"),
         V1_3.Document(id="bad", content="", metadata=BAD),
         V1_3.Document(id="d", content="x"),
     )
     assert _handle(fe, docs) == ["d"]
-    assert fe.get("keep") is not None
+    assert fe._generators[DocType.MK_ROTATION].get("keep") is not None
 
 
-def test_frontend_handles_only_pending_ids(fe: DocumentGenerator, monkeypatch):
-    on_incoming = MagicMock()
-    monkeypatch.setattr(MkRotation, "on_incoming", on_incoming)
-    fe.generate(MK_ROTATION, "r1", None)
-    _handle(fe, _docs(_meta_doc("other", status="success")))
-    on_incoming.assert_not_called()
-    _handle(fe, _docs(_meta_doc("r1", status="success")))
-    on_incoming.assert_called_once()
+def test_frontend_never_calls_on_backend(fe: DocumentGeneratorRegistry, monkeypatch):
+    on_backend = MagicMock()
+    monkeypatch.setattr(MkRotationGenerator, "on_backend", on_backend)
+    fe.generate(DocType.MK_ROTATION, "r1", None)
+    _handle(fe, _docs(_meta_doc("other"), _meta_doc("r1", status="success")))
+    on_backend.assert_not_called()
+    gen = fe._generators[DocType.MK_ROTATION]
+    assert gen.get("r1") is None
 
 
 # ---------------------------------------------------------------------------
-# MkRotation (backend)
+# MkRotationGenerator (backend)
 # ---------------------------------------------------------------------------
 
 
-def test_backend_rewrap_once_per_rotation(be: DocumentGenerator):
+def test_backend_rewrap_once_per_rotation(be: DocumentGeneratorRegistry):
     plugin = _plugin(["k1", "k2"])
     assert _rotate(be, "r1", plugin) == {
         "doc_type": "mk_rotation",
@@ -202,16 +205,16 @@ def test_backend_rewrap_once_per_rotation(be: DocumentGenerator):
 
     # Re-sent request re-queues the result without rewrapping again.
     assert _rotate(be, "r1", plugin)["rewrapped_key_ids"] == ["k1", "k2"]
-    plugin.rewrap.assert_called_once_with(rotation_id="r1")
+    plugin.rewrap.assert_called_once_with(mk_rotation_request_id="r1")
 
 
-def test_backend_without_rewrap_hook_fails(be: DocumentGenerator):
+def test_backend_without_rewrap_hook_fails(be: DocumentGeneratorRegistry):
     reply = _rotate(be, "r1", object())
     assert reply["status"] == "error"
     assert reply["error"].startswith("AttributeError")
 
 
-def test_backend_strips_rotation_docs_and_rewraps(be: DocumentGenerator):
+def test_backend_strips_rotation_docs_and_rewraps(be: DocumentGeneratorRegistry):
     plugin = _plugin(["k1"])
     docs = _docs(_meta_doc("r1"), _meta_doc("r2"), V1_3.Document(id="d", content="x"))
     assert _handle(be, docs, plugin) == ["d"]
@@ -219,7 +222,7 @@ def test_backend_strips_rotation_docs_and_rewraps(be: DocumentGenerator):
     assert _ids(be.inject(_docs())) == ["r1", "r2"]
 
 
-def test_backend_rewrap_failure_reported_then_retried(be: DocumentGenerator):
+def test_backend_rewrap_failure_reported_then_retried(be: DocumentGeneratorRegistry):
     plugin = MagicMock()
     plugin.rewrap.side_effect = RuntimeError("hsm down")
     failed = _rotate(be, "r", plugin)
@@ -240,7 +243,7 @@ def test_backend_rewrap_failure_reported_then_retried(be: DocumentGenerator):
     assert plugin.rewrap.call_count == 2
 
 
-def test_backend_drops_malformed_framework_doc(be: DocumentGenerator):
+def test_backend_drops_malformed_framework_doc(be: DocumentGeneratorRegistry):
     docs = _docs(
         V1_3.Document(id="bad", content="", metadata=BAD),
         V1_3.Document(id="d", content="x"),
@@ -254,7 +257,7 @@ def test_backend_drops_malformed_framework_doc(be: DocumentGenerator):
 # ---------------------------------------------------------------------------
 
 
-def test_clear_one_and_all(be: DocumentGenerator):
+def test_clear_one_and_all(be: DocumentGeneratorRegistry):
     for rid in ("r1", "r2", "r3"):
         _rotate(be, rid, _plugin([]))
     assert be.clear("r1") == ["r1"]
@@ -263,16 +266,16 @@ def test_clear_one_and_all(be: DocumentGenerator):
     assert be.clear() == []
 
 
-def test_clear_unblocks_stuck_rotation(fe: DocumentGenerator):
-    fe.generate(MK_ROTATION, "stuck", None)
+def test_clear_unblocks_stuck_rotation(fe: DocumentGeneratorRegistry):
+    fe.generate(DocType.MK_ROTATION, "stuck", None)
     fe.inject(_docs())
     with pytest.raises(Conflict):
-        fe.generate(MK_ROTATION, "next", None)
+        fe.generate(DocType.MK_ROTATION, "next", None)
     assert fe.clear("stuck") == ["stuck"]
-    fe.generate(MK_ROTATION, "next", None)
+    fe.generate(DocType.MK_ROTATION, "next", None)
 
 
-def test_non_string_doc_type_is_not_a_framework_doc(fe: DocumentGenerator):
+def test_non_string_doc_type_is_not_a_framework_doc(fe: DocumentGeneratorRegistry):
     assert fe.parse(json.dumps({"doc_type": ["mk_rotation"]})) is None
     with pytest.raises(BadRequest):
         fe.generate(["mk_rotation"], "r1", None)

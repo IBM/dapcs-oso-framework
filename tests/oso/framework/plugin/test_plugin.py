@@ -23,6 +23,7 @@ import pytest
 
 from oso.framework.data.types import V1_3, V1_5
 from oso.framework.plugin import PluginProtocol, create_app, current_oso_plugin_app
+from oso.framework.plugin.document import DocType
 from oso.framework.plugin.document.mk_rotation import MkRotationMetadata
 from oso.framework.plugin.extension import current_oso_plugin
 
@@ -436,7 +437,8 @@ class TestModule(_BasePluginTests):
         url = f"/api/{mode}/v1alpha1/documents"
         doc_id = "r1"
         with client.application.app_context():
-            current_oso_plugin().doc_generator.add(doc_id, MkRotationMetadata())
+            gen = current_oso_plugin().doc_generator._generators[DocType.MK_ROTATION]
+            gen.add(doc_id, MkRotationMetadata())
 
         response = client.delete(url, query_string={"id": "missing"}, headers=headers)
         assert response.status_code == 404

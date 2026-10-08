@@ -1,6 +1,6 @@
 import pytest
 
-from typing import Counter
+from collections import Counter
 
 from oso.framework.plugin.addons.signing_server import SigningServerAddon
 from oso.framework.plugin.addons.signing_server._key import KeyType
@@ -111,3 +111,8 @@ def test_gen_key_pair(signing_server: SigningServerAddon):
     assert Counter(signing_server.list_keys(KeyType.SECP256K1)) == Counter(
         secp256k1_list
     )
+
+
+def test_rewrap_key(signing_server: SigningServerAddon):
+    """rewrap_key() re-wraps a single blob via the HSM."""
+    assert signing_server.rewrap_key(b"blob") == b"blob\xff"

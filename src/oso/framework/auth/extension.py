@@ -52,19 +52,14 @@ class AuthExtension:
         self.logger = get_logger(EXT_NAME)
         self.config = config
         self.parsers = {parser.type.NAME: parser.type for parser in self.config.parsers}
-        setattr(
-            self,
-            ALLOWLIST,
-            ImmutableDict(
-                {
-                    parser.type.NAME: {
-                        k: parser.type.parse_allowlist(allowlist)
-                        for k, allowlist in parser.allowlist.items()
-                    }
-                    for parser in self.config.parsers
-                }
-            ),
-        )
+        # Parsers of the same type merge their allowlists, so a deployment can
+        # add e.g. an "admin" allowlist next to one it doesn't control.
+        allowlists: dict[str, dict[str, list]] = {}
+        for parser in self.config.parsers:
+            merged = allowlists.setdefault(parser.type.NAME, {})
+            for k, allowlist in parser.allowlist.items():
+                merged.setdefault(k, []).extend(parser.type.parse_allowlist(allowlist))
+        setattr(self, ALLOWLIST, ImmutableDict(allowlists))
 
     def init_app(self, app: Flask) -> None:
         """Attach to a `flask.Flask` application.

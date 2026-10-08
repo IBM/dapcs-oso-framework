@@ -13,16 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""v1alpha1 endpoints."""
+"""Tests for the admin client CA bundle."""
 
-from .v1alpha1.documents import Api as V1DocumentsApi
-from .v1alpha1.events import Api as V1EventsApi
-from .v1alpha1.generate import Api as V1GenerateApi
-from .v1alpha1.status import Api as V1StatusApi
+from oso.framework.config.models.certs import CertificateConfig
 
-__all__ = [
-    "V1DocumentsApi",
-    "V1EventsApi",
-    "V1GenerateApi",
-    "V1StatusApi",
-]
+
+def test_ca_bundle(tmp_path):
+    certs = CertificateConfig(ca="OSO\n", app_crt="c", app_key="k")
+    certs.export(tmp_path)
+    assert certs.ca_filename.read_text() == "OSO\n"
+    certs = CertificateConfig(ca="OSO\n", app_crt="c", app_key="k", admin_ca="ADMIN")
+    certs.export(tmp_path)
+    assert certs.ca_filename.read_text() == "OSO\nADMIN\n"

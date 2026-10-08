@@ -29,8 +29,8 @@ from oso.framework.exceptions import StartupException
 
 from .base import PluginProtocol
 from .addons.main import AddonProtocol, BaseAddonConfig
-from .document import DocumentGenerator
-from .document.mk_rotation import MkRotation
+from .document import DocumentGeneratorRegistry
+from .document.mk_rotation import MkRotationGenerator
 
 
 class PluginConfig(
@@ -76,7 +76,9 @@ class PluginExtension:
             config (PluginConfig): The configuration for the plugin.
         """
         self.config = config
-        self.doc_generator = DocumentGenerator(config.mode, [MkRotation()])
+        self.doc_generator = DocumentGeneratorRegistry(
+            config.mode, [MkRotationGenerator]
+        )
         self._init_addons(config.addons)  # type: ignore [reportAttributeAccessError]
 
     def _init_addons(self, addons: list[BaseAddonConfig]):

@@ -15,7 +15,7 @@ dependencies = [
     "cryptography",
     "cffi",
     "grpcio",
-    "protobuf",
+    "protobuf>=7",
     "flask",
     "jsonschema",
     "structlog",
@@ -61,6 +61,8 @@ omit = [
 
 [dependency-groups]
 dev = [
+    "grpcio-tools>=1.84.0",
+    "mypy-protobuf>=5.1.0",
     "ruff>=0.9.10",
 ]
 

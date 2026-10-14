@@ -169,10 +169,13 @@ gh-pages:
 .PHONY: generate-protobufs
 generate-protobufs:
 	uv run python -m grpc_tools.protoc \
+		--plugin=protec-gen-mypy=.venv/bin/protec-gen-mypy \
+		--plugin=protec-gen-mypy_grpc=.venv/bin/protec-gen-mypy_grpc \
 		--proto_path=src/oso/framework/plugin/addons/signing_server/protos/ \
 		--python_out=src/oso/framework/plugin/addons/signing_server/generated/ \
 		--grpc_python_out=src/oso/framework/plugin/addons/signing_server/generated/ \
-		--pyi_out=src/oso/framework/plugin/addons/signing_server/generated/ \
+		--mypy_out=src/oso/framework/plugin/addons/signing_server/generated/ \
+		--mypy_grpc_out=src/oso/framework/plugin/addons/signing_server/generated/ \
 		server.proto
 	sed -i -e "s/import server_pb2 as server__pb2/from . import server_pb2 as server__pb2/" \
 		src/oso/framework/plugin/addons/signing_server/generated/server_pb2_grpc.py

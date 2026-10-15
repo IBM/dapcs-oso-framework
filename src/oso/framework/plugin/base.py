@@ -41,6 +41,14 @@ class PluginProtocol(Protocol):
         externalViews
             Any external API endpoints that the ISV wishes to expose to users
             outside the container. These endpoints are prepended with ``/api/isv/``.
+
+    Optional Hooks
+    --------------
+        rewrap(mk_rotation_request_id: str) -> list[str]:
+            Backend only. Re-wrap every stored key blob against the HSM's current
+            master key (e.g. via ``SigningServerAddon.rewrap_key``) and return the
+            re-wrapped key ids. Called on an ``mk_rotation`` document; if missing,
+            the rotation is reported as failed.
     """
 
     internalViews: Mapping[str, View] = {}

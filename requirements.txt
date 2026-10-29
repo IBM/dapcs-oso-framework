@@ -49,7 +49,7 @@ protobuf==6.33.5
     # via ibm-oso-framework
 pycparser==3.0 ; implementation_name != 'PyPy'
     # via cffi
-pydantic==2.13.5
+pydantic==2.14.2
     # via
     #   ibm-oso-framework
     #   pydantic-settings

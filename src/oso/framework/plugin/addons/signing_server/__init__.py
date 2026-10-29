@@ -322,6 +322,10 @@ class SigningServerAddon(AddonProtocol):
             key_type=key_type, priv_key_bytes=key_pair.PrivateKey, data=data
         )
 
+    def rewrap_key(self, priv_key_bytes: bytes) -> bytes:
+        """Re-wrap a single private-key blob against the current master key."""
+        return self._grep11_client.rewrap_key(priv_key_bytes)
+
     def health_check(self) -> V1_3.ComponentStatus:
         """Check the GREP11 server health status.
 

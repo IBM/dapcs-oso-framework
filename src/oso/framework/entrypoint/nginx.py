@@ -85,6 +85,9 @@ http {{
     proxy_set_header X-Trace-ID $trace_id;
     proxy_set_header X-SSL-Client-Verify $ssl_client_verify;
 
+    client_max_body_size 20m;
+    client_body_buffer_size 256k;
+
     server {{
         listen 4000 ssl;
         server_name _;

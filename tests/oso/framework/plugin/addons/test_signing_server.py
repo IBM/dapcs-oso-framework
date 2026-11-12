@@ -116,3 +116,57 @@ def test_gen_key_pair(signing_server: SigningServerAddon):
 def test_rewrap_key(signing_server: SigningServerAddon):
     """rewrap_key() re-wraps a single blob via the HSM."""
     assert signing_server.rewrap_key(b"blob") == b"blob\xff"
+
+
+def _all_key_files(ss: SigningServerAddon):
+    ids = ss.list_keys(KeyType.SECP256K1) + ss.list_keys(KeyType.ED25519)
+    return ids, [next(ss._keystore.glob(f"*/{i}.key")) for i in ids]
+
+
+def test_rewrap_keystore(signing_server: SigningServerAddon):
+    """Every key is rewrapped and the rotation backups are removed."""
+    assert signing_server.rewrap_keystore("r0") == []  # empty keystore
+
+    signing_server.generate_key_pair(KeyType.SECP256K1)
+    signing_server.generate_key_pair(KeyType.ED25519)
+    ids, files = _all_key_files(signing_server)
+    before = [f.read_bytes() for f in files]
+
+    assert sorted(signing_server.rewrap_keystore("r1")) == sorted(ids)
+    assert [f.read_bytes() for f in files] == [b + b"\xff" for b in before]
+    assert not (signing_server._keystore / ".mk_rotation").exists()
+    assert not list(signing_server._keystore.rglob("*.tmp"))
+
+
+def test_rewrap_keystore_rejects_unsafe_id(signing_server: SigningServerAddon):
+    with pytest.raises(ValueError, match="Invalid mk_rotation_request_id"):
+        signing_server.rewrap_keystore("../escape")
+
+
+def test_rewrap_keystore_retry_after_partial_failure(
+    signing_server: SigningServerAddon, monkeypatch
+):
+    """A retry rewraps the original blobs, never an already-rewrapped one."""
+    signing_server.generate_key_pair(KeyType.SECP256K1)
+    signing_server.generate_key_pair(KeyType.ED25519)
+    _, files = _all_key_files(signing_server)
+    before = [f.read_bytes() for f in files]
+
+    real = signing_server.rewrap_key
+    calls = iter([real, RuntimeError("hsm down")])
+
+    def flaky(blob: bytes) -> bytes:
+        step = next(calls, real)
+        if isinstance(step, Exception):
+            raise step
+        return step(blob)
+
+    monkeypatch.setattr(signing_server, "rewrap_key", flaky)
+    with pytest.raises(RuntimeError):
+        signing_server.rewrap_keystore("r")
+    assert (signing_server._keystore / ".mk_rotation" / "r").exists()
+
+    signing_server.rewrap_keystore("r")
+    assert [f.read_bytes() for f in files] == [b + b"\xff" for b in before]
+    assert not list(signing_server._keystore.rglob("*.tmp"))
+    assert not (signing_server._keystore / ".mk_rotation").exists()

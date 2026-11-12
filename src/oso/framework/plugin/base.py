@@ -46,7 +46,7 @@ class PluginProtocol(Protocol):
     --------------
         rewrap(mk_rotation_request_id: str) -> list[str]:
             Backend only. Re-wrap every stored key blob against the HSM's current
-            master key (e.g. via ``SigningServerAddon.rewrap_key``) and return the
+            master key (e.g. via ``SigningServerAddon.rewrap_keystore``) and return the
             re-wrapped key ids. Called on an ``mk_rotation`` document; if missing,
             the rotation is reported as failed.
     """

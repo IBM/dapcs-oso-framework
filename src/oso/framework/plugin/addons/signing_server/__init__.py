@@ -19,8 +19,11 @@ from __future__ import annotations
 
 import uuid
 import logging
+import os
 import pathlib
 import base64
+import re
+import shutil
 
 from typing import TYPE_CHECKING
 from typing import Callable
@@ -38,6 +41,8 @@ if TYPE_CHECKING:
     from typing import Any, Callable, ClassVar, Literal
 
 NAME: Literal["SigningServer"] = "SigningServer"
+
+_MK_ROTATION_REQUEST_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}")
 
 
 def configure(
@@ -326,6 +331,56 @@ class SigningServerAddon(AddonProtocol):
         """Re-wrap a single private-key blob against the current master key."""
         return self._grep11_client.rewrap_key(priv_key_bytes)
 
+    def rewrap_keystore(self, mk_rotation_request_id: str) -> list[str]:
+        """Re-wrap every private-key blob in the keystore; safe to retry.
+
+        While the rotation runs, original blobs are backed up under
+        ``.mk_rotation/<mk_rotation_request_id>/`` so a retry rewraps the
+        original, never an already-rewrapped blob. The backups are deleted
+        once every key is rewrapped.
+
+        Parameters
+        ----------
+        mk_rotation_request_id : str
+            ID of the master-key rotation request; used as the backup dir name.
+
+        Returns
+        -------
+        list[str]
+            The rewrapped key IDs.
+        """
+        # The ID becomes a directory name: no path separators or "..".
+        if not _MK_ROTATION_REQUEST_ID.fullmatch(mk_rotation_request_id):
+            raise ValueError(
+                f"Invalid mk_rotation_request_id {mk_rotation_request_id!r}"
+            )
+        backup = self._keystore / ".mk_rotation" / mk_rotation_request_id
+
+        rewrapped_ids: list[str] = []
+        for key_type in KeyType:
+            for key_id in self.list_keys(key_type):
+                key_path = pathlib.Path(key_type.name, f"{key_id}.key")
+                self._logger.info(f"Rewrapping key '{key_id}'")
+                key_file, orig = self._keystore / key_path, backup / key_path
+                # Back up once, then always rewrap the original blob.
+                if not orig.exists():
+                    orig.parent.mkdir(parents=True, exist_ok=True)
+                    _atomic_write(orig, key_file.read_bytes())
+                _atomic_write(key_file, self.rewrap_key(orig.read_bytes()))
+                rewrapped_ids.append(key_id)
+
+        # Done: drop this rotation's backups and any left by a failed one.
+        # Keys are already rewrapped, so a cleanup failure must not fail it.
+        try:
+            shutil.rmtree(backup.parent)
+        except FileNotFoundError:
+            pass
+        except OSError as e:
+            self._logger.warning(f"Could not delete rotation backups: {e}")
+
+        self._logger.info(f"Rewrap completed: {len(rewrapped_ids)} key(s)")
+        return rewrapped_ids
+
     def health_check(self) -> V1_3.ComponentStatus:
         """Check the GREP11 server health status.
 
@@ -335,3 +390,19 @@ class SigningServerAddon(AddonProtocol):
             OSO component status.
         """
         return self._grep11_client.health_check()
+
+
+def _atomic_write(path: pathlib.Path, data: bytes) -> None:
+    """Replace ``path`` with ``data`` so a crash never leaves it half-written."""
+    tmp = path.with_name(f"{path.name}.tmp")
+    with open(tmp, "wb") as f:
+        f.write(data)
+        f.flush()
+        os.fsync(f.fileno())
+    os.replace(tmp, path)
+    # Persist the rename itself, not just the file contents.
+    dir_fd = os.open(path.parent, os.O_RDONLY)
+    try:
+        os.fsync(dir_fd)
+    finally:
+        os.close(dir_fd)

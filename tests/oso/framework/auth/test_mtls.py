@@ -166,6 +166,20 @@ class TestMtlsConfigured:
         assert app.extensions[AuthExtension.NAME]["self"] is AuthExtension
         assert "mtls" in AuthExtension.parsers
 
+    def test_same_type_parsers_merge_allowlists(
+        self, monkeypatch, _env, allowed_fp, ConfigManager
+    ):
+        from oso.framework.auth.extension import AuthExtension
+
+        monkeypatch.setenv("AUTH__PARSERS__1__TYPE", "oso.framework.auth.mtls")
+        monkeypatch.setenv(
+            "AUTH__PARSERS__1__ALLOWLIST",
+            json.dumps({"test": [allowed_fp], "admin": [allowed_fp]}),
+        )
+        allowlist = AuthExtension(ConfigManager.reload().auth).allowlist["mtls"]
+        assert len(allowlist["test"]) == 2
+        assert len(allowlist["admin"]) == 1
+
     def test_parse_no_headers(self, AuthExtension):
         request = SimpleNamespace(
             headers=dict(),

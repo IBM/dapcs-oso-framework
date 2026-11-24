@@ -15,7 +15,6 @@
 #
 """Nginx Entrypoint."""
 
-
 import contextlib
 import logging
 import multiprocessing

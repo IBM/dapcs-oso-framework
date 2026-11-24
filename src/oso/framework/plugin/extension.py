@@ -29,11 +29,14 @@ from oso.framework.exceptions import StartupException
 
 from .base import PluginProtocol
 from .addons.main import AddonProtocol, BaseAddonConfig
+from .document import DocumentGeneratorRegistry
+from .document.mk_rotation import MkRotationGenerator
+
 
 class PluginConfig(
     AutoLoadConfig,
     ImportListMixin({"addons": BaseAddonConfig}),
-    _config_prefix="plugin"
+    _config_prefix="plugin",
 ):
     """
     Configuration model for plugins.
@@ -73,7 +76,10 @@ class PluginExtension:
             config (PluginConfig): The configuration for the plugin.
         """
         self.config = config
-        self._init_addons(config.addons) # type: ignore [reportAttributeAccessError]
+        self.doc_generator = DocumentGeneratorRegistry(
+            config.mode, [MkRotationGenerator]
+        )
+        self._init_addons(config.addons)  # type: ignore [reportAttributeAccessError]
 
     def _init_addons(self, addons: list[BaseAddonConfig]):
         self.addons: dict[str, AddonProtocol] = {}
@@ -115,13 +121,20 @@ class PluginExtension:
             raise StartupException("Plugin already initialized")
 
         # Initialize APIs
-        from .api import V1DocumentsApi, V1EventsApi, V1StatusApi
+        from .api import V1DocumentsApi, V1EventsApi, V1GenerateApi, V1StatusApi
 
         self._add_endpoint(
             app=app,
             rule=f"/api/{self.config.mode}/{V1DocumentsApi.ENDPOINT}",
             view_func=V1DocumentsApi.as_view(f"plugin-{V1DocumentsApi.ENDPOINT}"),
         )
+        if self.config.mode == "frontend":
+            # Framework documents start on the frontend; the backend only replies.
+            self._add_endpoint(
+                app=app,
+                rule=f"/api/{self.config.mode}/{V1GenerateApi.ENDPOINT}",
+                view_func=V1GenerateApi.as_view(f"plugin-{V1GenerateApi.ENDPOINT}"),
+            )
         self._add_endpoint(
             app=app,
             rule=f"/api/{self.config.mode}/{V1StatusApi.ENDPOINT}",
